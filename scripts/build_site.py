@@ -18,5 +18,9 @@ DIST.mkdir(parents=True)
 for page in ROOT.glob("*.html"):
     shutil.copy2(page, DIST / page.name)
 
+# Publie les feuilles de style partagées (ex. theme.css).
+for stylesheet in ROOT.glob("*.css"):
+    shutil.copy2(stylesheet, DIST / stylesheet.name)
+
 shutil.copytree(ROOT / "data", DIST / "data")
 print(f"Site construit dans {DIST.relative_to(ROOT)}/")

@@ -1,13 +1,19 @@
-MISE A JOUR « MES POSSIBILITES »
+MISE À JOUR TYPOGRAPHIE
 
-Remplacer / ajouter dans le dépôt GitHub :
+À remplacer / ajouter dans le dépôt GitHub :
+- index.html                         (remplacer)
+- possibilites.html                  (remplacer)
+- theme.css                          (nouveau, à la racine)
+- scripts/build_site.py              (remplacer)
 
-1. index.html                         -> remplacer l'ancien
-2. possibilites.html                  -> nouveau fichier à la racine
-3. vercel.json                        -> remplacer l'ancien
-4. scripts/build_site.py              -> remplacer l'ancien
+CHOISIR LA POLICE PLUS TARD
+Ouvrir theme.css sur GitHub et modifier uniquement cette ligne :
 
-Ne pas modifier les dossiers data/ ou sources/ pour cette mise à jour.
+  --site-font: var(--font-avenir);
 
-Après commit/push sur main, Vercel doit redéployer automatiquement.
-La nouvelle page sera accessible via /possibilites.html et le menu en haut des deux pages.
+Options :
+  --site-font: var(--font-avenir);          Avenir Next / Avenir
+  --site-font: var(--font-san-francisco);   San Francisco sur Apple
+  --site-font: var(--font-system);          Police système
+
+Aucun fichier de police propriétaire n'est inclus dans le dépôt.
