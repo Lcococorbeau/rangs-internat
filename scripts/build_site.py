@@ -13,6 +13,10 @@ subprocess.run([sys.executable, str(ROOT / "scripts" / "build_data.py")], check=
 if DIST.exists():
     shutil.rmtree(DIST)
 DIST.mkdir(parents=True)
-shutil.copy2(ROOT / "index.html", DIST / "index.html")
+
+# Publie automatiquement toutes les pages HTML à la racine du projet.
+for page in ROOT.glob("*.html"):
+    shutil.copy2(page, DIST / page.name)
+
 shutil.copytree(ROOT / "data", DIST / "data")
 print(f"Site construit dans {DIST.relative_to(ROOT)}/")
