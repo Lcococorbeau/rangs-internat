@@ -38,7 +38,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Signature de création — alignée visuellement sur la marque */
+/* Signature de création — même identité visuelle que la marque */
 .brand-lockup {
   display: flex;
   align-items: baseline;
@@ -50,26 +50,33 @@ body {
 .creator-signature {
   display: inline-flex;
   align-items: baseline;
-  color: rgba(23, 32, 51, .78);
-  font-family: inherit;
-  font-size: .82rem;
-  font-weight: 720;
+  color: rgba(23, 32, 51, .82);
+  font-family: var(--site-font);
+  font-size: .84rem;
+  font-weight: 700;
   line-height: 1;
   white-space: nowrap;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .creator-signature .creator-dot {
   margin-right: 5px;
-  color: rgba(23, 32, 51, .78);
-  font-size: .95rem;
-  font-weight: 850;
+  color: rgba(23, 32, 51, .82);
+  font-family: inherit;
+  font-size: .92rem;
+  font-weight: 800;
 }
 
 .creator-signature strong {
   margin-left: 4px;
-  color: rgba(23, 32, 51, .86);
+  color: #172033;
   font-family: inherit;
-  font-weight: 850;
+  font-weight: 820;
 }
 
 @media (max-width: 520px) {
@@ -78,7 +85,7 @@ body {
   }
 
   .creator-signature {
-    font-size: .79rem;
+    font-size: .81rem;
   }
 }
 
