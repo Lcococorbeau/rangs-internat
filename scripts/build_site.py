@@ -7,6 +7,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / "dist"
+LEGAL_FOOTER = ROOT / "_legal-footer.html"
 
 subprocess.run([sys.executable, str(ROOT / "scripts" / "build_data.py")], check=True)
 
@@ -14,9 +15,17 @@ if DIST.exists():
     shutil.rmtree(DIST)
 DIST.mkdir(parents=True)
 
+legal_footer = LEGAL_FOOTER.read_text(encoding="utf-8") if LEGAL_FOOTER.exists() else ""
+
 # Publie automatiquement toutes les pages HTML à la racine du projet.
+# Les fichiers commençant par "_" sont des fragments internes et ne deviennent pas des pages publiques.
 for page in ROOT.glob("*.html"):
-    shutil.copy2(page, DIST / page.name)
+    if page.name.startswith("_"):
+        continue
+    html = page.read_text(encoding="utf-8")
+    if legal_footer and "</main>" in html:
+        html = html.replace("</main>", f"{legal_footer}\n</main>", 1)
+    (DIST / page.name).write_text(html, encoding="utf-8")
 
 # Publie les feuilles de style partagées (ex. theme.css).
 for stylesheet in ROOT.glob("*.css"):
