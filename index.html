@@ -20,6 +20,106 @@
     @media(max-width:950px){.controls{grid-template-columns:1fr 1fr}.reset-btn{width:100%}}@media(max-width:820px){.wrap{width:min(100% - 18px,1220px);padding-top:18px}.hero{grid-template-columns:1fr}.hero-main{padding:22px}.hero-note{padding:20px}.controls{grid-template-columns:1fr}.metrics{grid-template-columns:1fr}.panel{padding:17px}.chart-wrap{height:460px}.chart-head{display:block}.badge{display:inline-flex;margin-top:10px}.foot-grid{grid-template-columns:1fr}.multi-menu{position:fixed;left:10px;right:10px;top:auto;bottom:10px;max-height:min(74vh,560px);border-radius:18px;padding:12px}.options{max-height:calc(min(74vh,560px) - 108px)}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.multi-button,.multi-button::after{transition:none!important}}
 
     .top-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.brand{font-weight:900;letter-spacing:-.02em;color:#172033;text-decoration:none}.nav-links{display:flex;gap:8px;flex-wrap:wrap}.nav-link{display:inline-flex;align-items:center;min-height:40px;padding:0 13px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.86);color:#475467;text-decoration:none;font-size:.86rem;font-weight:800}.nav-link:hover{background:#fff}.nav-link.active{background:var(--primary);border-color:var(--primary);color:#fff}@media(max-width:820px){.top-nav{align-items:flex-start;flex-direction:column}}
+  
+    /* Easter egg Urologie */
+    .uro-egg{
+      position:fixed;
+      inset:0;
+      z-index:1200;
+      pointer-events:none;
+    }
+    .uro-egg[hidden]{display:none}
+    .uro-egg-card{
+      pointer-events:auto;
+      position:absolute;
+      top:max(14px,env(safe-area-inset-top));
+      left:50%;
+      width:min(760px,calc(100% - 24px));
+      transform:translate(-50%,-140%);
+      opacity:0;
+      display:grid;
+      grid-template-columns:auto 1fr auto;
+      align-items:center;
+      gap:12px;
+      padding:13px 14px 13px 16px;
+      border-radius:16px;
+      border:2px solid #d4af37;
+      background:
+        linear-gradient(110deg,rgba(255,255,255,.96) 0 9%,#111827 9% 79%,rgba(255,255,255,.97) 79% 100%);
+      box-shadow:0 18px 55px rgba(17,24,39,.28),0 0 0 3px rgba(212,175,55,.18);
+      overflow:hidden;
+      transition:transform .38s cubic-bezier(.2,.9,.25,1.15),opacity .24s ease;
+    }
+    .uro-egg.show .uro-egg-card{transform:translate(-50%,0);opacity:1}
+    .uro-egg.leaving .uro-egg-card{transform:translate(-50%,-145%);opacity:0}
+    .uro-egg-card::after{
+      content:"";
+      position:absolute;
+      inset:-60% auto -60% -25%;
+      width:22%;
+      transform:rotate(18deg);
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,.34),transparent);
+      animation:uroEggShine 2.2s linear infinite;
+      pointer-events:none;
+    }
+    .uro-egg-gift{
+      position:relative;
+      z-index:1;
+      font-size:2rem;
+      line-height:1;
+      filter:drop-shadow(0 3px 5px rgba(0,0,0,.2));
+      animation:uroEggGift .75s ease-in-out infinite alternate;
+    }
+    .uro-egg-message{
+      position:relative;
+      z-index:1;
+      margin:0;
+      text-align:center;
+      font-family:var(--site-font,inherit);
+      font-size:clamp(.86rem,2.7vw,1.03rem);
+      font-weight:900;
+      line-height:1.35;
+      letter-spacing:.01em;
+      animation:uroEggFlash 1.5s steps(1,end) infinite;
+    }
+    .uro-egg-close{
+      position:relative;
+      z-index:2;
+      width:32px;
+      height:32px;
+      border:0;
+      border-radius:50%;
+      background:rgba(255,255,255,.9);
+      color:#172033;
+      font:900 1.15rem/1 var(--site-font,inherit);
+      cursor:pointer;
+      box-shadow:0 2px 8px rgba(0,0,0,.15);
+    }
+    .uro-egg-close:hover{background:#fff}
+    @keyframes uroEggFlash{
+      0%,32%{color:#f6c945;text-shadow:0 0 1px #111,0 0 10px rgba(246,201,69,.42)}
+      33%,65%{color:#fff;text-shadow:0 0 1px #111,0 0 9px rgba(255,255,255,.34)}
+      66%,100%{color:#111;text-shadow:0 0 1px #fff,0 0 7px rgba(255,255,255,.95),0 0 12px rgba(246,201,69,.25)}
+    }
+    @keyframes uroEggGift{from{transform:translateY(1px) rotate(-5deg)}to{transform:translateY(-3px) rotate(5deg)}}
+    @keyframes uroEggShine{from{left:-25%}to{left:120%}}
+    @media(max-width:520px){
+      .uro-egg-card{
+        grid-template-columns:auto 1fr auto;
+        gap:9px;
+        padding:11px 10px 11px 12px;
+        border-radius:14px;
+        background:linear-gradient(110deg,rgba(255,255,255,.98) 0 14%,#111827 14% 84%,rgba(255,255,255,.98) 84% 100%);
+      }
+      .uro-egg-gift{font-size:1.7rem}
+      .uro-egg-close{width:29px;height:29px}
+    }
+    @media(prefers-reduced-motion:reduce){
+      .uro-egg-card{transition:none}
+      .uro-egg-card::after,.uro-egg-gift,.uro-egg-message{animation:none!important}
+      .uro-egg-message{color:#f6c945;text-shadow:0 0 1px #111}
+    }
+
   </style>
   <link rel="stylesheet" href="theme.css">
   <script>
@@ -28,6 +128,15 @@
   <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
+
+<div class="uro-egg" id="urologyEasterEgg" hidden>
+  <div class="uro-egg-card" role="dialog" aria-label="Félicitations pour votre choix d’urologie">
+    <span class="uro-egg-gift" aria-hidden="true">🎁</span>
+    <p class="uro-egg-message"><strong>FÉLICITATIONS !</strong> Vous avez sélectionné la <strong>MEILLEURE SPÉCIALITÉ !</strong> Je vous souhaite de tout cœur de l’avoir, vous êtes des boss 💪🏻</p>
+    <button class="uro-egg-close" id="urologyEasterEggClose" type="button" aria-label="Fermer">×</button>
+  </div>
+</div>
+
 <a class="skip-link" href="#mainContent">Aller au contenu principal</a>
 <main class="wrap" id="mainContent">
   <nav class="top-nav" aria-label="Navigation principale">
@@ -175,6 +284,39 @@ function renderOptions(){
   specialtyOptions.querySelectorAll('input').forEach(cb=>cb.addEventListener('change',handleSpecialtyChange));cityOptions.querySelectorAll('input').forEach(cb=>cb.addEventListener('change',handleCityChange));syncChecks()
 }
 function syncChecks(){specialtyOptions.querySelectorAll('input').forEach(cb=>cb.checked=selectedSpecialties.includes(cb.value));cityOptions.querySelectorAll('input').forEach(cb=>cb.checked=selectedCities.includes(cb.value))}
+
+let urologyEasterEggTimer=null;
+function isUrologySpecialty(value){return normalizeSearch(value).trim()==='urologie'}
+function hideUrologyEasterEgg(){
+  const egg=document.getElementById('urologyEasterEgg');
+  if(!egg||egg.hidden)return;
+  clearTimeout(urologyEasterEggTimer);
+  egg.classList.remove('show');
+  egg.classList.add('leaving');
+  setTimeout(()=>{egg.hidden=true;egg.classList.remove('leaving')},260);
+}
+function showUrologyEasterEgg(){
+  const egg=document.getElementById('urologyEasterEgg');
+  if(!egg)return;
+  clearTimeout(urologyEasterEggTimer);
+  egg.hidden=false;
+  egg.classList.remove('leaving');
+  requestAnimationFrame(()=>egg.classList.add('show'));
+  urologyEasterEggTimer=setTimeout(hideUrologyEasterEgg,9000);
+}
+function maybeShowUrologyEasterEgg(value){
+  if(!isUrologySpecialty(value))return;
+  const otherSpecialties=selectedSpecialties.filter(s=>!isUrologySpecialty(s)).length;
+  if(otherSpecialties>2)return;
+  showUrologyEasterEgg();
+}
+document.getElementById('urologyEasterEggClose').addEventListener('click',hideUrologyEasterEgg);
+document.addEventListener('pointerdown',e=>{
+  const egg=document.getElementById('urologyEasterEgg');
+  if(!egg?.hidden&&!e.target.closest('.uro-egg-card'))hideUrologyEasterEgg();
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')hideUrologyEasterEgg()});
+
 function handleSpecialtyChange(e){const cb=e.target;if(cb.checked){if(!selectedSpecialties.includes(cb.value))selectedSpecialties.push(cb.value);dismissTutorial()}else selectedSpecialties=selectedSpecialties.filter(x=>x!==cb.value);syncChecks();refreshButtonLabels();update()}
 function handleCityChange(e){const cb=e.target;if(cb.value==='__ALL__'){if(cb.checked)selectedCities=['__ALL__'];else{cb.checked=true;return}}else{if(cb.checked){selectedCities=selectedCities.filter(x=>x!=='__ALL__');if(!selectedCities.includes(cb.value))selectedCities.push(cb.value)}else selectedCities=selectedCities.filter(x=>x!==cb.value);if(!selectedCities.length)selectedCities=['__ALL__']}syncChecks();refreshButtonLabels();update()}
 function refreshButtonLabels(){yearButton.textContent=selectedYears.length===1?String(selectedYears[0]):`${selectedYears.length} années : ${selectedYears.join(' · ')}`;specialtyButton.textContent=selectedSpecialties.length===0?'Sélectionner une spécialité':selectedSpecialties.length===1?selectedSpecialties[0]:selectedSpecialties.length===SPECIALTIES.length&&SPECIALTIES.length?'Toutes les spécialités':`${selectedSpecialties.length} spécialités sélectionnées`;cityButton.textContent=selectedCities[0]==='__ALL__'?'Toutes les villes confondues':selectedCities.length===CITIES.length&&CITIES.length>1?'Toutes les villes — courbes séparées':selectedCities.length===1?displayCity(selectedCities[0]):`${selectedCities.length} villes sélectionnées`;if(selectAllSpecialtiesButton)selectAllSpecialtiesButton.textContent=selectedSpecialties.length===SPECIALTIES.length&&SPECIALTIES.length?'Tout décocher':'Tout cocher';if(selectAllCitiesButton)selectAllCitiesButton.textContent=selectedCities.length===CITIES.length&&CITIES.length?'Tout décocher — courbes séparées':'Tout cocher — courbes séparées'}
