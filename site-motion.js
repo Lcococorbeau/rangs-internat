@@ -3,6 +3,39 @@
   const shell = document.querySelector('main.wrap');
   if (!shell) return;
 
+  /* Fallback pour les panneaux d'information sur les pages qui n'ont pas
+     le gestionnaire inline de la page Explorer. */
+  if (!window.RangsOverlays) {
+    let fallbackOverlay = null;
+    const openFallback = overlay => {
+      if (!overlay) return;
+      fallbackOverlay = overlay;
+      overlay.hidden = false;
+      document.documentElement.classList.add('info-overlay-open');
+      requestAnimationFrame(() => overlay.classList.add('open'));
+    };
+    const closeFallback = overlay => {
+      if (!overlay || overlay.hidden) return;
+      overlay.classList.remove('open');
+      document.documentElement.classList.remove('info-overlay-open');
+      setTimeout(() => { overlay.hidden = true; }, 180);
+      if (fallbackOverlay === overlay) fallbackOverlay = null;
+    };
+    window.RangsOverlays = { open: openFallback, close: closeFallback };
+    document.addEventListener('click', event => {
+      const opener = event.target.closest('[data-info-open]');
+      if (opener) {
+        openFallback(document.getElementById(opener.dataset.infoOpen));
+        return;
+      }
+      const closer = event.target.closest('[data-info-close]');
+      if (closer) closeFallback(closer.closest('.info-overlay'));
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && fallbackOverlay) closeFallback(fallbackOverlay);
+    });
+  }
+
   const currentPath = location.pathname;
   const isExplore = currentPath === '/' || currentPath.endsWith('/index.html') || currentPath.endsWith('/');
   const isPossibilities = currentPath.endsWith('/possibilites.html');
@@ -194,6 +227,22 @@
       ].filter(Boolean)
     : [...shell.children].filter(el => el.matches('.panel'));
 
+  /* Sur Explorer, la dernière carte absorbe le pied de page :
+     les mentions légales restent accessibles sans rallonger visuellement la page. */
+  if (isExplore) {
+    const tableStage = document.querySelector('.table-stage');
+    const legalFooter = document.querySelector('.legal-footer');
+    const sourceNote = document.querySelector('.source-note');
+    if (sourceNote) sourceNote.classList.add('preview-source-hidden');
+    if (tableStage && legalFooter) tableStage.appendChild(legalFooter);
+
+    if (tableStage && !document.querySelector('.stack-tail-spacer')) {
+      const spacer = document.createElement('div');
+      spacer.className = 'stack-tail-spacer';
+      tableStage.after(spacer);
+    }
+  }
+
   function configureStack() {
     stackCandidates.forEach((el, index) => {
       el.classList.add('motion-stack-card');
@@ -228,6 +277,14 @@
       const nextReachedItsSlot = next.getBoundingClientRect().top <= stickyTop(next) + 2;
       el.classList.toggle('motion-covered', nextReachedItsSlot);
     });
+
+    if (isExplore) {
+      let current = null;
+      stackCandidates.forEach(el => {
+        if (!el.classList.contains('motion-covered') && el.getBoundingClientRect().top <= stickyTop(el) + 4) current = el;
+      });
+      stackCandidates.forEach(el => el.classList.toggle('motion-current', el === current));
+    }
   }
 
   configureStack();
