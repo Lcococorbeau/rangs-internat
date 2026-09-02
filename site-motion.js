@@ -40,6 +40,49 @@
   const isExplore = currentPath === '/' || currentPath.endsWith('/index.html') || currentPath.endsWith('/');
   const isPossibilities = currentPath.endsWith('/possibilites.html');
   const ENTRY_KEY = 'rangs-motion-entry';
+  const ERASE_KEY = 'rangs-preview-erase-start';
+  let eraseStartSetting = .50;
+
+  try {
+    const savedErase = Number(localStorage.getItem(ERASE_KEY));
+    if (Number.isFinite(savedErase)) eraseStartSetting = Math.max(0, Math.min(.80, savedErase));
+  } catch (_) {}
+
+  if (isExplore) {
+    const tuner = document.createElement('section');
+    tuner.className = 'motion-tuner';
+    tuner.setAttribute('aria-label', 'Réglage de l’animation de disparition');
+    tuner.innerHTML = `
+      <div class="motion-tuner-head">
+        <strong>Réglage animation</strong>
+        <span class="motion-tuner-value"></span>
+      </div>
+      <label class="motion-tuner-label" for="motionEraseRange">Début de disparition</label>
+      <input id="motionEraseRange" class="motion-tuner-range" type="range" min="0" max="80" step="5" value="${Math.round(eraseStartSetting * 100)}">
+      <div class="motion-tuner-scale"><span>0 %</span><span>80 %</span></div>
+    `;
+    const topNav = document.querySelector('.top-nav');
+    if (topNav) topNav.insertAdjacentElement('afterend', tuner);
+    else shell.prepend(tuner);
+
+    const range = tuner.querySelector('.motion-tuner-range');
+    const value = tuner.querySelector('.motion-tuner-value');
+
+    const refreshTuner = () => {
+      const start = Math.round(eraseStartSetting * 100);
+      const end = Math.round(Math.min(.99, eraseStartSetting + .40) * 100);
+      value.textContent = `${start} % → ${end} %`;
+    };
+
+    refreshTuner();
+
+    range.addEventListener('input', () => {
+      eraseStartSetting = Number(range.value) / 100;
+      try { localStorage.setItem(ERASE_KEY, String(eraseStartSetting)); } catch (_) {}
+      refreshTuner();
+      if (typeof updateStackState === 'function') updateStackState();
+    });
+  }
 
   const clearEntryState = () => {
     try { sessionStorage.removeItem(ENTRY_KEY); } catch (_) {}
@@ -113,7 +156,7 @@
 
   let touch = null;
   let horizontalGesture = false;
-  const forbiddenStart = 'input,textarea,select,button,a,canvas,.multi-menu,.table-scroll,.info-overlay,.selection-summary .metric,[contenteditable="true"]';
+  const forbiddenStart = 'input,textarea,select,button,a,canvas,.multi-menu,.table-scroll,.info-overlay,.selection-summary .metric,.motion-tuner,[contenteditable="true"]';
 
   /* Swipe gauche depuis l'accueil -> possibilités.
      Swipe droite depuis possibilités -> accueil. */
@@ -353,13 +396,12 @@
       const nextTop = next.getBoundingClientRect().top;
       const strip = 9;
 
-      /* La carte suivante peut d'abord recouvrir naturellement la précédente.
-         L'effacement supplémentaire ne commence qu'à 50 % de recouvrement,
-         puis s'achève progressivement vers 90 %. */
+      /* Le seuil est réglable depuis le curseur de test en haut de page.
+         La fin de disparition reste environ 40 points après le début. */
       const rawOverlap = clamp01((rect.bottom - nextTop) / Math.max(rect.height - strip, 1));
-      const eraseStart = .50;
-      const eraseEnd = .90;
-      const eraseProgress = clamp01((rawOverlap - eraseStart) / (eraseEnd - eraseStart));
+      const eraseStart = eraseStartSetting;
+      const eraseEnd = Math.min(.99, eraseStart + .40);
+      const eraseProgress = clamp01((rawOverlap - eraseStart) / Math.max(eraseEnd - eraseStart, .01));
       const clipBottom = (rect.height - strip) * eraseProgress;
 
       card.style.clipPath = eraseProgress > 0
