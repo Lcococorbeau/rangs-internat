@@ -34,7 +34,9 @@ for page in ROOT.glob("*.html"):
     if site_announcement and "<body>" in html:
         html = html.replace("<body>", f"<body>\n{site_announcement}", 1)
     if legal_footer and "</main>" in html:
-        html = html.replace("</main>", f"{legal_footer}\n</main>", 1)
+        # Le fragment juridique reste hors de <main> pour ne jamais être affecté
+        # par le stacking/clip-path des cartes animées.
+        html = html.replace("</main>", f"</main>\n{legal_footer}", 1)
     if "</head>" in html and "site-motion.js" not in html:
         html = html.replace("</head>", f"{MOTION_BOOTSTRAP}\n</head>", 1)
     (DIST / page.name).write_text(html, encoding="utf-8")
