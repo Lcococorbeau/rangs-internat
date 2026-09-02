@@ -328,8 +328,6 @@
     if (!isExplore || !stackCandidates.length) return;
 
     const vh = window.innerHeight;
-    const coverStart = vh * .88;
-    const coverEnd = vh * .48;
     let nextActive = 0;
 
     stackCandidates.forEach((card, index) => {
@@ -351,16 +349,21 @@
       }
 
       const next = stackCandidates[index + 1];
+      const rect = card.getBoundingClientRect();
       const nextTop = next.getBoundingClientRect().top;
-      const progress = clamp01((coverStart - nextTop) / Math.max(coverStart - coverEnd, 1));
-      const height = card.getBoundingClientRect().height;
       const strip = 9;
-      const visibleHeight = Math.max(strip, height - ((height - strip) * progress));
-      const clipBottom = Math.max(0, height - visibleHeight);
 
-      card.style.clipPath = `inset(0 0 ${clipBottom.toFixed(1)}px 0 round 20px)`;
-      card.style.setProperty('--stack-content-opacity', String(clamp01(1 - progress * 1.18)));
-      card.classList.toggle('motion-covered', progress > .985);
+      /* La carte précédente ne s'efface que lorsque la suivante la recouvre
+         réellement. Le bord inférieur est "mangé" exactement au rythme
+         du chevauchement, sans disparition anticipée du contenu. */
+      const overlap = clamp01((rect.bottom - nextTop) / Math.max(rect.height - strip, 1));
+      const clipBottom = Math.max(0, Math.min(rect.height - strip, rect.bottom - nextTop));
+
+      card.style.clipPath = clipBottom > 0
+        ? `inset(0 0 ${clipBottom.toFixed(1)}px 0 round 20px)`
+        : 'inset(0 0 0 0 round 20px)';
+      card.style.setProperty('--stack-content-opacity', '1');
+      card.classList.toggle('motion-covered', overlap > .995);
     });
 
     if (activeIndex !== nextActive) {
