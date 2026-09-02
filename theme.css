@@ -2075,3 +2075,13 @@ html.info-overlay-open body {
   }
 }
 
+/* En-tête directement posé sur le fond — aucun bandeau autour de la signature/navigation. */
+.top-nav {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+  border: 0 !important;
+}
+
+
