@@ -1450,3 +1450,210 @@ html.info-overlay-open body {
     font-size: .8rem;
   }
 }
+
+
+/* Ajustements Preview V5 — hauteur dynamique et dernière carte verrouillée */
+.preview-source-hidden {
+  display: none !important;
+}
+
+/* Une carte recouverte ne montre plus que sa tranche supérieure. */
+.motion-stack-card {
+  transition:
+    clip-path .24s cubic-bezier(.22,1,.36,1),
+    box-shadow .2s ease;
+}
+
+.motion-stack-card.motion-covered {
+  clip-path: inset(0 0 calc(100% - 9px) 0 round 20px 20px 0 0);
+  box-shadow: 0 4px 12px rgba(23,32,51,.10);
+}
+
+.motion-stack-card.motion-covered > * {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.motion-stack-card.motion-current {
+  clip-path: inset(0 0 0 0 round 20px);
+}
+
+/* Évolution : hauteur naturelle si peu de lignes, écran maximum sinon. */
+.evolution-stage {
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: calc(100svh - 34px);
+  margin-bottom: 18px !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.evolution-stage .evolution-panel {
+  flex: 0 1 auto;
+  max-height: calc(100svh - 205px) !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Données : hauteur naturelle, mais le tableau devient scrollable s'il est long. */
+.table-stage {
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: calc(100svh - 34px);
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0 !important;
+  overflow: hidden !important;
+}
+
+.table-stage .table-panel {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.table-stage .table-scroll {
+  flex: 0 1 auto;
+  max-height: calc(100svh - 300px) !important;
+  overflow: auto !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Le titre du tableau reste figé verticalement ET horizontalement. */
+.table-scroll-caption {
+  position: sticky !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: auto !important;
+  z-index: 30 !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+}
+
+.compact-data-table thead th {
+  position: sticky !important;
+  top: 44px !important;
+  z-index: 20 !important;
+  background: #f5f5f7 !important;
+}
+
+.compact-data-table thead th:first-child {
+  left: 0 !important;
+  z-index: 32 !important;
+}
+
+.compact-data-table tbody th:first-child,
+.compact-data-table tbody td:first-child {
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 8 !important;
+  background: #fff !important;
+}
+
+/* Mentions légales intégrées à la dernière carte. */
+.preview-legal-footer {
+  margin: 14px 0 0;
+  display: flex;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.preview-legal-trigger {
+  border: 0;
+  background: transparent;
+  color: var(--apple-blue);
+  padding: 7px 4px;
+  font-family: var(--site-font, inherit);
+  font-size: .82rem;
+  font-weight: 760;
+  cursor: pointer;
+}
+
+.preview-legal-trigger:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.preview-legal-trigger span {
+  display: inline-block;
+  margin-left: 3px;
+  transition: transform .18s ease;
+}
+
+.preview-legal-trigger:hover span {
+  transform: translateX(3px);
+}
+
+/* Spacer invisible : il permet à la dernière carte de rester réellement sticky
+   jusqu'à la fin sans qu'elle reparte vers le haut. */
+.stack-tail-spacer {
+  height: 100svh;
+  margin-top: -1px;
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* Le voile des mentions légales reprend le même langage visuel que les aides. */
+#legalInfoOverlay .info-overlay-content {
+  max-width: 680px;
+}
+
+@media (max-width: 820px) {
+  .evolution-stage {
+    max-height: calc(100svh - 24px);
+  }
+
+  .evolution-stage .evolution-panel {
+    max-height: calc(100svh - 185px) !important;
+  }
+
+  .table-stage {
+    max-height: calc(100svh - 24px);
+  }
+
+  .table-stage .table-scroll {
+    max-height: calc(100svh - 278px) !important;
+  }
+
+  .compact-data-table thead th {
+    top: 42px !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .evolution-stage {
+    max-height: calc(100svh - 18px);
+  }
+
+  .evolution-stage .evolution-panel {
+    max-height: calc(100svh - 172px) !important;
+  }
+
+  .table-stage {
+    max-height: calc(100svh - 18px);
+  }
+
+  .table-stage .table-scroll {
+    max-height: calc(100svh - 258px) !important;
+  }
+
+  .stack-tail-spacer {
+    height: 105svh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-stack-card {
+    transition: none !important;
+    clip-path: none !important;
+  }
+
+  .motion-stack-card.motion-covered > * {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+}
