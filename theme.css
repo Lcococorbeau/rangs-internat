@@ -165,3 +165,110 @@ body {
 .legal-content strong {
   color: #344054;
 }
+
+
+/* Annonce temporaire — sobre, une fois par session */
+.site-announcement {
+  position: fixed;
+  inset: 0;
+  z-index: 1150;
+  pointer-events: none;
+}
+
+.site-announcement[hidden] {
+  display: none;
+}
+
+.site-announcement-bar {
+  pointer-events: auto;
+  position: absolute;
+  top: max(12px, env(safe-area-inset-top));
+  left: 50%;
+  width: min(720px, calc(100% - 24px));
+  transform: translate(-50%, -130%);
+  opacity: 0;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 12px 12px 14px;
+  border: 1px solid rgba(54, 87, 214, .22);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .97);
+  color: #172033;
+  box-shadow: 0 14px 38px rgba(23, 32, 51, .16);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: transform .32s cubic-bezier(.2,.8,.2,1), opacity .22s ease;
+}
+
+.site-announcement.show .site-announcement-bar {
+  transform: translate(-50%, 0);
+  opacity: 1;
+}
+
+.site-announcement.leaving .site-announcement-bar {
+  transform: translate(-50%, -130%);
+  opacity: 0;
+}
+
+.site-announcement-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--soft, #eef2ff);
+  color: var(--primary, #3657d6);
+  font-weight: 900;
+  font-size: .9rem;
+}
+
+.site-announcement-text {
+  margin: 0;
+  font-family: var(--site-font, inherit);
+  font-size: .9rem;
+  font-weight: 760;
+  line-height: 1.35;
+}
+
+.site-announcement-close {
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #667085;
+  font: 800 1.05rem/1 var(--site-font, inherit);
+  cursor: pointer;
+}
+
+.site-announcement-close:hover {
+  background: #f2f4f7;
+  color: #172033;
+}
+
+@media (max-width: 520px) {
+  .site-announcement-bar {
+    top: max(8px, env(safe-area-inset-top));
+    gap: 8px;
+    padding: 10px;
+    border-radius: 13px;
+  }
+
+  .site-announcement-icon {
+    width: 27px;
+    height: 27px;
+  }
+
+  .site-announcement-text {
+    font-size: .84rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-announcement-bar {
+    transition: none;
+  }
+}
