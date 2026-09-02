@@ -406,6 +406,11 @@ function tutorialWasSeen(){try{return localStorage.getItem('edn-specialty-tutori
 function dismissTutorial(){specialtyTutorial.hidden=true;specialtyControl.classList.remove('tutorial-highlight');try{localStorage.setItem('edn-specialty-tutorial-v1','1')}catch{}}
 function maybeShowTutorial(){if(selectedSpecialties.length||tutorialWasSeen())return;specialtyTutorial.hidden=false;specialtyControl.classList.add('tutorial-highlight')}
 tutorialClose.addEventListener('click',e=>{e.stopPropagation();dismissTutorial();specialtyButton.focus()});
+document.addEventListener('pointerdown',e=>{
+  if(specialtyTutorial.hidden)return;
+  if(e.target.closest('#specialtyTutorial')||e.target.closest('#specialtyButton'))return;
+  dismissTutorial();
+},{capture:true});
 function clearMenuPosition(control){
   control.style.removeProperty('--menu-max-height');
 }
