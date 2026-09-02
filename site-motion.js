@@ -261,9 +261,18 @@
     return Number.isFinite(value) ? value : 0;
   }
 
+  function documentTop(el) {
+    let top = 0;
+    let node = el;
+    while (node) {
+      top += node.offsetTop || 0;
+      node = node.offsetParent;
+    }
+    return top;
+  }
+
   function targetScrollY(el) {
-    const rect = el.getBoundingClientRect();
-    return Math.max(0, window.scrollY + rect.top - stickyTop(el));
+    return Math.max(0, documentTop(el) - stickyTop(el));
   }
 
   function scrollToCard(index) {
@@ -468,8 +477,7 @@
       const dy = event.touches[0].clientY - verticalTouch.y;
       if (dy >= -64) return;
 
-      const startedInsideTable = !!verticalTouch.container?.classList.contains('table-scroll');
-      if (startedInsideTable && canScrollDown(tableScroll)) return;
+      if (tableScroll && canScrollDown(tableScroll)) return;
 
       openLegalOverlay();
     }, { passive: true });
