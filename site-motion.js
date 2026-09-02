@@ -609,34 +609,41 @@
     }, { passive: true });
   }
 
-  /* Révélation Apple-like :
-     - déclenchée à l'entrée dans le viewport ;
-     - déplacement court, aucune brume ;
-     - décélération longue ;
-     - stagger local à chaque carte plutôt qu'un décalage global. */
+  /* Révélation Apple-like plus perceptible :
+     les grands ensembles se construisent par éléments successifs,
+     avec un mouvement vertical lisible et une longue décélération. */
   const exploreReveal = [
-    '.hero-simple .hero-main',
-    '.selection-summary',
-    '.selection-panel .controls',
-    '.chart-stage .chart-head',
+    '.hero-simple .eyebrow',
+    '.hero-simple h1',
+    '.hero-simple .hero-info-links',
+    '.selection-summary .metric',
+    '.selection-panel .controls > *',
+    '.chart-stage .chart-head > *',
     '.chart-stage .chart-wrap',
-    '.evolution-stage .data-stage-head',
+    '.evolution-stage .data-stage-head > *',
     '.evolution-stage .evolution-panel',
-    '.table-stage .data-stage-head',
+    '.table-stage .data-stage-head > *',
     '.table-stage .table-panel'
   ];
+
   const possibilitiesReveal = [
-    '.poss-hero .hero-main',
-    '.poss-stack-card > .poss-panel-title',
-    '.poss-stack-card > .poss-summary',
-    '.poss-stack-card > .mode-pane',
-    '.poss-stack-card > .poss-results-head',
-    '.poss-stack-card > #results',
-    '.poss-stack-card > .poss-map-head',
-    '.poss-stack-card > .poss-map-body',
-    '.panel > .section-title',
-    '.rank-card',
-    '.upload-box',
+    '.poss-hero .eyebrow',
+    '.poss-hero h1',
+    '.poss-hero .poss-info-links',
+    '#yearChoice',
+    '#tourChoice',
+    '.poss-summary .summary-jump',
+    '#rankStage .poss-panel-title',
+    '#rankStage .friendly-field',
+    '#rankStage .mode-link',
+    '#rankStage .advanced-head',
+    '#rankStage .upload-box',
+    '#rankStage .rank-review',
+    '#rankStage .manual-link',
+    '.poss-results-card .results-head',
+    '.poss-results-card #results',
+    '.poss-map-card .poss-map-head',
+    '.poss-map-card .poss-map-body',
     '.group-result'
   ];
 
@@ -646,21 +653,24 @@
   )];
 
   const groupCounts = new Map();
-  revealTargets.forEach(el => {
+
+  function prepareReveal(el) {
+    if (!el || el.classList.contains('apple-motion-item')) return;
     const group = el.closest('.motion-stack-card,.poss-stack-card,.panel,.hero') || shell;
     const order = groupCounts.get(group) || 0;
     groupCounts.set(group, order + 1);
-    el.classList.add('motion-reveal');
-    const baseDelay = firstVisit ? 55 : 0;
-    el.style.setProperty('--motion-delay', `${baseDelay + Math.min(order,3) * 85}ms`);
-  });
+    el.classList.add('apple-motion-item');
+    el.style.setProperty('--apple-motion-order', String(Math.min(order, 5)));
+  }
+
+  revealTargets.forEach(prepareReveal);
 
   if (reduceMotion || !('IntersectionObserver' in window)) {
-    revealTargets.forEach(el => el.classList.add('motion-visible'));
+    revealTargets.forEach(el => el.classList.add('apple-motion-visible'));
   } else {
     const revealNow = el => {
-      if (el.classList.contains('motion-visible')) return;
-      el.classList.add('motion-visible');
+      if (el.classList.contains('apple-motion-visible')) return;
+      el.classList.add('apple-motion-visible');
     };
 
     const observer = new IntersectionObserver(entries => {
@@ -670,19 +680,40 @@
         observer.unobserve(entry.target);
       });
     }, {
-      threshold: .07,
-      rootMargin: '0px 0px -6% 0px'
+      threshold: .10,
+      rootMargin: '0px 0px -4% 0px'
     });
 
     revealTargets.forEach(el => {
       const rect = el.getBoundingClientRect();
-      const initiallyVisible = rect.bottom > 0 && rect.top < window.innerHeight * .96;
+      const initiallyVisible = rect.bottom > 0 && rect.top < window.innerHeight * .94;
       if (initiallyVisible) {
-        /* Deux frames garantissent qu'on voit réellement le départ à opacity 0. */
-        requestAnimationFrame(() => requestAnimationFrame(() => revealNow(el)));
+        setTimeout(() => revealNow(el), 90);
       } else {
         observer.observe(el);
       }
     });
+
+    /* Les résultats de "Mes possibilités" peuvent être créés après le chargement.
+       Ils héritent du même langage de révélation lorsqu'ils apparaissent. */
+    if (isPossibilities) {
+      const dynamicObserver = new MutationObserver(mutations => {
+        const added = [];
+        mutations.forEach(mutation => {
+          mutation.addedNodes.forEach(node => {
+            if (!(node instanceof Element)) return;
+            if (node.matches('.group-result,.specialty-card,.city-row')) added.push(node);
+            added.push(...node.querySelectorAll?.('.group-result,.specialty-card,.city-row') || []);
+          });
+        });
+        [...new Set(added)].forEach((el, index) => {
+          if (el.classList.contains('apple-motion-item')) return;
+          el.classList.add('apple-motion-item','apple-motion-dynamic');
+          el.style.setProperty('--apple-motion-order', String(Math.min(index, 4)));
+          requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('apple-motion-visible')));
+        });
+      });
+      dynamicObserver.observe(shell, { childList:true, subtree:true });
+    }
   }
 })();
