@@ -38,55 +38,36 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Signature de création — même identité visuelle que la marque */
+/* Signature de création — discrète et élégante */
 .brand-lockup {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  flex-wrap: wrap;
-  min-width: 0;
+  display:flex;
+  align-items:baseline;
+  min-width:0;
 }
 
 .creator-signature {
-  display: inline-flex;
-  align-items: baseline;
-  color: rgba(23, 32, 51, .82);
-  font-family: var(--site-font);
-  font-size: .84rem;
-  font-weight: 700;
-  line-height: 1;
-  white-space: nowrap;
-  padding: 0;
-  margin: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-.creator-signature .creator-dot {
-  margin-right: 5px;
-  color: rgba(23, 32, 51, .82);
-  font-family: inherit;
-  font-size: .92rem;
-  font-weight: 800;
+  display:inline-flex;
+  align-items:baseline;
+  color:rgba(23,32,51,.72);
+  font-family:var(--site-font);
+  font-size:.84rem;
+  font-weight:520;
+  font-style:italic;
+  letter-spacing:.008em;
+  line-height:1;
+  white-space:nowrap;
 }
 
 .creator-signature strong {
-  margin-left: 4px;
-  color: #172033;
-  font-family: inherit;
-  font-weight: 820;
+  margin-left:4px;
+  color:#172033;
+  font-family:inherit;
+  font-weight:680;
+  font-style:italic;
 }
 
-@media (max-width: 520px) {
-  .brand-lockup {
-    gap: 6px;
-  }
-
-  .creator-signature {
-    font-size: .81rem;
-  }
+@media (max-width:520px) {
+  .creator-signature { font-size:.81rem; }
 }
 
 /* Mentions légales — pied de page partagé */
@@ -1788,6 +1769,46 @@ html.info-overlay-open body {
   transition-delay: .38s;
 }
 
+/* Contact — mentions légales */
+.legal-contact{
+  display:grid;
+  gap:13px;
+  padding-top:2px;
+  opacity:0;
+  transform:translateY(8px);
+  transition:opacity .28s ease .38s,transform .34s cubic-bezier(.22,1,.36,1) .38s;
+}
+.info-overlay.open .legal-contact{opacity:1;transform:translateY(0)}
+.legal-contact-copy{
+  color:rgba(255,255,255,.94);
+  font-size:clamp(.96rem,2.4vw,1.08rem);
+  line-height:1.55;
+}
+.legal-contact-copy strong{color:#fff;font-weight:780}
+.legal-social-links{display:flex;align-items:center;gap:11px}
+.legal-social-link{
+  width:46px;height:46px;
+  display:inline-grid;place-items:center;
+  border-radius:14px;
+  box-shadow:0 8px 24px rgba(0,0,0,.16);
+  transition:transform .18s ease,filter .18s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.legal-social-link:hover{transform:translateY(-2px);filter:brightness(1.05)}
+.legal-social-link:focus-visible{outline:3px solid rgba(143,196,255,.7);outline-offset:3px}
+.legal-social-link svg{width:25px;height:25px;fill:#fff;stroke:none}
+.legal-social-messenger{background:#168aff}
+.legal-social-instagram{
+  background:
+    radial-gradient(circle at 31% 105%,#ffd600 0 22%,#ff7a00 31%,#ff0169 52%,#d300c5 70%,#7638fa 92%);
+}
+.legal-social-instagram svg rect,.legal-social-instagram svg circle{fill:none;stroke:#fff;stroke-width:1.8}
+.legal-social-instagram svg .instagram-dot{fill:#fff;stroke:none}
+@media(prefers-reduced-motion:reduce){
+  .legal-contact{opacity:1!important;transform:none!important;transition:none!important}
+  .legal-social-link{transition:none!important}
+}
+
 /* Le spacer ne se voit jamais : il sert seulement à permettre le verrouillage sticky. */
 .stack-tail-spacer {
   height: 105svh !important;
@@ -1849,69 +1870,6 @@ html.info-overlay-open body {
 }
 
 
-/* Curseur de réglage Preview */
-.motion-tuner {
-  margin: 0 0 18px;
-  padding: 14px 16px 12px;
-  border: 1px solid rgba(217,224,234,.96);
-  border-radius: 16px;
-  background: rgba(255,255,255,.96);
-  box-shadow: 0 10px 30px rgba(23,32,51,.08);
-  font-family: var(--site-font, inherit);
-}
-
-.motion-tuner-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 8px;
-}
-
-.motion-tuner-head strong {
-  color: #172033;
-  font-size: .86rem;
-  font-weight: 850;
-}
-
-.motion-tuner-value {
-  color: var(--apple-blue, #0071e3);
-  font-size: .82rem;
-  font-weight: 850;
-  white-space: nowrap;
-}
-
-.motion-tuner-label {
-  display: block;
-  margin-bottom: 7px;
-  color: #667085;
-  font-size: .76rem;
-  font-weight: 720;
-}
-
-.motion-tuner-range {
-  width: 100%;
-  accent-color: var(--apple-blue, #0071e3);
-  cursor: pointer;
-}
-
-.motion-tuner-scale {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 3px;
-  color: #98a2b3;
-  font-size: .65rem;
-  font-weight: 700;
-}
-
-@media (max-width: 520px) {
-  .motion-tuner {
-    padding: 12px 14px 10px;
-    border-radius: 14px;
-  }
-}
-
-
 /* Preview V10 — effaceur ancré à la carte entrante */
 .motion-stack-card {
   --stack-gap: 8px;
@@ -1950,14 +1908,6 @@ html.stack-engaged .top-nav {
 
 .top-nav {
   transition: opacity .12s ease;
-}
-
-/* Curseur : nouvelle sémantique = position dans la carte entrante. */
-.motion-tuner-help {
-  margin: 5px 0 0;
-  color: #98a2b3;
-  font-size: .66rem;
-  line-height: 1.35;
 }
 
 @media (prefers-reduced-motion: reduce) {
