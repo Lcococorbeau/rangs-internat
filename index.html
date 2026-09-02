@@ -568,12 +568,12 @@ function renderDataTable(){
   if(!tableTransposed){
     const headers=requests.map(r=>`<th scope="col">${tableSeriesHeader(r)}</th>`).join('');
     const rows=slots.map((slot,rowIndex)=>`<tr><th scope="row">${escapeHtml(slot.label)}</th>${datasets.map(ds=>`<td>${tableCell(ds,rowIndex)}</td>`).join('')}</tr>`).join('');
-    tableContainer.innerHTML=`<table class="data-table compact-data-table" style="--data-cols:${datasets.length};--first-col:76px;--data-col:132px"><caption>${escapeHtml(caption)}</caption><thead><tr><th scope="col">Tour</th>${headers}</tr></thead><tbody>${rows}</tbody></table>`;
+    tableContainer.innerHTML=`<div class="table-scroll-caption">${escapeHtml(caption)}</div><table class="data-table compact-data-table" aria-label="${escapeHtml(caption)}" style="--data-cols:${datasets.length};--first-col:76px;--data-col:132px"><thead><tr><th scope="col">Tour</th>${headers}</tr></thead><tbody>${rows}</tbody></table>`;
     return;
   }
   const headers=slots.map(slot=>`<th scope="col">${escapeHtml(slot.label)}</th>`).join('');
   const rows=requests.map((r,i)=>`<tr><th scope="row">${tableSeriesHeader(r)}</th>${slots.map((slot,colIndex)=>`<td>${tableCell(datasets[i],colIndex)}</td>`).join('')}</tr>`).join('');
-  tableContainer.innerHTML=`<table class="data-table compact-data-table transposed-data-table" style="--data-cols:${slots.length};--first-col:150px;--data-col:86px"><caption>${escapeHtml(caption)}</caption><thead><tr><th scope="col">Série</th>${headers}</tr></thead><tbody>${rows}</tbody></table>`;
+  tableContainer.innerHTML=`<div class="table-scroll-caption">${escapeHtml(caption)}</div><table class="data-table compact-data-table transposed-data-table" aria-label="${escapeHtml(caption)}" style="--data-cols:${slots.length};--first-col:150px;--data-col:86px"><thead><tr><th scope="col">Série</th>${headers}</tr></thead><tbody>${rows}</tbody></table>`;
 }
 function evolutionEndpointLabel(point){return point?.tour||point?.slot||'—'}
 function renderEvolution(){
