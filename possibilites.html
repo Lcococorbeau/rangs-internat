@@ -80,32 +80,61 @@
     .poss-map-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
     .poss-map-head h2{margin:0 0 4px;font-size:1.45rem;letter-spacing:-.03em}
     .poss-map-head p{margin:0;color:#667085;font-size:.86rem;line-height:1.45}
-    .france-map-shell{position:relative;border:1px solid #e0e5ed;border-radius:20px;background:linear-gradient(180deg,#f8fbff,#f3f6fb);overflow:hidden;min-height:420px}
-    .france-map-svg{display:block;width:100%;height:min(58svh,560px);min-height:390px}
-    .france-outline{fill:#ffffff;stroke:#cad4e2;stroke-width:3;filter:drop-shadow(0 10px 22px rgba(23,32,51,.08))}
-    .france-corsica{fill:#fff;stroke:#cad4e2;stroke-width:2}
+    .france-map-shell{
+      position:relative;
+      border:1px solid #e1e7ef;
+      border-radius:22px;
+      background:
+        radial-gradient(circle at 18% 18%,rgba(96,138,255,.08),transparent 28%),
+        radial-gradient(circle at 82% 76%,rgba(255,116,116,.07),transparent 28%),
+        linear-gradient(180deg,#fbfdff,#f4f7fb);
+      overflow:hidden;
+      min-height:540px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.92);
+    }
+    .france-map-svg{display:block;width:100%;height:min(72svh,760px);min-height:520px}
+    .france-outline{
+      fill:none;
+      stroke:#bfcbd9;
+      stroke-width:3.2;
+      stroke-linejoin:round;
+      stroke-linecap:round;
+      filter:drop-shadow(0 16px 28px rgba(23,32,51,.10));
+    }
+    .france-corsica{
+      fill:none;
+      stroke:#bfcbd9;
+      stroke-width:2.5;
+      stroke-linejoin:round;
+      stroke-linecap:round;
+      filter:drop-shadow(0 10px 18px rgba(23,32,51,.08));
+    }
+    .map-inset-frame{fill:rgba(255,255,255,.84);stroke:#dbe3ee;stroke-width:1.5}
+    .map-territory{fill:#fff;stroke:#c7d1df;stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round}
+    .map-inset-label{fill:#667085;font-size:12px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
+    .map-watercolor-blue{fill:#7798ff;opacity:.28;filter:url(#watercolorWash)}
+    .map-watercolor-red{fill:#ff8181;opacity:.24;filter:url(#watercolorWash)}
+    .map-watercolor-white{fill:#fff;opacity:.74;filter:url(#watercolorWash)}
     .map-pin{cursor:pointer;outline:none}
     .map-pin .pin-halo{fill:#fff;stroke:#fff;stroke-width:6;opacity:.96}
-    .map-pin .pin-body{fill:#3657d6;stroke:#2847bd;stroke-width:1.5}
+    .map-pin .pin-body{fill:#3657d6;stroke:#2847bd;stroke-width:1.4}
     .map-pin .pin-core{fill:#fff}
     .map-pin:hover .pin-body,.map-pin:focus .pin-body{fill:#1670df}
     .map-pin:focus .pin-halo{stroke:#9ab6ff;stroke-width:9}
+    .map-pin-accessible .pin-halo{filter:drop-shadow(0 5px 8px rgba(54,87,214,.22))}
     .map-selection{margin-top:12px;border:1px solid #e1e6ee;border-radius:16px;background:#fff;padding:14px}
     .map-selection strong{display:block;font-size:1rem;color:#172033}
     .map-selection p{margin:4px 0 0;color:#667085;font-size:.82rem;line-height:1.45}
     .map-specialties{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
     .map-specialty-chip{display:inline-flex;align-items:center;padding:6px 8px;border-radius:999px;background:#eef4ff;color:#245bd7;font-size:.72rem;font-weight:800}
-    .map-overseas{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
-    .map-overseas[hidden]{display:none!important}
-    .map-overseas-btn{border:1px solid #dbe2ec;background:#fff;color:#344054;border-radius:999px;padding:7px 10px;font-size:.75rem;font-weight:800}
-    .map-overseas-btn:hover,.map-overseas-btn:focus-visible{border-color:#9ab6ff;background:#eef4ff;color:#245bd7}
-    .map-empty{position:absolute;inset:50% auto auto 50%;transform:translate(-50%,-50%);width:min(330px,calc(100% - 36px));text-align:center;color:#667085;font-size:.86rem;line-height:1.45}
+    .map-empty{position:absolute;inset:50% auto auto 50%;transform:translate(-50%,-50%);width:min(330px,calc(100% - 36px));text-align:center;color:#667085;font-size:.86rem;line-height:1.45;z-index:3}
     .map-empty strong{display:block;color:#344054;margin-bottom:4px}
     .map-empty[hidden]{display:none!important}
     @media(max-width:520px){
-      .france-map-shell{min-height:360px;border-radius:18px}
-      .france-map-svg{height:48svh;min-height:330px}
+      .france-map-shell{min-height:450px;border-radius:18px}
+      .france-map-svg{height:60svh;min-height:420px}
       .map-selection{padding:12px}
+      .map-inset-label{font-size:10px}
     }
     .poss-info-overlay{position:fixed;inset:0;z-index:2200;display:none;place-items:center;padding:max(22px,env(safe-area-inset-top)) 18px max(24px,env(safe-area-inset-bottom))}
     .poss-info-overlay.open{display:grid}
@@ -269,10 +298,9 @@
       <span class="count-badge" id="mapCount">0 ville</span>
     </div>
     <div class="france-map-shell">
-      <svg class="france-map-svg" id="franceMapSvg" viewBox="0 0 600 650" role="img" aria-label="Carte de France des villes accessibles"></svg>
+      <svg class="france-map-svg" id="franceMapSvg" viewBox="0 0 900 760" role="img" aria-label="Carte de France et territoires ultramarins des villes accessibles"></svg>
       <div class="map-empty" id="mapEmpty"><strong>Aucune ville à afficher</strong>Entrez un classement pour voir vos possibilités sur la carte.</div>
     </div>
-    <div class="map-overseas" id="mapOverseas" hidden></div>
     <div class="map-selection" id="mapSelection">
       <strong>Carte interactive</strong>
       <p>Touchez un pin pour voir quelles spécialités sont accessibles dans cette ville.</p>
@@ -371,15 +399,72 @@ const CITY_COORDS={
   'SAINT-ETIENNE':[45.4397,4.3872],'STRASBOURG':[48.5734,7.7521],
   'TOULOUSE':[43.6047,1.4442],'TOURS':[47.3941,0.6848],
   'LA REUNION':[-20.8823,55.4504],
-  'MARTINIQUE / GUADELOUPE':[14.6415,-61.0242]
+  'MARTINIQUE / GUADELOUPE':[15.9,-61.0]
 };
-const FRANCE_OUTLINE=[
-  [51.05,2.37],[50.95,1.85],[49.49,0.10],[49.64,-1.62],[48.39,-4.49],
-  [47.99,-4.10],[47.22,-1.55],[46.16,-1.15],[44.84,-0.58],[43.48,-1.56],
-  [43.36,-1.78],[42.70,2.90],[43.61,3.88],[43.30,5.37],[43.71,7.26],
-  [43.78,7.50],[44.90,6.64],[46.20,6.15],[48.58,7.75],[49.12,6.18],
-  [50.63,3.06]
-];
+
+const FRANCE_MAINLAND_PATH=`
+M279 92
+C253 84 229 92 212 109
+C191 130 172 143 151 149
+C127 156 104 173 98 193
+C91 216 107 233 123 246
+C101 256 83 272 79 292
+C75 312 91 326 111 330
+C97 347 98 365 112 380
+C129 399 153 404 171 420
+C182 431 176 449 184 464
+C195 485 223 493 245 505
+C265 516 276 538 294 553
+C316 571 342 576 365 568
+C383 562 392 548 405 536
+C423 520 443 525 464 527
+C490 530 520 524 540 507
+C558 491 568 471 586 457
+C604 442 628 437 644 420
+C662 402 668 378 670 355
+C672 331 690 315 698 293
+C706 269 701 246 686 229
+C672 213 654 205 639 192
+C624 179 619 158 603 148
+C585 137 563 142 545 133
+C527 124 520 105 500 99
+C477 92 454 103 433 111
+C413 119 395 114 376 105
+C354 95 333 78 308 82
+C297 84 289 89 279 92
+Z`;
+
+const CORSICA_PATH=`
+M682 511
+C690 498 704 495 714 504
+C724 513 726 530 724 545
+C721 562 714 579 705 592
+C696 604 686 596 681 583
+C676 570 674 553 675 539
+C676 528 677 518 682 511
+Z`;
+
+const OVERSEAS_INSETS={
+  'MARTINIQUE / GUADELOUPE':{
+    label:'Antilles',
+    frame:[638,88,214,174],
+    pin:[748,174],
+    shapes:[
+      'M679 152 C688 139 701 138 708 147 C714 156 709 168 700 175 C690 181 680 173 679 152Z',
+      'M729 133 C741 119 760 121 769 135 C777 148 772 164 759 170 C746 177 734 164 729 133Z',
+      'M762 178 C772 168 786 171 791 181 C795 191 790 204 779 207 C768 208 760 196 762 178Z'
+    ]
+  },
+  'LA REUNION':{
+    label:'La Réunion',
+    frame:[638,286,214,156],
+    pin:[749,365],
+    shapes:[
+      'M713 350 C723 332 750 326 771 338 C789 348 794 366 781 381 C768 397 744 402 724 391 C705 381 703 365 713 350Z'
+    ]
+  }
+};
+
 const $=id=>document.getElementById(id);
 const state={mode:'simple',manifest:[],year:null,tour:null,data:null,manualRanksOpen:false};
 
@@ -463,9 +548,13 @@ function setupGroups(){
   updateGroupButton();
 }
 function mapProject(lat,lon){
-  const x=44+((lon+5.5)/15.3)*512;
-  const y=36+((51.5-lat)/10.8)*568;
-  return [Math.max(26,Math.min(574,x)),Math.max(24,Math.min(626,y))];
+  const west=-5.5,east=8.8,north=51.5,south=41.0;
+  const x=96+((lon-west)/(east-west))*590;
+  const y=88+((north-lat)/(north-south))*492;
+  return [Math.max(90,Math.min(690,x)),Math.max(78,Math.min(590,y))];
+}
+function mapPinMarkup(x,y,label,count,key){
+  return `<g class="map-pin map-pin-accessible" data-map-key="${escapeHtml(key)}" transform="translate(${x.toFixed(1)} ${y.toFixed(1)})" role="button" tabindex="0" aria-label="${escapeHtml(label)}, ${count} spécialité${count>1?'s':''}"><circle class="pin-halo" cx="0" cy="0" r="9"></circle><path class="pin-body" d="M0 12 C-4 6 -9 0 -9 -7 A9 9 0 1 1 9 -7 C9 0 4 6 0 12Z"></path><circle class="pin-core" cx="0" cy="-7" r="3.2"></circle></g>`;
 }
 function showMapCity(city,items){
   const title=cityLabel(city);
@@ -474,36 +563,99 @@ function showMapCity(city,items){
 }
 function renderFranceMap(cityMap=new Map()){
   const svg=$('franceMapSvg');if(!svg)return;
-  const outline=FRANCE_OUTLINE.map(([lat,lon])=>mapProject(lat,lon).join(',')).join(' ');
-  let markup=`<polygon class="france-outline" points="${outline}"></polygon><path class="france-corsica" d="M516 510 C527 499 537 505 535 522 C533 541 523 557 515 548 C508 540 509 520 516 510Z"></path>`;
-  const mainland=[];const overseas=[];
+
+  const defs=`
+    <defs>
+      <clipPath id="mainlandClip"><path d="${FRANCE_MAINLAND_PATH}"></path></clipPath>
+      <clipPath id="corsicaClip"><path d="${CORSICA_PATH}"></path></clipPath>
+      <filter id="watercolorWash" x="-30%" y="-30%" width="160%" height="160%">
+        <feTurbulence type="fractalNoise" baseFrequency=".016 .038" numOctaves="2" seed="7" result="noise"></feTurbulence>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="10" xChannelSelector="R" yChannelSelector="B"></feDisplacementMap>
+        <feGaussianBlur stdDeviation="3.2"></feGaussianBlur>
+      </filter>
+      <filter id="paperTexture" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency=".7" numOctaves="2" seed="11" result="grain"></feTurbulence>
+        <feColorMatrix in="grain" type="saturate" values="0"></feColorMatrix>
+        <feComponentTransfer><feFuncA type="table" tableValues="0 .028 .05"></feFuncA></feComponentTransfer>
+      </filter>
+      <linearGradient id="softTricolor" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#6f91ff" stop-opacity=".42"></stop>
+        <stop offset="31%" stop-color="#9fb6ff" stop-opacity=".25"></stop>
+        <stop offset="43%" stop-color="#ffffff" stop-opacity=".84"></stop>
+        <stop offset="61%" stop-color="#ffffff" stop-opacity=".92"></stop>
+        <stop offset="72%" stop-color="#ffb2b2" stop-opacity=".24"></stop>
+        <stop offset="100%" stop-color="#ff7979" stop-opacity=".40"></stop>
+      </linearGradient>
+    </defs>`;
+
+  const mainland=`
+    <g clip-path="url(#mainlandClip)">
+      <rect x="55" y="55" width="680" height="560" fill="url(#softTricolor)"></rect>
+      <ellipse class="map-watercolor-blue" cx="210" cy="320" rx="165" ry="290"></ellipse>
+      <ellipse class="map-watercolor-white" cx="390" cy="325" rx="150" ry="275"></ellipse>
+      <ellipse class="map-watercolor-red" cx="575" cy="320" rx="170" ry="290"></ellipse>
+      <rect x="55" y="55" width="680" height="560" fill="#fff" opacity=".2" filter="url(#paperTexture)"></rect>
+    </g>
+    <path class="france-outline" d="${FRANCE_MAINLAND_PATH}"></path>
+    <g clip-path="url(#corsicaClip)">
+      <rect x="660" y="490" width="90" height="125" fill="url(#softTricolor)"></rect>
+      <ellipse class="map-watercolor-red" cx="714" cy="550" rx="42" ry="64"></ellipse>
+    </g>
+    <path class="france-corsica" d="${CORSICA_PATH}"></path>`;
+
+  let insets='';
+  Object.entries(OVERSEAS_INSETS).forEach(([key,cfg])=>{
+    const [x,y,w,h]=cfg.frame;
+    insets+=`<g class="map-inset" data-territory="${escapeHtml(key)}"><rect class="map-inset-frame" x="${x}" y="${y}" width="${w}" height="${h}" rx="20"></rect><text class="map-inset-label" x="${x+16}" y="${y+24}">${escapeHtml(cfg.label)}</text>`;
+    cfg.shapes.forEach((shape,idx)=>{
+      const maskId=`territory-${key.replace(/[^A-Za-z0-9]/g,'')}-${idx}`;
+      insets+=`<defs><clipPath id="${maskId}"><path d="${shape}"></path></clipPath></defs><g clip-path="url(#${maskId})"><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#softTricolor)"></rect><ellipse class="map-watercolor-blue" cx="${x+w*.38}" cy="${y+h*.56}" rx="${w*.22}" ry="${h*.34}"></ellipse><ellipse class="map-watercolor-red" cx="${x+w*.68}" cy="${y+h*.55}" rx="${w*.22}" ry="${h*.34}"></ellipse></g><path class="map-territory" d="${shape}"></path>`;
+    });
+    insets+='</g>';
+  });
+
+  const accessibleMainland=[];
+  const accessibleOverseas=[];
   for(const [city,items] of cityMap.entries()){
     const coord=CITY_COORDS[city];if(!coord)continue;
-    const [lat,lon]=coord;
-    if(lat>=41&&lat<=52&&lon>=-6&&lon<=10)mainland.push([city,items,lat,lon]);
-    else overseas.push([city,items]);
+    if(OVERSEAS_INSETS[city])accessibleOverseas.push([city,items]);
+    else {
+      const [lat,lon]=coord;
+      if(lat>=41&&lat<=52&&lon>=-6&&lon<=10)accessibleMainland.push([city,items,lat,lon]);
+    }
   }
-  mainland.forEach(([city,items,lat,lon],idx)=>{
-    const [x,y]=mapProject(lat,lon);const n=items.specialties.size;
-    markup+=`<g class="map-pin" data-map-index="${idx}" transform="translate(${x.toFixed(1)} ${y.toFixed(1)})" role="button" tabindex="0" aria-label="${escapeHtml(cityLabel(city))}, ${n} spécialité${n>1?'s':''}"><circle class="pin-halo" cx="0" cy="0" r="9"></circle><path class="pin-body" d="M0 12 C-4 6 -9 0 -9 -7 A9 9 0 1 1 9 -7 C9 0 4 6 0 12Z"></path><circle class="pin-core" cx="0" cy="-7" r="3.2"></circle></g>`;
+
+  let pins='';
+  accessibleMainland.forEach(([city,items,lat,lon],idx)=>{
+    const [x,y]=mapProject(lat,lon);
+    pins+=mapPinMarkup(x,y,cityLabel(city),items.specialties.size,`main-${idx}`);
   });
-  svg.innerHTML=markup;
-  svg.querySelectorAll('.map-pin').forEach((pin,idx)=>{
-    const [city,items]=mainland[idx];
-    const activate=()=>showMapCity(city,items);
+  accessibleOverseas.forEach(([city,items],idx)=>{
+    const cfg=OVERSEAS_INSETS[city];
+    pins+=mapPinMarkup(cfg.pin[0],cfg.pin[1],cityLabel(city),items.specialties.size,`over-${idx}`);
+  });
+
+  svg.innerHTML=defs+mainland+insets+pins;
+
+  svg.querySelectorAll('.map-pin').forEach(pin=>{
+    const key=pin.dataset.mapKey||'';
+    const activate=()=>{
+      if(key.startsWith('main-')){
+        const idx=Number(key.slice(5));const [city,items]=accessibleMainland[idx]||[];if(city)showMapCity(city,items);
+      }else if(key.startsWith('over-')){
+        const idx=Number(key.slice(5));const [city,items]=accessibleOverseas[idx]||[];if(city)showMapCity(city,items);
+      }
+    };
     pin.addEventListener('click',activate);
     pin.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate()}});
   });
-  const over=$('mapOverseas');
-  over.innerHTML=overseas.map(([city,items],idx)=>`<button class="map-overseas-btn" type="button" data-overseas-index="${idx}">${escapeHtml(cityLabel(city))} · ${items.specialties.size}</button>`).join('');
-  over.hidden=!overseas.length;
-  over.querySelectorAll('[data-overseas-index]').forEach((btn,idx)=>btn.addEventListener('click',()=>showMapCity(overseas[idx][0],overseas[idx][1])));
-  const knownCount=mainland.length+overseas.length;
+
   const allCount=cityMap.size;
+  const shownCount=accessibleMainland.length+accessibleOverseas.length;
   $('mapCount').textContent=`${allCount} ville${allCount>1?'s':''}`;
   $('mapSubtitle').textContent=allCount?`${allCount} ville${allCount>1?'s':''} accessible${allCount>1?'s':''} avec votre sélection.`:'Les villes accessibles apparaîtront ici.';
-  $('mapEmpty').hidden=knownCount>0;
-  if(!knownCount){
+  $('mapEmpty').hidden=shownCount>0;
+  if(!shownCount){
     $('mapSelection').innerHTML='<strong>Carte interactive</strong><p>Touchez un pin pour voir quelles spécialités sont accessibles dans cette ville.</p>';
   }
 }
