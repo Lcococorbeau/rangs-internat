@@ -11,6 +11,7 @@ LEGAL_FOOTER = ROOT / "_legal-footer.html"
 BRAND_SIGNATURE = ROOT / "_brand-signature.html"
 SITE_ANNOUNCEMENT = ROOT / "_site-announcement.html"
 BRAND_MARKER = '<a class="brand" href="./">Rangs Internat</a>'
+MOTION_BOOTSTRAP = """<script>try{const m=sessionStorage.getItem('rangs-motion-entry');if(m)document.documentElement.dataset.motionEntry=m}catch(e){}</script>\n<script defer src="site-motion.js"></script>"""
 
 subprocess.run([sys.executable, str(ROOT / "scripts" / "build_data.py")], check=True)
 
@@ -34,11 +35,15 @@ for page in ROOT.glob("*.html"):
         html = html.replace("<body>", f"<body>\n{site_announcement}", 1)
     if legal_footer and "</main>" in html:
         html = html.replace("</main>", f"{legal_footer}\n</main>", 1)
+    if "</head>" in html and "site-motion.js" not in html:
+        html = html.replace("</head>", f"{MOTION_BOOTSTRAP}\n</head>", 1)
     (DIST / page.name).write_text(html, encoding="utf-8")
 
-# Publie les feuilles de style partagées (ex. theme.css).
+# Publie les feuilles de style et scripts partagés.
 for stylesheet in ROOT.glob("*.css"):
     shutil.copy2(stylesheet, DIST / stylesheet.name)
+for script in ROOT.glob("*.js"):
+    shutil.copy2(script, DIST / script.name)
 
 shutil.copytree(ROOT / "data", DIST / "data")
 print(f"Site construit dans {DIST.relative_to(ROOT)}/")
