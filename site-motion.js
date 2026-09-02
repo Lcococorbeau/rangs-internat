@@ -182,9 +182,11 @@
     resetDrag(true);
   }, { passive: true });
 
-  /* La page d'accueil empile uniquement les grandes étapes utiles. */
+  /* La page d'accueil fonctionne comme une pile de cartes.
+     L'en-tête EDN est la première carte de la pile. */
   const stackCandidates = isExplore
     ? [
+        document.querySelector('.hero-simple'),
         document.querySelector('.selection-panel'),
         document.querySelector('.chart-stage'),
         document.querySelector('.evolution-stage'),
@@ -196,12 +198,48 @@
     stackCandidates.forEach((el, index) => {
       el.classList.add('motion-stack-card');
       el.style.setProperty('--stack-i', String(Math.min(index, 6)));
-      const tooTall = el.getBoundingClientRect().height > window.innerHeight * .84;
-      el.classList.toggle('motion-stack-static', tooTall);
+
+      /* Sur Explorer, les cartes sont volontairement toutes sticky.
+         Sur Mes possibilités, les très grands panneaux gardent le comportement prudent précédent. */
+      if (isExplore) {
+        el.classList.remove('motion-stack-static');
+      } else {
+        const tooTall = el.getBoundingClientRect().height > window.innerHeight * .84;
+        el.classList.toggle('motion-stack-static', tooTall);
+      }
+    });
+
+    updateStackCoverage();
+  }
+
+  function stickyTop(el) {
+    const value = parseFloat(getComputedStyle(el).top);
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  function updateStackCoverage() {
+    if (!isExplore) return;
+    stackCandidates.forEach((el, index) => {
+      if (index === stackCandidates.length - 1) {
+        el.classList.remove('motion-covered');
+        return;
+      }
+      const next = stackCandidates[index + 1];
+      const nextReachedItsSlot = next.getBoundingClientRect().top <= stickyTop(next) + 2;
+      el.classList.toggle('motion-covered', nextReachedItsSlot);
     });
   }
 
   configureStack();
+  let stackFrame = null;
+  window.addEventListener('scroll', () => {
+    if (stackFrame) return;
+    stackFrame = requestAnimationFrame(() => {
+      stackFrame = null;
+      updateStackCoverage();
+    });
+  }, { passive: true });
+
   let resizeTimer = null;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
