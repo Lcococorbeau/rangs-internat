@@ -40,46 +40,39 @@
   const isExplore = currentPath === '/' || currentPath.endsWith('/index.html') || currentPath.endsWith('/');
   const isPossibilities = currentPath.endsWith('/possibilites.html');
   const ENTRY_KEY = 'rangs-motion-entry';
-  const ERASE_KEY = 'rangs-preview-eraser-position-v2';
-  let eraserPosition = .20;
+  const eraserPosition = .20;
 
+  /* Première visite : apparition douce et séquencée des grandes cartes.
+     Une seule fois par navigateur, et jamais si l’utilisateur réduit les animations. */
+  const FIRST_LOAD_KEY = 'rangs-first-load-whoosh-v1';
+  let firstLoadWhoosh = false;
   try {
-    const savedErase = Number(localStorage.getItem(ERASE_KEY));
-    if (Number.isFinite(savedErase)) eraserPosition = Math.max(.20, Math.min(.90, savedErase));
-  } catch (_) {}
+    firstLoadWhoosh = localStorage.getItem(FIRST_LOAD_KEY) !== '1';
+    if (firstLoadWhoosh) localStorage.setItem(FIRST_LOAD_KEY, '1');
+  } catch (_) {
+    firstLoadWhoosh = true;
+  }
 
-  if (isExplore) {
-    const tuner = document.createElement('section');
-    tuner.className = 'motion-tuner';
-    tuner.setAttribute('aria-label', 'Réglage de l’animation de disparition');
-    tuner.innerHTML = `
-      <div class="motion-tuner-head">
-        <strong>Réglage animation</strong>
-        <span class="motion-tuner-value"></span>
-      </div>
-      <label class="motion-tuner-label" for="motionEraseRange">Position de l’effaceur dans la nouvelle carte</label>
-      <input id="motionEraseRange" class="motion-tuner-range" type="range" min="20" max="90" step="5" value="${Math.round(eraserPosition * 100)}">
-      <div class="motion-tuner-scale"><span>20 %</span><span>90 %</span></div>
-      <p class="motion-tuner-help">Plus à droite = l’ancienne carte reste visible plus longtemps.</p>
-    `;
-    const topNav = document.querySelector('.top-nav');
-    if (topNav) topNav.insertAdjacentElement('afterend', tuner);
-    else shell.prepend(tuner);
-
-    const range = tuner.querySelector('.motion-tuner-range');
-    const value = tuner.querySelector('.motion-tuner-value');
-
-    const refreshTuner = () => {
-      value.textContent = `${Math.round(eraserPosition * 100)} %`;
-    };
-
-    refreshTuner();
-
-    range.addEventListener('input', () => {
-      eraserPosition = Number(range.value) / 100;
-      try { localStorage.setItem(ERASE_KEY, String(eraserPosition)); } catch (_) {}
-      refreshTuner();
-      if (typeof updateStackState === 'function') updateStackState();
+  if (firstLoadWhoosh && !reduceMotion && !document.documentElement.dataset.motionEntry) {
+    requestAnimationFrame(() => {
+      const cards = [...shell.children].filter(el =>
+        el.matches('.hero, .selection-panel, .data-stage, .poss-stack-card, .panel')
+      );
+      cards.forEach((card, index) => {
+        card.animate(
+          [
+            { opacity: 0, transform: 'translate3d(0,28px,0) scale(.985)', filter: 'blur(8px)' },
+            { opacity: .72, transform: 'translate3d(0,7px,0) scale(.996)', filter: 'blur(2px)', offset: .72 },
+            { opacity: 1, transform: 'translate3d(0,0,0) scale(1)', filter: 'blur(0)' }
+          ],
+          {
+            duration: 560,
+            delay: 55 + index * 88,
+            easing: 'cubic-bezier(.22,.86,.28,1)',
+            fill: 'backwards'
+          }
+        );
+      });
     });
   }
 
