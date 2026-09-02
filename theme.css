@@ -2128,3 +2128,20 @@ html.info-overlay-open body {
   }
 }
 
+/* Sécurité des éléments flottants de sélection.
+   Empêche aussi le conseil "Commencez ici" d'être découpé par la pile animée. */
+.motion-stack-card:has(.tutorial-tip:not([hidden])) {
+  clip-path:none !important;
+  overflow:visible !important;
+  z-index:955 !important;
+}
+
+.multi:has(.tutorial-tip:not([hidden])) {
+  position:relative !important;
+  z-index:965 !important;
+}
+
+.tutorial-tip:not([hidden]) {
+  z-index:975 !important;
+}
+
