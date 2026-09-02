@@ -38,7 +38,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Signature de création — manuscrite, discrète et élégante */
+/* Signature de création — Linotype Didot Italic */
 .brand-lockup {
   display:flex;
   align-items:baseline;
@@ -48,15 +48,16 @@ body {
 .creator-signature {
   display:inline-flex;
   align-items:baseline;
-  color:rgba(23,32,51,.76);
-  font-family:"Snell Roundhand","Apple Chancery","Segoe Script",cursive;
-  font-size:1.03rem;
+  color:rgba(23,32,51,.78);
+  font-family:"Linotype Didot","Didot LT Std","Didot","Bodoni 72",serif;
+  font-size:.94rem;
   font-weight:400;
-  font-style:normal;
-  letter-spacing:.008em;
-  line-height:1;
+  font-style:italic;
+  letter-spacing:.012em;
+  line-height:1.08;
   white-space:nowrap;
   -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
 }
 
 .creator-signature strong {
@@ -64,11 +65,11 @@ body {
   color:#172033;
   font-family:inherit;
   font-weight:600;
-  font-style:normal;
+  font-style:italic;
 }
 
 @media (max-width:520px) {
-  .creator-signature { font-size:.96rem; }
+  .creator-signature { font-size:.90rem; }
 }
 
 /* Mentions légales — pied de page partagé */
