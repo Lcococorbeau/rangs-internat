@@ -96,7 +96,7 @@
       width:100%;
       height:100%;
       overflow:hidden;
-      touch-action:none;
+      touch-action:pan-y;
       cursor:grab;
       user-select:none;
       -webkit-user-select:none;
@@ -146,15 +146,35 @@
     .map-empty strong{display:block;color:#344054;margin-bottom:4px}
     .map-empty[hidden]{display:none!important}
     @media(max-width:820px){
-      /* La dernière carte se bloque elle aussi en haut ; son contenu défile à l'intérieur. */
+      /* La dernière carte garde son cadre et son titre fixes.
+         Seul son contenu (carte + détail de ville) défile. */
       .poss-map-card{
         position:sticky!important;
         top:calc(max(0px,env(safe-area-inset-top)) + 32px)!important;
         z-index:44!important;
+        height:calc(100svh - 42px);
         max-height:calc(100svh - 42px);
-        overflow-y:auto!important;
+        overflow:hidden!important;
+        display:flex;
+        flex-direction:column;
+      }
+      .poss-map-head{
+        flex:0 0 auto;
+        position:relative;
+        z-index:6;
+        margin-bottom:12px;
+        padding-bottom:2px;
+        background:#fff;
+      }
+      .poss-map-body{
+        flex:1 1 auto;
+        min-height:0;
+        overflow-y:auto;
+        overflow-x:hidden;
         -webkit-overflow-scrolling:touch;
-        overscroll-behavior:contain;
+        overscroll-behavior-y:auto;
+        touch-action:pan-y;
+        padding-right:1px;
       }
       .france-map-shell{min-height:530px}
       .france-map-svg{height:68svh;min-height:500px}
@@ -326,16 +346,18 @@
       </div>
       <span class="count-badge" id="mapCount">0 ville</span>
     </div>
-    <div class="france-map-shell">
-      <div class="france-map-viewport" id="franceMapViewport">
-        <svg class="france-map-svg" id="franceMapSvg" viewBox="0 0 900 700" role="img" aria-label="Carte de France et territoires ultramarins des villes accessibles"></svg>
+    <div class="poss-map-body" id="possMapBody">
+      <div class="france-map-shell">
+        <div class="france-map-viewport" id="franceMapViewport">
+          <svg class="france-map-svg" id="franceMapSvg" viewBox="0 0 900 700" role="img" aria-label="Carte de France et territoires ultramarins des villes accessibles"></svg>
+        </div>
+        <div class="map-gesture-hint" aria-hidden="true">Pincez ou utilisez la molette pour zoomer</div>
+        <div class="map-empty" id="mapEmpty"><strong>Aucune ville à afficher</strong>Entrez un classement pour voir vos possibilités sur la carte.</div>
       </div>
-      <div class="map-gesture-hint" aria-hidden="true">Pincez ou utilisez la molette pour zoomer</div>
-      <div class="map-empty" id="mapEmpty"><strong>Aucune ville à afficher</strong>Entrez un classement pour voir vos possibilités sur la carte.</div>
-    </div>
-    <div class="map-selection" id="mapSelection">
-      <strong>Carte interactive</strong>
-      <p>Touchez un pin pour voir quelles spécialités sont accessibles dans cette ville.</p>
+      <div class="map-selection" id="mapSelection">
+        <strong>Carte interactive</strong>
+        <p>Touchez un pin pour voir quelles spécialités sont accessibles dans cette ville.</p>
+      </div>
     </div>
   </section>
 
@@ -414,10 +436,10 @@ const GROUPS=[
   {id:13,name:'Médecine générale',short:'Médecine générale',specialties:['Médecine générale']}
 ];
 
-const CITY_LABELS={'AP-HP':'Paris (AP-HP)','AP-HM':'Marseille (AP-HM)','HCL':'Lyon (HCL)','LA REUNION':'La Réunion','MARTINIQUE / GUADELOUPE':'Martinique / Guadeloupe','CLERMONT-FERRAND':'Clermont-Ferrand','SAINT-ETIENNE':'Saint-Étienne','BESANCON':'Besançon'};
+const CITY_LABELS={'AP-HP':'Paris (AP-HP)','AP-HM':'Marseille (AP-HM)','AP-HM / CORSE':'Corse (AP-HM / CORSE)','HCL':'Lyon (HCL)','LA REUNION':'La Réunion','MARTINIQUE / GUADELOUPE':'Martinique / Guadeloupe','CLERMONT-FERRAND':'Clermont-Ferrand','SAINT-ETIENNE':'Saint-Étienne','BESANCON':'Besançon'};
 const CITY_COORDS={
   'AMIENS':[49.8941,2.2958],'ANGERS':[47.4784,-0.5632],
-  'AP-HM':[43.2965,5.3698],'AP-HM / CORSE':[43.2965,5.3698],
+  'AP-HM':[43.2965,5.3698],'AP-HM / CORSE':[42.15,9.05],
   'MARSEILLE':[43.2965,5.3698],'AP-HP':[48.8566,2.3522],'PARIS':[48.8566,2.3522],
   'BESANCON':[47.2378,6.0241],'BORDEAUX':[44.8378,-0.5792],
   'BREST':[48.3904,-4.4861],'CAEN':[49.1829,-0.3707],
@@ -620,6 +642,8 @@ function applyMapTransform(){
 }
 function resetMapZoom(){
   mapViewState.scale=1;mapViewState.tx=0;mapViewState.ty=0;
+  const viewport=$('franceMapViewport');
+  if(viewport)viewport.style.touchAction='pan-y';
   applyMapTransform();
 }
 function zoomMapAround(svgX,svgY,nextScale){
@@ -630,6 +654,8 @@ function zoomMapAround(svgX,svgY,nextScale){
   mapViewState.tx=svgX-ratio*(svgX-mapViewState.tx);
   mapViewState.ty=svgY-ratio*(svgY-mapViewState.ty);
   mapViewState.scale=nextScale;
+  const viewport=$('franceMapViewport');
+  if(viewport)viewport.style.touchAction=mapViewState.scale>1?'none':'pan-y';
   applyMapTransform();
 }
 function initMapInteractions(){
@@ -661,6 +687,7 @@ function initMapInteractions(){
   viewport.addEventListener('pointerdown',e=>{
     viewport.setPointerCapture?.(e.pointerId);
     mapViewState.pointers.set(e.pointerId,e);
+    viewport.style.touchAction=mapViewState.scale>1?'none':'pan-y';
     if(mapViewState.pointers.size===1){
       mapViewState.dragging=true;
       mapViewState.lastPoint=toSvg(e.clientX,e.clientY);
@@ -719,6 +746,7 @@ function initMapInteractions(){
       mapViewState.lastPoint=null;
       viewport.classList.remove('dragging');
       if(mapViewState.scale<=1.02)resetMapZoom();
+      viewport.style.touchAction=mapViewState.scale>1?'none':'pan-y';
     }
   };
   viewport.addEventListener('pointerup',endPointer);
