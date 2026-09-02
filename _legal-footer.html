@@ -1,8 +1,28 @@
-<footer class="legal-footer">
-  <details class="legal-details">
-    <summary>Mentions légales</summary>
-    <div class="legal-content">
-      <p>Ce site a été créé dans un but informatif afin d’aider à la décision des étudiants en médecine ayant passé le concours de l’internat lors de leurs choix de spécialité et de subdivision. Les données présentées sont issues du site des choix de spécialité. Elles sont fournies à titre indicatif et ne constituent pas une garantie d’affectation. Pour toute question, contactez <strong>Corentin Delhay</strong>.</p>
-    </div>
-  </details>
+<footer class="legal-footer preview-legal-footer">
+  <button class="preview-legal-trigger" type="button" data-info-open="legalInfoOverlay" aria-label="Afficher les mentions légales">✓ Mentions légales <span aria-hidden="true">›</span></button>
 </footer>
+
+<div class="info-overlay legal-auto-overlay" id="legalInfoOverlay" hidden>
+  <button class="info-overlay-backdrop" type="button" data-info-close aria-label="Fermer"></button>
+  <section class="info-overlay-content" role="dialog" aria-modal="true" aria-labelledby="legalInfoTitle">
+    <button class="info-overlay-close" type="button" data-info-close aria-label="Fermer">×</button>
+    <p class="info-overlay-kicker">MENTIONS LÉGALES</p>
+    <h2 id="legalInfoTitle">À propos de ce site</h2>
+    <div class="legal-reveal-lines">
+      <p>Ce site a été créé dans un but informatif pour aider les étudiants en médecine lors de leurs choix de spécialité et de subdivision.</p>
+      <p>Les données présentées sont issues du site des choix de spécialité et sont fournies à titre indicatif.</p>
+      <p>Elles ne constituent pas une garantie d’affectation.</p>
+      <div class="legal-contact">
+        <div class="legal-contact-copy">Pour toute information, vous pouvez contacter <strong>Corentin Delhay</strong> ici :</div>
+        <div class="legal-social-links" aria-label="Contacter Corentin Delhay">
+          <a class="legal-social-link legal-social-messenger" href="https://m.me/corentin.corbeau.7?hash=3W6fvfO5yhRZEzA3&amp;source_id=8585216" target="_blank" rel="noopener noreferrer" aria-label="Contacter Corentin Delhay sur Messenger" title="Messenger">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.13 2 11.22c0 2.9 1.45 5.49 3.72 7.18V22l3.39-1.86c.92.25 1.89.38 2.89.38 5.52 0 10-4.13 10-9.3S17.52 2 12 2Zm1.06 12.45-2.55-2.72-4.94 2.72 5.45-5.79 2.6 2.72 4.91-2.72-5.47 5.79Z"/></svg>
+          </a>
+          <a class="legal-social-link legal-social-instagram" href="https://www.instagram.com/antique.doctor?igsi=NTN4Y3dub2xtdTNx&amp;utm_source=qr" target="_blank" rel="noopener noreferrer" aria-label="Voir le compte Instagram de Corentin Delhay" title="Instagram">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="5.2"/><circle cx="12" cy="12" r="4.15"/><circle cx="17.35" cy="6.75" r="1.05" class="instagram-dot"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

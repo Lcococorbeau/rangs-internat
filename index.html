@@ -146,20 +146,26 @@
       <a class="nav-link" href="possibilites.html">Mes possibilités</a>
     </div>
   </nav>
-  <section class="hero">
+  <section class="hero hero-simple">
     <div class="hero-main">
       <p class="eyebrow" id="eyebrow">EDN · Choix de spécialité</p>
       <h1>Évolution des rangs limites</h1>
-      <p class="subtitle">Comparez une ou plusieurs années, spécialités et subdivisions. En comparaison interannuelle, les tours sont alignés par phase : simulations, tours à blanc, puis choix définitif. Chaque courbe représente un rang maximal observé ; l’axe vertical part systématiquement de <strong>0</strong>.</p>
+      <div class="hero-info-links" aria-label="Aide">
+        <button class="apple-info-link" type="button" data-info-open="howItWorksModal">Comment ça marche <span aria-hidden="true">›</span></button>
+        <button class="apple-info-link" type="button" data-info-open="readChartModal">Lire le graphique <span aria-hidden="true">›</span></button>
+      </div>
+      <span class="sr-only" id="tourBadge">Chargement…</span>
     </div>
-    <aside class="hero-note">
-      <strong>Lecture rapide</strong>
-      <p>Plus le rang est élevé, plus la combinaison spécialité–ville reste accessible loin dans le classement. En mode « Toutes les villes », le rang max le plus élevé de la spécialité est retenu à chaque tour.</p>
-      <span class="tour-badge" id="tourBadge">Chargement…</span>
-    </aside>
   </section>
 
-  <section class="panel">
+  <div class="sr-only" id="modeExplainer"></div>
+
+  <section class="panel selection-panel">
+    <div class="metrics selection-summary" aria-label="Sélection actuelle">
+      <article class="metric summary-inspect" data-summary-kind="year" tabindex="0" role="button" aria-label="Voir les années sélectionnées"><div class="k" id="metric1Label">Année</div><div class="v" id="metric1Value">—</div><div class="s" id="metric1Sub"></div></article>
+      <article class="metric summary-inspect" data-summary-kind="specialty" tabindex="0" role="button" aria-label="Voir les spécialités sélectionnées"><div class="k" id="metric2Label">Spécialité</div><div class="v" id="metric2Value">—</div><div class="s" id="metric2Sub"></div></article>
+      <article class="metric summary-inspect" data-summary-kind="city" tabindex="0" role="button" aria-label="Voir les villes sélectionnées"><div class="k" id="metric3Label">Ville</div><div class="v" id="metric3Value">—</div><div class="s" id="metric3Sub"></div></article>
+    </div>
     <div class="controls">
       <div class="multi" id="yearControl">
         <span class="field-label">Année(s) — au moins une</span>
@@ -191,36 +197,191 @@
       <button class="reset-btn" id="resetButton" type="button">Réinitialiser</button>
     </div>
     <div class="error-box" id="errorBox"></div>
-    <div class="mode-explainer" id="modeExplainer"></div>
-    <div class="series-legend" id="seriesLegend" aria-label="Courbes affichées"></div>
   </section>
 
-  <section class="metrics" aria-label="Indicateurs">
-    <article class="metric"><div class="k" id="metric1Label">Année</div><div class="v" id="metric1Value">—</div><div class="s" id="metric1Sub"></div></article>
-    <article class="metric"><div class="k" id="metric2Label">Spécialité</div><div class="v" id="metric2Value">—</div><div class="s" id="metric2Sub"></div></article>
-    <article class="metric"><div class="k" id="metric3Label">Ville</div><div class="v" id="metric3Value">—</div><div class="s" id="metric3Sub"></div></article>
-  </section>
-
-  <section class="panel">
-    <div class="chart-head"><div><h2 id="chartTitle">Chargement…</h2><p id="chartSubtitle"></p></div><span class="badge">Interactif · survolez ou touchez un point</span></div>
+  <section class="panel data-stage chart-stage">
+    <div class="chart-head">
+      <div>
+        <h2 id="chartTitle">Chargement…</h2>
+        <p id="chartSubtitle"></p>
+      </div>
+      <div class="chart-head-actions">
+        <button class="legend-trigger" id="legendButton" type="button" data-info-open="legendModal">Légende <span aria-hidden="true">›</span></button>
+        <span class="badge">Interactif · touchez un point</span>
+      </div>
+    </div>
     <p class="sr-only" id="chartA11ySummary">Graphique des rangs limites. Les données sont également disponibles sous forme de tableau.</p>
     <div class="chart-wrap"><canvas id="rankChart" role="img" aria-describedby="chartA11ySummary"></canvas><div class="loading show" id="loading">Chargement des données…</div><div class="no-data" id="noData">Aucune donnée disponible pour cette sélection.</div></div>
-    <div class="table-actions"><button class="evolution-toggle" id="evolutionToggle" type="button" aria-expanded="false" aria-controls="evolutionPanel">Évolution</button><button class="table-toggle" id="tableToggle" type="button" aria-expanded="false" aria-controls="tablePanel">Afficher les données en tableau</button></div>
-    <div class="evolution-panel" id="evolutionPanel" hidden></div>
-    <div class="table-panel" id="tablePanel" hidden>
-      <div class="table-toolbar"><p class="table-note">Le tableau reprend exactement les années, spécialités et villes sélectionnées ci-dessus.</p><button class="table-orientation-btn" id="transposeTableButton" type="button" aria-pressed="false">↔ Inverser lignes / colonnes</button></div>
+  </section>
+
+  <section class="panel data-stage evolution-stage">
+    <div class="data-stage-head">
+      <p class="data-stage-kicker">Synthèse</p>
+      <h2>Évolution</h2>
+      <p>Écart entre la première et la dernière donnée disponible pour chaque courbe.</p>
+    </div>
+    <div class="evolution-panel" id="evolutionPanel"></div>
+  </section>
+
+  <section class="panel data-stage table-stage">
+    <div class="data-stage-head">
+      <p class="data-stage-kicker">Détail</p>
+      <h2>Données</h2>
+      <p>Le tableau reprend exactement la sélection affichée sur le graphique.</p>
+    </div>
+    <div class="table-panel" id="tablePanel">
+      <div class="table-toolbar"><p class="table-note">Faites glisser horizontalement le tableau si nécessaire.</p></div>
+      <div class="table-tablehead">
+        <div class="table-scroll-caption" id="tableScrollCaption">Données des rangs limites</div>
+        <button class="table-orientation-btn table-orientation-icon" id="transposeTableButton" type="button" aria-pressed="true" aria-label="Inverser lignes et colonnes" title="Inverser lignes et colonnes">⇄</button>
+      </div>
       <div class="table-scroll" id="tableContainer"></div>
     </div>
   </section>
 
-  <section class="foot-grid">
-    <div class="info-box"><h3>Mode « Toutes les villes confondues »</h3><p>Pour chaque spécialité, le graphique conserve à chaque tour le <code>rang max le plus élevé</code> parmi toutes les subdivisions. L’infobulle indique la ville correspondante, y compris en cas d’égalité.</p></div>
-    <div class="info-box"><h3>Comparaisons multiples</h3><p>Les sélections sont croisées : <code>années × spécialités × villes</code>. « Tout cocher » trace une courbe par ville ; « Toutes les villes confondues » garde une seule courbe agrégée. En comparaison interannuelle, chaque série a sa couleur et l’année en cours peut être pointillée.</p></div>
-  </section>
   <p class="source-note">Données issues des fichiers de suivi des tours de simulation EDN. Lorsqu’une ville manque dans un tour existant mais possède des valeurs avant et après, la courbe relie simplement les deux valeurs connues sans ajouter de point au tour manquant. Les tours futurs ne sont jamais extrapolés.</p>
   <div class="sr-only" id="liveStatus" aria-live="polite" aria-atomic="true"></div>
 </main>
 
+
+<div class="info-overlay" id="howItWorksModal" data-typewriter hidden>
+  <button class="info-overlay-backdrop" type="button" data-info-close aria-label="Fermer"></button>
+  <section class="info-overlay-content" role="dialog" aria-modal="true" aria-labelledby="howItWorksTitle">
+    <button class="info-overlay-close" type="button" data-info-close aria-label="Fermer">×</button>
+    <p class="info-overlay-kicker">COMMENT ÇA MARCHE</p>
+    <h2 id="howItWorksTitle">Trois choix, puis le graphique.</h2>
+    <div class="typewriter-lines">
+      <p data-type-line>1. Choisissez une ou plusieurs années.</p>
+      <p data-type-line>2. Sélectionnez les spécialités que vous voulez comparer.</p>
+      <p data-type-line>3. Choisissez une ou plusieurs villes, ou gardez « Toutes les villes ».</p>
+      <p data-type-line>Le graphique se met à jour automatiquement à chaque changement.</p>
+    </div>
+  </section>
+</div>
+
+<div class="info-overlay" id="readChartModal" data-typewriter hidden>
+  <button class="info-overlay-backdrop" type="button" data-info-close aria-label="Fermer"></button>
+  <section class="info-overlay-content" role="dialog" aria-modal="true" aria-labelledby="readChartTitle">
+    <button class="info-overlay-close" type="button" data-info-close aria-label="Fermer">×</button>
+    <p class="info-overlay-kicker">LIRE LE GRAPHIQUE</p>
+    <h2 id="readChartTitle">Un rang plus haut = accessible plus loin.</h2>
+    <div class="typewriter-lines">
+      <p data-type-line>Chaque point correspond au dernier rang observé pour un tour de choix.</p>
+      <p data-type-line>Plus la courbe est haute, plus la combinaison reste accessible loin dans le classement.</p>
+      <p data-type-line>Avec « Toutes les villes », le site retient le rang maximal observé parmi les subdivisions.</p>
+      <p data-type-line>Touchez un point pour connaître la ville correspondante.</p>
+    </div>
+  </section>
+</div>
+
+<div class="info-overlay" id="legendModal" hidden>
+  <button class="info-overlay-backdrop" type="button" data-info-close aria-label="Fermer"></button>
+  <section class="info-overlay-content legend-overlay-content" role="dialog" aria-modal="true" aria-labelledby="legendModalTitle">
+    <button class="info-overlay-close" type="button" data-info-close aria-label="Fermer">×</button>
+    <p class="info-overlay-kicker">COURBES</p>
+    <h2 id="legendModalTitle">Légende</h2>
+    <div class="series-legend legend-modal-list" id="seriesLegend" aria-label="Courbes affichées"></div>
+  </section>
+</div>
+
+<div class="info-overlay" id="summaryDetailOverlay" hidden>
+  <button class="info-overlay-backdrop" type="button" data-info-close aria-label="Fermer"></button>
+  <section class="info-overlay-content summary-detail-content" role="dialog" aria-modal="true" aria-labelledby="summaryDetailTitle">
+    <button class="info-overlay-close" type="button" data-info-close aria-label="Fermer">×</button>
+    <p class="info-overlay-kicker">SÉLECTION</p>
+    <h2 id="summaryDetailTitle">Sélection</h2>
+    <div class="summary-detail-list" id="summaryDetailList"></div>
+  </section>
+</div>
+
+<script>
+(() => {
+  let currentOverlay = null;
+  let typingTimer = null;
+
+  const stopTyping = () => {
+    if (typingTimer) clearTimeout(typingTimer);
+    typingTimer = null;
+  };
+
+  const prepareTypedLines = overlay => {
+    const lines = [...overlay.querySelectorAll('[data-type-line]')];
+    lines.forEach(line => {
+      if (!line.dataset.fullText) line.dataset.fullText = line.textContent.trim();
+      line.textContent = '';
+      line.classList.remove('typed');
+    });
+    return lines;
+  };
+
+  const typeLines = overlay => {
+    stopTyping();
+    const lines = prepareTypedLines(overlay);
+    let lineIndex = 0;
+    let charIndex = 0;
+
+    const step = () => {
+      if (!currentOverlay || currentOverlay !== overlay || lineIndex >= lines.length) {
+        typingTimer = null;
+        return;
+      }
+      const line = lines[lineIndex];
+      const full = line.dataset.fullText || '';
+      if (charIndex === 0) line.classList.add('typed');
+      line.textContent = full.slice(0, charIndex + 1);
+      charIndex += 1;
+
+      if (charIndex >= full.length) {
+        lineIndex += 1;
+        charIndex = 0;
+        typingTimer = setTimeout(step, 150);
+      } else {
+        typingTimer = setTimeout(step, 13);
+      }
+    };
+
+    typingTimer = setTimeout(step, 150);
+  };
+
+  const openOverlay = overlay => {
+    if (!overlay) return;
+    if (currentOverlay && currentOverlay !== overlay) closeOverlay(currentOverlay, true);
+    currentOverlay = overlay;
+    overlay.hidden = false;
+    document.documentElement.classList.add('info-overlay-open');
+    requestAnimationFrame(() => {
+      overlay.classList.add('open');
+      if (overlay.hasAttribute('data-typewriter')) typeLines(overlay);
+    });
+  };
+
+  const closeOverlay = (overlay, immediate = false) => {
+    if (!overlay || overlay.hidden) return;
+    stopTyping();
+    overlay.classList.remove('open');
+    document.documentElement.classList.remove('info-overlay-open');
+    const finish = () => { overlay.hidden = true; };
+    if (immediate) finish(); else setTimeout(finish, 180);
+    if (currentOverlay === overlay) currentOverlay = null;
+  };
+
+  window.RangsOverlays = { open: openOverlay, close: closeOverlay };
+
+  document.addEventListener('click', event => {
+    const opener = event.target.closest('[data-info-open]');
+    if (opener) {
+      openOverlay(document.getElementById(opener.dataset.infoOpen));
+      return;
+    }
+    const closer = event.target.closest('[data-info-close]');
+    if (closer) closeOverlay(closer.closest('.info-overlay'));
+  });
+
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && currentOverlay) closeOverlay(currentOverlay);
+  });
+})();
+</script>
 <script>
 const fmt=new Intl.NumberFormat('fr-FR');
 const YEAR_PHASES={2024:{sim:6,blank:6},2025:{sim:4,blank:4}};
@@ -233,9 +394,9 @@ const specialtyButton=document.getElementById('specialtyButton'),cityButton=docu
 const specialtyOptions=document.getElementById('specialtyOptions'),cityOptions=document.getElementById('cityOptions');
 const modeExplainer=document.getElementById('modeExplainer'),seriesLegend=document.getElementById('seriesLegend');
 const noData=document.getElementById('noData'),loading=document.getElementById('loading'),errorBox=document.getElementById('errorBox');
-const selectAllSpecialtiesButton=document.getElementById('selectAllSpecialtiesButton'),selectAllCitiesButton=document.getElementById('selectAllCitiesButton'),evolutionToggle=document.getElementById('evolutionToggle'),evolutionPanel=document.getElementById('evolutionPanel'),tableToggle=document.getElementById('tableToggle'),tablePanel=document.getElementById('tablePanel'),tableContainer=document.getElementById('tableContainer'),transposeTableButton=document.getElementById('transposeTableButton'),liveStatus=document.getElementById('liveStatus'),chartA11ySummary=document.getElementById('chartA11ySummary');
+const selectAllSpecialtiesButton=document.getElementById('selectAllSpecialtiesButton'),selectAllCitiesButton=document.getElementById('selectAllCitiesButton'),evolutionPanel=document.getElementById('evolutionPanel'),tablePanel=document.getElementById('tablePanel'),tableContainer=document.getElementById('tableContainer'),transposeTableButton=document.getElementById('transposeTableButton'),liveStatus=document.getElementById('liveStatus'),chartA11ySummary=document.getElementById('chartA11ySummary');
 const specialtyTutorial=document.getElementById('specialtyTutorial'),tutorialClose=document.getElementById('tutorialClose');
-let lastTableState={slots:[],requests:[],datasets:[]},tableTransposed=false;
+let lastTableState={slots:[],requests:[],datasets:[]},tableTransposed=true;
 const prefersReducedMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function displayCity(c){return ({'AP-HP':'Paris (AP-HP)','AP-HM':'Marseille (AP-HM)','HCL':'Lyon (HCL)'})[c]||c}
@@ -245,9 +406,60 @@ function tutorialWasSeen(){try{return localStorage.getItem('edn-specialty-tutori
 function dismissTutorial(){specialtyTutorial.hidden=true;specialtyControl.classList.remove('tutorial-highlight');try{localStorage.setItem('edn-specialty-tutorial-v1','1')}catch{}}
 function maybeShowTutorial(){if(selectedSpecialties.length||tutorialWasSeen())return;specialtyTutorial.hidden=false;specialtyControl.classList.add('tutorial-highlight')}
 tutorialClose.addEventListener('click',e=>{e.stopPropagation();dismissTutorial();specialtyButton.focus()});
-function closeMenus(except=null){[yearControl,specialtyControl,cityControl].forEach(x=>{if(x!==except){x.classList.remove('open');x.querySelector('.multi-button').setAttribute('aria-expanded','false')}})}
-function toggleMenu(control){const opening=!control.classList.contains('open');closeMenus(control);control.classList.toggle('open',opening);control.querySelector('.multi-button').setAttribute('aria-expanded',String(opening))}
-yearButton.addEventListener('click',e=>{e.stopPropagation();toggleMenu(yearControl)});specialtyButton.addEventListener('click',e=>{e.stopPropagation();dismissTutorial();toggleMenu(specialtyControl)});cityButton.addEventListener('click',e=>{e.stopPropagation();toggleMenu(cityControl)});document.addEventListener('click',e=>{if(!e.target.closest('.multi'))closeMenus()});document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;const open=[yearControl,specialtyControl,cityControl].find(x=>x.classList.contains('open'));if(open){e.preventDefault();closeMenus();open.querySelector('.multi-button').focus()}});
+document.addEventListener('pointerdown',e=>{
+  if(specialtyTutorial.hidden)return;
+  if(e.target.closest('#specialtyTutorial')||e.target.closest('#specialtyButton'))return;
+  dismissTutorial();
+},{capture:true});
+function clearMenuPosition(control){
+  control.style.removeProperty('--menu-max-height');
+}
+function positionMenu(control){
+  if(!control?.classList.contains('open')||!window.matchMedia('(max-width: 820px)').matches)return;
+  const button=control.querySelector('.multi-button');
+  if(!button)return;
+
+  const rect=button.getBoundingClientRect();
+  const vv=window.visualViewport;
+  const viewportTop=vv?.offsetTop||0;
+  const viewportHeight=vv?.height||window.innerHeight;
+  const viewportBottom=viewportTop+viewportHeight;
+  const gap=8,edge=12;
+
+  /* Le menu est ancré en CSS juste sous le champ.
+     Ici on ne règle que sa hauteur pour qu'il reste dans l'écran. */
+  const availableBelow=Math.max(120,viewportBottom-rect.bottom-gap-edge);
+  const maxHeight=Math.min(430,viewportHeight*.52,availableBelow);
+  control.style.setProperty('--menu-max-height',Math.max(120,maxHeight)+'px');
+}
+function closeMenus(except=null){
+  [yearControl,specialtyControl,cityControl].forEach(x=>{
+    if(x!==except){
+      x.classList.remove('open');
+      x.querySelector('.multi-button').setAttribute('aria-expanded','false');
+      clearMenuPosition(x);
+    }
+  });
+}
+function toggleMenu(control){
+  const opening=!control.classList.contains('open');
+  closeMenus(control);
+  control.classList.toggle('open',opening);
+  control.querySelector('.multi-button').setAttribute('aria-expanded',String(opening));
+  if(opening)requestAnimationFrame(()=>positionMenu(control));
+  else clearMenuPosition(control);
+}
+function repositionOpenMenu(){
+  const open=[yearControl,specialtyControl,cityControl].find(x=>x.classList.contains('open'));
+  if(open)positionMenu(open);
+}
+yearButton.addEventListener('click',e=>{e.stopPropagation();toggleMenu(yearControl)});
+specialtyButton.addEventListener('click',e=>{e.stopPropagation();dismissTutorial();toggleMenu(specialtyControl)});
+cityButton.addEventListener('click',e=>{e.stopPropagation();toggleMenu(cityControl)});
+document.addEventListener('click',e=>{if(!e.target.closest('.multi'))closeMenus()});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;const open=[yearControl,specialtyControl,cityControl].find(x=>x.classList.contains('open'));if(open){e.preventDefault();closeMenus();open.querySelector('.multi-button').focus()}});
+window.addEventListener('resize',repositionOpenMenu,{passive:true});
+window.visualViewport?.addEventListener('resize',repositionOpenMenu,{passive:true});
 
 function setError(msg=''){errorBox.textContent=msg;errorBox.classList.toggle('show',Boolean(msg))}
 async function fetchJson(path){const r=await fetch(path,{cache:'no-store'});if(!r.ok)throw new Error(`${path} : HTTP ${r.status}`);return r.json()}
@@ -370,11 +582,56 @@ function updateMetrics(requests,datasets,slots){
   setMetric(2,selectedSpecialties.length>1?'Spécialités':'Spécialité',selectedSpecialties.length?specialtySummary.value:'À sélectionner',selectedSpecialties.length?specialtySummary.sub:'');
   setMetric(3,(selectedCities.length>1||selectedCities[0]==='__ALL__')?'Villes':'Ville',citySummary.value,citySummary.sub);
 }
+function summaryItems(kind){
+  if(kind==='year')return {title:selectedYears.length>1?'Années sélectionnées':'Année sélectionnée',items:selectedYears.map(String)};
+  if(kind==='specialty')return {title:selectedSpecialties.length>1?'Spécialités sélectionnées':'Spécialité sélectionnée',items:selectedSpecialties.length?[...selectedSpecialties]:['Aucune spécialité sélectionnée']};
+  const items=selectedCities.length===1&&selectedCities[0]==='__ALL__'?['Toutes les villes confondues']:selectedCities.map(displayCity);
+  return {title:items.length>1?'Villes sélectionnées':'Ville sélectionnée',items};
+}
+function openSummaryInspector(kind){
+  const overlay=document.getElementById('summaryDetailOverlay');
+  const title=document.getElementById('summaryDetailTitle');
+  const list=document.getElementById('summaryDetailList');
+  if(!overlay||!title||!list)return;
+  const data=summaryItems(kind);
+  title.textContent=data.title;
+  list.innerHTML=data.items.map(item=>`<div class="summary-detail-item">${escapeHtml(item)}</div>`).join('');
+  window.RangsOverlays?.open(overlay);
+}
+document.querySelectorAll('.summary-inspect').forEach(card=>{
+  card.addEventListener('click',()=>openSummaryInspector(card.dataset.summaryKind));
+  card.addEventListener('keydown',event=>{
+    if(event.key==='Enter'||event.key===' '){
+      event.preventDefault();
+      openSummaryInspector(card.dataset.summaryKind);
+    }
+  });
+});
+
 function updateYearCopy(){const years=selectedYears.join(' · ');document.title=`EDN ${years} — Évolution des rangs limites`;document.getElementById('eyebrow').textContent=`EDN ${years} · Choix de spécialité`;if(selectedYears.length===1){const p=YEAR_MAP.get(selectedYears[0]);const nums=numericTours(p),hasDef=(p?.tours||[]).includes('Définitif');const range=nums.length?`Tours ${Math.min(...nums)} à ${Math.max(...nums)}`:'Tours disponibles';document.getElementById('tourBadge').textContent=`${range}${hasDef?' + définitif':''}`}else{const profiles=selectedYears.map(y=>phaseProfile(y,YEAR_MAP.get(y)));document.getElementById('tourBadge').textContent=`Comparaison par phases · ${Math.max(...profiles.map(p=>p.sim))} simulations + ${Math.max(...profiles.map(p=>p.blank))} blancs`}}
 function updateExplainer(){if(selectedSpecialties.length===0){modeExplainer.innerHTML='<b>Pour commencer :</b> sélectionnez une ou plusieurs spécialités. Vous pouvez ensuite comparer des villes, des années, ou utiliser « Tout cocher ».';return}if(selectedYears.length>1){const years=selectedYears.join(' et ');modeExplainer.innerHTML=`<b>Comparaison ${escapeHtml(years)} :</b> les courbes sont alignées par phase. En 2024 : 6 simulations puis 6 tours à blanc. À partir de 2025 : 4 simulations puis 4 tours à blanc. Lorsqu’une donnée manque dans un tour existant, la courbe relie simplement les deux valeurs connues sans ajouter de point au tour manquant ; les emplacements structurels et les tours futurs ne sont jamais interprétés comme des données manquantes.`;return}if(selectedCities[0]==='__ALL__')modeExplainer.innerHTML=`<b>Mode toutes les villes confondues :</b> ${selectedSpecialties.length===1?'la courbe retient':'chaque courbe retient'}, à chaque tour, le rang max le plus élevé parmi toutes les subdivisions. Touchez un point pour voir la ville qui porte ce rang limite.`;else if(selectedSpecialties.length===1&&selectedCities.length>1)modeExplainer.innerHTML=`<b>Comparaison de villes :</b> ${selectedCities.length} courbes pour <strong>${escapeHtml(selectedSpecialties[0])}</strong>, une par subdivision sélectionnée.`;else if(selectedSpecialties.length>1&&selectedCities.length===1)modeExplainer.innerHTML=`<b>Comparaison de spécialités :</b> ${selectedSpecialties.length} courbes pour <strong>${escapeHtml(displayCity(selectedCities[0]))}</strong>, une par spécialité sélectionnée.`;else modeExplainer.innerHTML=`<b>Comparaison croisée :</b> ${selectedSpecialties.length} spécialité${selectedSpecialties.length>1?'s':''} × ${selectedCities.length} ville${selectedCities.length>1?'s':''}.`}
 function updateLegend(requests,datasets){seriesLegend.innerHTML='';requests.forEach((r,i)=>{const ds=datasets[i],exists=ds.data.some(Number.isFinite),chip=document.createElement('div');chip.className='series-chip'+(exists?'':' nonexistent');const dot=document.createElement('span');dot.className='series-dot'+(exists?'':' empty');if(exists)dot.style.background=ds.borderColor;const text=document.createElement('span');text.textContent=requestLabel(r)+(exists?'':' — inexistant');chip.append(dot,text);seriesLegend.appendChild(chip)})}
 function tableCell(ds,index){const point=ds.pointMeta?.[index];if(!Number.isFinite(ds.data?.[index]))return '<span aria-label="Donnée absente">—</span>';const rank=fmt.format(ds.data[index]);if(ds.isGlobal&&point?.cities?.length)return `${escapeHtml(rank)}<span class="table-city">${escapeHtml(point.cities.map(displayCity).join(' · '))}</span>`;return escapeHtml(rank)}
-function renderDataTable(){const {slots,requests,datasets}=lastTableState;if(!slots.length||!requests.length){tableContainer.innerHTML='<p>Sélectionnez au moins une spécialité pour afficher le tableau.</p>';return}const caption=`Données des rangs limites — ${selectedYears.join(', ')}`;if(!tableTransposed){const headers=datasets.map((ds,i)=>`<th scope="col">${escapeHtml(requestLabel(requests[i]))}</th>`).join('');const rows=slots.map((slot,rowIndex)=>`<tr><th scope="row">${escapeHtml(slot.label)}</th>${datasets.map(ds=>`<td>${tableCell(ds,rowIndex)}</td>`).join('')}</tr>`).join('');tableContainer.innerHTML=`<table class="data-table"><caption>${escapeHtml(caption)}</caption><thead><tr><th scope="col">Étape</th>${headers}</tr></thead><tbody>${rows}</tbody></table>`;return}const headers=slots.map(slot=>`<th scope="col">${escapeHtml(slot.label)}</th>`).join('');const rows=datasets.map((ds,i)=>`<tr><th scope="row">${escapeHtml(requestLabel(requests[i]))}</th>${slots.map((slot,colIndex)=>`<td>${tableCell(ds,colIndex)}</td>`).join('')}</tr>`).join('');tableContainer.innerHTML=`<table class="data-table"><caption>${escapeHtml(caption)} — lignes et colonnes inversées</caption><thead><tr><th scope="col">Série</th>${headers}</tr></thead><tbody>${rows}</tbody></table>`}
+function tableSeriesHeader(r){
+  const city=r.city==='__ALL__'?'Toutes les villes':displayCity(r.city);
+  return `<span class="table-series-name">${escapeHtml(r.spec)}</span><span class="table-series-meta">${escapeHtml(city)} · ${escapeHtml(String(r.year))}</span>`;
+}
+function renderDataTable(){
+  const {slots,requests,datasets}=lastTableState;
+  if(!slots.length||!requests.length){tableContainer.innerHTML='<p>Sélectionnez au moins une spécialité pour afficher le tableau.</p>';return}
+  const caption=`Données des rangs limites — ${selectedYears.join(', ')}`;
+  const fixedCaption=document.getElementById('tableScrollCaption');
+  if(fixedCaption)fixedCaption.textContent=caption;
+  if(!tableTransposed){
+    const headers=requests.map(r=>`<th scope="col">${tableSeriesHeader(r)}</th>`).join('');
+    const rows=slots.map((slot,rowIndex)=>`<tr><th scope="row">${escapeHtml(slot.label)}</th>${datasets.map(ds=>`<td>${tableCell(ds,rowIndex)}</td>`).join('')}</tr>`).join('');
+    tableContainer.innerHTML=`<table class="data-table compact-data-table" aria-label="${escapeHtml(caption)}" style="--data-cols:${datasets.length};--first-col:76px;--data-col:132px"><thead><tr><th scope="col">Tour</th>${headers}</tr></thead><tbody>${rows}</tbody></table>`;
+    return;
+  }
+  const headers=slots.map(slot=>`<th scope="col">${escapeHtml(slot.label)}</th>`).join('');
+  const rows=requests.map((r,i)=>`<tr><th scope="row">${tableSeriesHeader(r)}</th>${slots.map((slot,colIndex)=>`<td>${tableCell(datasets[i],colIndex)}</td>`).join('')}</tr>`).join('');
+  tableContainer.innerHTML=`<table class="data-table compact-data-table transposed-data-table" aria-label="${escapeHtml(caption)}" style="--data-cols:${slots.length};--first-col:150px;--data-col:86px"><thead><tr><th scope="col">Série</th>${headers}</tr></thead><tbody>${rows}</tbody></table>`;
+}
 function evolutionEndpointLabel(point){return point?.tour||point?.slot||'—'}
 function renderEvolution(){
   const {requests,datasets}=lastTableState;
@@ -388,11 +645,9 @@ function renderEvolution(){
   });
   evolutionPanel.innerHTML=rows.join('');
 }
-evolutionToggle.addEventListener('click',()=>{const opening=evolutionPanel.hidden;evolutionPanel.hidden=!opening;evolutionToggle.setAttribute('aria-expanded',String(opening));if(opening)renderEvolution()});
 function clearChartTooltip(){chart.setActiveElements([]);if(chart.tooltip?.setActiveElements)chart.tooltip.setActiveElements([],{x:0,y:0});chart.update('none')}
 document.addEventListener('pointerdown',e=>{if(e.target!==rankCanvas&&!rankCanvas.contains(e.target))clearChartTooltip()});
 rankCanvas.addEventListener('pointerdown',e=>{requestAnimationFrame(()=>{const hits=chart.getElementsAtEventForMode(e,'nearest',{intersect:true},false);if(!hits.length)clearChartTooltip()})});
-tableToggle.addEventListener('click',()=>{const opening=tablePanel.hidden;tablePanel.hidden=!opening;tableToggle.setAttribute('aria-expanded',String(opening));tableToggle.textContent=opening?'Masquer le tableau':'Afficher les données en tableau';if(opening)renderDataTable()});
 transposeTableButton.addEventListener('click',()=>{tableTransposed=!tableTransposed;transposeTableButton.setAttribute('aria-pressed',String(tableTransposed));renderDataTable();liveStatus.textContent=tableTransposed?'Tableau inversé : les séries sont en lignes et les étapes en colonnes.':'Tableau rétabli : les étapes sont en lignes et les séries en colonnes.'});
 function update(){if(!YEAR_MAP.size||!SPECIALTIES.length)return;const slots=axisSlots(),requests=buildRequests();const datasets=requests.map(r=>{const points=pointsFor(r,slots),color=seriesColorFor(r,requests);return {label:requestLabel(r),data:points.map(p=>p.y),pointMeta:points,isGlobal:r.city==='__ALL__',borderColor:color,backgroundColor:'rgba(0,0,0,0)',pointBackgroundColor:'#fff',pointBorderColor:color,pointBorderWidth:2.5,pointRadius:4.5,pointHoverRadius:7,pointHitRadius:18,pointStyle:yearPointStyle(r.year),borderWidth:3,borderDash:yearDash(r.year),tension:.25,fill:false,spanGaps:true}});chart.$axisSlots=slots;chart.data.labels=slots.map(s=>s.label);chart.data.datasets=datasets;chart.options.scales.x.title.text=selectedYears.length>1?'Phase du processus de choix':'Tour de choix';chart.update();const hasAnyData=datasets.some(ds=>ds.data.some(Number.isFinite));noData.textContent=selectedSpecialties.length===0?'Sélectionnez une spécialité pour commencer.':'Aucune donnée disponible pour cette sélection.';noData.classList.toggle('show',selectedSpecialties.length===0||!hasAnyData);updateExplainer();updateLegend(requests,datasets);updateMetrics(requests,datasets,slots);lastTableState={slots,requests,datasets};if(!tablePanel.hidden)renderDataTable();if(!evolutionPanel.hidden)renderEvolution();const existing=datasets.filter(ds=>ds.data.some(Number.isFinite)).length;chartA11ySummary.textContent=`Graphique de ${existing} courbe${existing>1?'s':''} de rangs limites pour ${selectedYears.join(', ')}. Les mêmes données sont disponibles avec le bouton Afficher les données en tableau.`;liveStatus.textContent=`Graphique mis à jour : ${existing} courbe${existing>1?'s':''}, ${selectedYears.length} année${selectedYears.length>1?'s':''} sélectionnée${selectedYears.length>1?'s':''}.`;const comboCount=new Set(requests.map(r=>`${r.spec}|||${r.city}`)).size;if(selectedSpecialties.length===0){document.getElementById('chartTitle').textContent='Sélectionnez une spécialité';document.getElementById('chartSubtitle').textContent='Le graphique apparaîtra ici automatiquement.'}else if(selectedYears.length>1&&comboCount===1){document.getElementById('chartTitle').textContent=comboLabel(requests[0]);document.getElementById('chartSubtitle').textContent=`Comparaison ${selectedYears.join(' vs ')} · couleurs distinctes, 2026 en pointillés si incomplète`}else if(selectedYears.length>1){document.getElementById('chartTitle').textContent=`Comparaison de ${selectedYears.length} années · ${requests.length} séries`;document.getElementById('chartSubtitle').textContent='Une couleur par série · pointillés uniquement pour l’année incomplète'}else if(requests.length===1){document.getElementById('chartTitle').textContent=comboLabel(requests[0]);document.getElementById('chartSubtitle').textContent=`Rang limite à chaque tour · ${selectedYears[0]}`}else{document.getElementById('chartTitle').textContent=`Comparaison de ${requests.length} combinaisons · ${selectedYears[0]}`;document.getElementById('chartSubtitle').textContent='Chaque couleur correspond à une combinaison indiquée dans la légende'}}
 loadManifest().catch(err=>{console.error(err);loading.classList.remove('show');setError('Impossible de charger le manifeste des données. Vérifiez la présence du dossier data sur Vercel.')});
