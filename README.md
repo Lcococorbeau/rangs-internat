@@ -107,3 +107,6 @@ python3 -m http.server 8000 -d dist
 ```
 
 Puis ouvrir `http://localhost:8000`.
+
+
+<!-- animations-preview-2026-09-02 -->
