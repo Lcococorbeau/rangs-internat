@@ -351,6 +351,53 @@
     setTimeout(() => { legalOpening = false; }, 450);
   }
 
+  function closeLegalOverlay() {
+    if (!legalOverlay || legalOverlay.hidden) return;
+    legalOpening = false;
+    window.RangsOverlays?.close(legalOverlay);
+  }
+
+  /* Le geste inverse referme naturellement les mentions légales :
+     - molette / trackpad vers le haut sur ordinateur ;
+     - glissement du doigt vers le bas sur téléphone.
+     Si le contenu légal est lui-même scrollé, on le laisse d'abord revenir
+     jusqu'en haut avant de fermer l'overlay. */
+  if (legalOverlay) {
+    const legalContent = legalOverlay.querySelector('.info-overlay-content');
+    let legalTouchStartY = null;
+
+    legalOverlay.addEventListener('touchstart', event => {
+      if (event.touches.length !== 1) {
+        legalTouchStartY = null;
+        return;
+      }
+      legalTouchStartY = event.touches[0].clientY;
+    }, { passive: true });
+
+    legalOverlay.addEventListener('touchmove', event => {
+      if (legalTouchStartY === null || event.touches.length !== 1 || legalOverlay.hidden) return;
+      const dy = event.touches[0].clientY - legalTouchStartY;
+      if (dy < 58) return;
+      if (legalContent && canScrollUp(legalContent)) return;
+      closeLegalOverlay();
+      legalTouchStartY = null;
+    }, { passive: true });
+
+    legalOverlay.addEventListener('touchend', () => {
+      legalTouchStartY = null;
+    }, { passive: true });
+
+    legalOverlay.addEventListener('touchcancel', () => {
+      legalTouchStartY = null;
+    }, { passive: true });
+
+    legalOverlay.addEventListener('wheel', event => {
+      if (event.deltaY >= -35 || legalOverlay.hidden) return;
+      if (legalContent && canScrollUp(legalContent)) return;
+      closeLegalOverlay();
+    }, { passive: true });
+  }
+
   function computeFinalLock() {
     if (!tableStage) {
       finalLock = null;
