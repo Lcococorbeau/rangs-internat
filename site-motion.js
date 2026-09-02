@@ -377,7 +377,7 @@
     legalOverlay.addEventListener('touchmove', event => {
       if (legalTouchStartY === null || event.touches.length !== 1 || legalOverlay.hidden) return;
       const dy = event.touches[0].clientY - legalTouchStartY;
-      if (dy < 8) return;
+      if (dy < 2) return;
       if (legalContent && canScrollUp(legalContent)) return;
       closeLegalOverlay();
       legalTouchStartY = null;
@@ -392,7 +392,7 @@
     }, { passive: true });
 
     legalOverlay.addEventListener('wheel', event => {
-      if (event.deltaY >= -2 || legalOverlay.hidden) return;
+      if (event.deltaY >= 0 || legalOverlay.hidden) return;
       if (legalContent && canScrollUp(legalContent)) return;
       closeLegalOverlay();
     }, { passive: true });
