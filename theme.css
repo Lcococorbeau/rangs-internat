@@ -2042,3 +2042,56 @@ html.info-overlay-open body {
     font-size: 1.14rem;
   }
 }
+
+
+/* Preview V11.1 — menus de sélection ancrés aux champs */
+/* Sur mobile, les listes restent attachées au champ qui les ouvre.
+   Leur hauteur est calculée en JS à partir du visual viewport (Safari inclus)
+   et seule la liste d'options défile. */
+@media (max-width: 820px) {
+  .motion-stack-card:has(.multi.open) {
+    clip-path: none !important;
+    overflow: visible !important;
+    z-index: 950 !important;
+  }
+
+  .multi.open {
+    z-index: 960;
+  }
+
+  .multi-menu {
+    position: fixed !important;
+    left: var(--menu-left, 10px) !important;
+    right: auto !important;
+    top: var(--menu-top, 120px) !important;
+    bottom: auto !important;
+    width: var(--menu-width, calc(100vw - 20px)) !important;
+    max-width: calc(100vw - 20px) !important;
+    max-height: var(--menu-max-height, min(52svh, 430px)) !important;
+    padding: 10px !important;
+    border-radius: 15px !important;
+    overflow: hidden !important;
+  }
+
+  .multi.open .multi-menu {
+    display: flex !important;
+    flex-direction: column;
+  }
+
+  .multi-menu .search-wrap {
+    position: relative !important;
+    top: auto !important;
+    flex: 0 0 auto;
+    z-index: 3;
+  }
+
+  .multi-menu .options {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+}
