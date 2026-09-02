@@ -148,7 +148,7 @@
 
   let touch = null;
   let horizontalGesture = false;
-  const forbiddenStart = 'input,textarea,select,button,a,canvas,.multi-menu,.table-scroll,.info-overlay,.selection-summary .metric,.motion-tuner,[contenteditable="true"]';
+  const forbiddenStart = 'input,textarea,select,button,a,canvas,.multi-menu,.table-scroll,.info-overlay,.selection-summary .metric,[contenteditable="true"]';
 
   /* Swipe gauche depuis l'accueil -> possibilités.
      Swipe droite depuis possibilités -> accueil. */
