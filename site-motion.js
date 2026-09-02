@@ -215,8 +215,8 @@
     resetDrag(true);
   }, { passive: true });
 
-  /* La page d'accueil fonctionne comme une pile de cartes.
-     L'en-tête EDN est la première carte de la pile. */
+  /* Navigation verticale par carte active.
+     Une nouvelle carte commence à effacer la précédente bien avant d'atteindre le haut. */
   const stackCandidates = isExplore
     ? [
         document.querySelector('.hero-simple'),
@@ -227,12 +227,15 @@
       ].filter(Boolean)
     : [...shell.children].filter(el => el.matches('.panel'));
 
-  /* Sur Explorer, la dernière carte absorbe le pied de page :
-     les mentions légales restent accessibles sans rallonger visuellement la page. */
+  const evolutionStage = document.querySelector('.evolution-stage');
+  const evolutionScroll = document.querySelector('.evolution-stage .evolution-panel');
+  const tableStage = document.querySelector('.table-stage');
+  const tableScroll = document.querySelector('.table-stage .table-scroll');
+  const legalOverlay = document.getElementById('legalInfoOverlay');
+  const legalFooter = document.querySelector('.legal-footer');
+  const sourceNote = document.querySelector('.source-note');
+
   if (isExplore) {
-    const tableStage = document.querySelector('.table-stage');
-    const legalFooter = document.querySelector('.legal-footer');
-    const sourceNote = document.querySelector('.source-note');
     if (sourceNote) sourceNote.classList.add('preview-source-hidden');
     if (tableStage && legalFooter) tableStage.appendChild(legalFooter);
 
@@ -243,65 +246,242 @@
     }
   }
 
-  function configureStack() {
-    stackCandidates.forEach((el, index) => {
-      el.classList.add('motion-stack-card');
-      el.style.setProperty('--stack-i', String(Math.min(index, 6)));
+  let activeIndex = 0;
+  let stackFrame = null;
+  let resizeTimer = null;
+  let finalLock = null;
+  let verticalTouch = null;
+  let legalOpening = false;
+  let lastWindowY = window.scrollY;
 
-      /* Sur Explorer, les cartes sont volontairement toutes sticky.
-         Sur Mes possibilités, les très grands panneaux gardent le comportement prudent précédent. */
-      if (isExplore) {
-        el.classList.remove('motion-stack-static');
-      } else {
-        const tooTall = el.getBoundingClientRect().height > window.innerHeight * .84;
-        el.classList.toggle('motion-stack-static', tooTall);
-      }
-    });
-
-    updateStackCoverage();
-  }
+  const clamp01 = value => Math.max(0, Math.min(1, value));
 
   function stickyTop(el) {
     const value = parseFloat(getComputedStyle(el).top);
     return Number.isFinite(value) ? value : 0;
   }
 
-  function updateStackCoverage() {
-    if (!isExplore) return;
-    stackCandidates.forEach((el, index) => {
-      if (index === stackCandidates.length - 1) {
-        el.classList.remove('motion-covered');
-        return;
-      }
-      const next = stackCandidates[index + 1];
-      const nextReachedItsSlot = next.getBoundingClientRect().top <= stickyTop(next) + 2;
-      el.classList.toggle('motion-covered', nextReachedItsSlot);
-    });
+  function targetScrollY(el) {
+    const rect = el.getBoundingClientRect();
+    return Math.max(0, window.scrollY + rect.top - stickyTop(el));
+  }
 
-    if (isExplore) {
-      let current = null;
-      stackCandidates.forEach(el => {
-        if (!el.classList.contains('motion-covered') && el.getBoundingClientRect().top <= stickyTop(el) + 4) current = el;
-      });
-      stackCandidates.forEach(el => el.classList.toggle('motion-current', el === current));
+  function scrollToCard(index) {
+    const card = stackCandidates[index];
+    if (!card) return;
+    window.scrollTo({
+      top: targetScrollY(card),
+      behavior: reduceMotion ? 'auto' : 'smooth'
+    });
+  }
+
+  function canScrollDown(el) {
+    if (!el) return false;
+    return el.scrollHeight - el.clientHeight - el.scrollTop > 3;
+  }
+
+  function canScrollUp(el) {
+    return !!el && el.scrollTop > 3;
+  }
+
+  function updateInternalPriority() {
+    if (!isExplore) return;
+
+    if (evolutionScroll) {
+      const enabled = stackCandidates[activeIndex] === evolutionStage;
+      evolutionScroll.classList.toggle('inner-scroll-active', enabled);
+      evolutionScroll.style.overflowY = enabled ? 'auto' : 'hidden';
+    }
+
+    if (tableScroll) {
+      const enabled = stackCandidates[activeIndex] === tableStage;
+      tableScroll.classList.toggle('inner-scroll-active', enabled);
+      tableScroll.style.overflow = enabled ? 'auto' : 'hidden';
     }
   }
 
+  function openLegalOverlay() {
+    if (!legalOverlay || legalOpening || !legalOverlay.hidden) return;
+    legalOpening = true;
+    window.RangsOverlays?.open(legalOverlay);
+    setTimeout(() => { legalOpening = false; }, 450);
+  }
+
+  function computeFinalLock() {
+    if (!tableStage) {
+      finalLock = null;
+      return;
+    }
+    finalLock = targetScrollY(tableStage);
+  }
+
+  function updateStackState() {
+    if (!isExplore || !stackCandidates.length) return;
+
+    const vh = window.innerHeight;
+    const coverStart = vh * .88;
+    const coverEnd = vh * .48;
+    let nextActive = 0;
+
+    stackCandidates.forEach((card, index) => {
+      card.classList.add('motion-stack-card');
+      card.style.setProperty('--stack-i', String(Math.min(index, 6)));
+      card.classList.remove('motion-stack-static');
+
+      if (index > 0 && card.getBoundingClientRect().top <= vh * .55) {
+        nextActive = index;
+      }
+    });
+
+    stackCandidates.forEach((card, index) => {
+      if (index === stackCandidates.length - 1) {
+        card.classList.remove('motion-covered');
+        card.style.removeProperty('clip-path');
+        card.style.setProperty('--stack-content-opacity', '1');
+        return;
+      }
+
+      const next = stackCandidates[index + 1];
+      const nextTop = next.getBoundingClientRect().top;
+      const progress = clamp01((coverStart - nextTop) / Math.max(coverStart - coverEnd, 1));
+      const height = card.getBoundingClientRect().height;
+      const strip = 9;
+      const visibleHeight = Math.max(strip, height - ((height - strip) * progress));
+      const clipBottom = Math.max(0, height - visibleHeight);
+
+      card.style.clipPath = `inset(0 0 ${clipBottom.toFixed(1)}px 0 round 20px)`;
+      card.style.setProperty('--stack-content-opacity', String(clamp01(1 - progress * 1.18)));
+      card.classList.toggle('motion-covered', progress > .985);
+    });
+
+    if (activeIndex !== nextActive) {
+      activeIndex = nextActive;
+      updateInternalPriority();
+    }
+
+    stackCandidates.forEach((card,index)=>{
+      card.classList.toggle('motion-current', index === activeIndex);
+      card.classList.toggle('motion-inactive', index !== activeIndex);
+    });
+
+    if (tableStage) {
+      computeFinalLock();
+      const currentY = window.scrollY;
+      const movingDown = currentY >= lastWindowY;
+      if (stackCandidates[activeIndex] === tableStage && finalLock !== null && currentY > finalLock + 1 && movingDown) {
+        window.scrollTo(0, finalLock);
+      }
+      lastWindowY = window.scrollY;
+    }
+  }
+
+  function configureStack() {
+    if (!isExplore) {
+      stackCandidates.forEach((el,index)=>{
+        el.classList.add('motion-stack-card');
+        el.style.setProperty('--stack-i', String(Math.min(index, 6)));
+        const tooTall = el.getBoundingClientRect().height > window.innerHeight * .84;
+        el.classList.toggle('motion-stack-static', tooTall);
+      });
+      return;
+    }
+
+    updateStackState();
+    computeFinalLock();
+  }
+
   configureStack();
-  let stackFrame = null;
+  updateInternalPriority();
+
   window.addEventListener('scroll', () => {
     if (stackFrame) return;
     stackFrame = requestAnimationFrame(() => {
       stackFrame = null;
-      updateStackCoverage();
+      updateStackState();
     });
   }, { passive: true });
 
-  let resizeTimer = null;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(configureStack, 120);
   }, { passive: true });
+
+  if ('ResizeObserver' in window && isExplore) {
+    const ro = new ResizeObserver(() => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(configureStack, 80);
+    });
+    if (evolutionStage) ro.observe(evolutionStage);
+    if (tableStage) ro.observe(tableStage);
+  }
+
+  /* Petit geste = scroll interne de la carte active.
+     Grand geste vertical = passage à la carte précédente/suivante. */
+  if (isExplore) {
+    document.addEventListener('touchstart', event => {
+      if (event.touches.length !== 1 || event.target.closest('.info-overlay')) return;
+      const point = event.touches[0];
+      const container = event.target.closest('.evolution-panel,.table-scroll');
+      const card = container?.closest('.motion-stack-card') || event.target.closest('.motion-stack-card');
+
+      verticalTouch = {
+        y: point.clientY,
+        time: performance.now(),
+        container,
+        card,
+        activeAtStart: stackCandidates[activeIndex]
+      };
+    }, { passive: true });
+
+    document.addEventListener('touchend', event => {
+      if (!verticalTouch) return;
+      const endY = event.changedTouches?.[0]?.clientY ?? verticalTouch.y;
+      const dy = endY - verticalTouch.y;
+      const elapsed = Math.max(performance.now() - verticalTouch.time, 1);
+      const absDy = Math.abs(dy);
+      const fastGesture = absDy > 125 && elapsed < 560;
+      const startedOnActive = verticalTouch.card === verticalTouch.activeAtStart;
+
+      if (fastGesture && startedOnActive) {
+        if (dy < 0) {
+          if (activeIndex < stackCandidates.length - 1) {
+            scrollToCard(activeIndex + 1);
+          } else {
+            const atTableEnd = !tableScroll || !canScrollDown(tableScroll);
+            if (atTableEnd) openLegalOverlay();
+          }
+        } else if (dy > 0 && activeIndex > 0) {
+          scrollToCard(activeIndex - 1);
+        }
+      }
+
+      verticalTouch = null;
+    }, { passive: true });
+
+    /* À la dernière carte, la page ne descend plus.
+       Une tentative de scroll supplémentaire ouvre automatiquement les mentions légales. */
+    document.addEventListener('touchmove', event => {
+      if (!tableStage || finalLock === null || !verticalTouch || event.touches.length !== 1) return;
+      if (stackCandidates[activeIndex] !== tableStage) return;
+      if (window.scrollY < finalLock - 3) return;
+
+      const dy = event.touches[0].clientY - verticalTouch.y;
+      if (dy >= -64) return;
+
+      const startedInsideTable = !!verticalTouch.container?.classList.contains('table-scroll');
+      if (startedInsideTable && canScrollDown(tableScroll)) return;
+
+      openLegalOverlay();
+    }, { passive: true });
+
+    window.addEventListener('wheel', event => {
+      if (!tableStage || finalLock === null || event.deltaY <= 35) return;
+      if (stackCandidates[activeIndex] !== tableStage) return;
+      if (window.scrollY < finalLock - 3) return;
+      if (tableScroll && canScrollDown(tableScroll)) return;
+      openLegalOverlay();
+    }, { passive: true });
+  }
 
   /* Révélation progressive, sans animer les conteneurs sticky eux-mêmes. */
   const exploreReveal = [
