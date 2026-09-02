@@ -230,8 +230,11 @@
       <p>Le tableau reprend exactement la sélection affichée sur le graphique.</p>
     </div>
     <div class="table-panel" id="tablePanel">
-      <div class="table-toolbar"><p class="table-note">Faites glisser horizontalement le tableau si nécessaire.</p><button class="table-orientation-btn" id="transposeTableButton" type="button" aria-pressed="false">↔ Inverser lignes / colonnes</button></div>
-      <div class="table-scroll-caption" id="tableScrollCaption">Données des rangs limites</div>
+      <div class="table-toolbar"><p class="table-note">Faites glisser horizontalement le tableau si nécessaire.</p></div>
+      <div class="table-tablehead">
+        <div class="table-scroll-caption" id="tableScrollCaption">Données des rangs limites</div>
+        <button class="table-orientation-btn table-orientation-icon" id="transposeTableButton" type="button" aria-pressed="true" aria-label="Inverser lignes et colonnes" title="Inverser lignes et colonnes">⇄</button>
+      </div>
       <div class="table-scroll" id="tableContainer"></div>
     </div>
   </section>
@@ -393,7 +396,7 @@ const modeExplainer=document.getElementById('modeExplainer'),seriesLegend=docume
 const noData=document.getElementById('noData'),loading=document.getElementById('loading'),errorBox=document.getElementById('errorBox');
 const selectAllSpecialtiesButton=document.getElementById('selectAllSpecialtiesButton'),selectAllCitiesButton=document.getElementById('selectAllCitiesButton'),evolutionPanel=document.getElementById('evolutionPanel'),tablePanel=document.getElementById('tablePanel'),tableContainer=document.getElementById('tableContainer'),transposeTableButton=document.getElementById('transposeTableButton'),liveStatus=document.getElementById('liveStatus'),chartA11ySummary=document.getElementById('chartA11ySummary');
 const specialtyTutorial=document.getElementById('specialtyTutorial'),tutorialClose=document.getElementById('tutorialClose');
-let lastTableState={slots:[],requests:[],datasets:[]},tableTransposed=false;
+let lastTableState={slots:[],requests:[],datasets:[]},tableTransposed=true;
 const prefersReducedMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function displayCity(c){return ({'AP-HP':'Paris (AP-HP)','AP-HM':'Marseille (AP-HM)','HCL':'Lyon (HCL)'})[c]||c}
