@@ -41,11 +41,11 @@
   const isPossibilities = currentPath.endsWith('/possibilites.html');
   const ENTRY_KEY = 'rangs-motion-entry';
   const ERASE_KEY = 'rangs-preview-erase-start';
-  let eraseStartSetting = .50;
+  let eraserPosition = .70;
 
   try {
     const savedErase = Number(localStorage.getItem(ERASE_KEY));
-    if (Number.isFinite(savedErase)) eraseStartSetting = Math.max(0, Math.min(.80, savedErase));
+    if (Number.isFinite(savedErase)) eraserPosition = Math.max(.20, Math.min(.90, savedErase));
   } catch (_) {}
 
   if (isExplore) {
@@ -57,9 +57,10 @@
         <strong>Réglage animation</strong>
         <span class="motion-tuner-value"></span>
       </div>
-      <label class="motion-tuner-label" for="motionEraseRange">Début de disparition</label>
-      <input id="motionEraseRange" class="motion-tuner-range" type="range" min="0" max="80" step="5" value="${Math.round(eraseStartSetting * 100)}">
-      <div class="motion-tuner-scale"><span>0 %</span><span>80 %</span></div>
+      <label class="motion-tuner-label" for="motionEraseRange">Position de l’effaceur dans la nouvelle carte</label>
+      <input id="motionEraseRange" class="motion-tuner-range" type="range" min="20" max="90" step="5" value="${Math.round(eraserPosition * 100)}">
+      <div class="motion-tuner-scale"><span>20 %</span><span>90 %</span></div>
+      <p class="motion-tuner-help">Plus à droite = l’ancienne carte reste visible plus longtemps.</p>
     `;
     const topNav = document.querySelector('.top-nav');
     if (topNav) topNav.insertAdjacentElement('afterend', tuner);
@@ -69,16 +70,14 @@
     const value = tuner.querySelector('.motion-tuner-value');
 
     const refreshTuner = () => {
-      const start = Math.round(eraseStartSetting * 100);
-      const end = Math.round(Math.min(.99, eraseStartSetting + .40) * 100);
-      value.textContent = `${start} % → ${end} %`;
+      value.textContent = `${Math.round(eraserPosition * 100)} %`;
     };
 
     refreshTuner();
 
     range.addEventListener('input', () => {
-      eraseStartSetting = Number(range.value) / 100;
-      try { localStorage.setItem(ERASE_KEY, String(eraseStartSetting)); } catch (_) {}
+      eraserPosition = Number(range.value) / 100;
+      try { localStorage.setItem(ERASE_KEY, String(eraserPosition)); } catch (_) {}
       refreshTuner();
       if (typeof updateStackState === 'function') updateStackState();
     });
@@ -393,22 +392,27 @@
 
       const next = stackCandidates[index + 1];
       const rect = card.getBoundingClientRect();
-      const nextTop = next.getBoundingClientRect().top;
+      const nextRect = next.getBoundingClientRect();
       const strip = 9;
 
-      /* Le seuil est réglable depuis le curseur de test en haut de page.
-         La fin de disparition reste environ 40 points après le début. */
-      const rawOverlap = clamp01((rect.bottom - nextTop) / Math.max(rect.height - strip, 1));
-      const eraseStart = eraseStartSetting;
-      const eraseEnd = Math.min(.99, eraseStart + .40);
-      const eraseProgress = clamp01((rawOverlap - eraseStart) / Math.max(eraseEnd - eraseStart, .01));
-      const clipBottom = (rect.height - strip) * eraseProgress;
+      /* "Effaceur embarqué" :
+         la limite appartient à la carte qui arrive.
+         Une ligne invisible placée à eraserPosition de SA hauteur
+         coupe la carte précédente au fur et à mesure qu'elle remonte.
+         Le comportement ne dépend donc plus de la hauteur de l'ancienne carte. */
+      const eraserY = nextRect.top + (nextRect.height * eraserPosition);
+      const clipBottom = Math.max(0, Math.min(rect.height - strip, rect.bottom - eraserY));
 
-      card.style.clipPath = eraseProgress > 0
+      card.style.clipPath = clipBottom > 0
         ? `inset(0 0 ${clipBottom.toFixed(1)}px 0 round 20px)`
         : 'inset(0 0 0 0 round 20px)';
       card.style.setProperty('--stack-content-opacity', '1');
-      card.classList.toggle('motion-covered', eraseProgress > .995);
+
+      /* Une fois la nouvelle carte arrivée sur son rail sticky,
+         l'ancienne n'est plus interactive ; son petit rebord supérieur
+         reste néanmoins visible sous la nouvelle carte. */
+      const nextLocked = nextRect.top <= stickyTop(next) + 2;
+      card.classList.toggle('motion-covered', nextLocked);
     });
 
     if (activeIndex !== nextActive) {
@@ -420,6 +424,12 @@
       card.classList.toggle('motion-current', index === activeIndex);
       card.classList.toggle('motion-inactive', index !== activeIndex);
     });
+
+    const firstCard = stackCandidates[0];
+    if (firstCard) {
+      const stackEngaged = firstCard.getBoundingClientRect().top <= stickyTop(firstCard) + 2;
+      document.documentElement.classList.toggle('stack-engaged', stackEngaged);
+    }
 
     if (tableStage) {
       computeFinalLock();
