@@ -1910,3 +1910,58 @@ html.info-overlay-open body {
     border-radius: 14px;
   }
 }
+
+
+/* Preview V10 — effaceur ancré à la carte entrante */
+.motion-stack-card {
+  --stack-gap: 8px;
+  top: calc(max(0px, env(safe-area-inset-top)) + (var(--stack-i, 0) * var(--stack-gap))) !important;
+  border-radius: 20px !important;
+  transition: box-shadow .18s ease !important;
+  overflow: hidden;
+}
+
+.hero-simple.motion-stack-card {
+  top: calc(max(0px, env(safe-area-inset-top)) + (var(--stack-i, 0) * var(--stack-gap))) !important;
+}
+
+.motion-stack-card > * {
+  opacity: 1 !important;
+}
+
+.motion-stack-card.motion-covered > * {
+  opacity: 1 !important;
+  pointer-events: none !important;
+}
+
+/* Les tranches visibles ont toutes exactement le même pas. */
+@media (max-width: 820px) {
+  .motion-stack-card {
+    --stack-gap: 8px;
+  }
+}
+
+/* Aucun fragment de "Rangs Internat" ne doit rester coincé entre les cartes. */
+html.stack-engaged .top-nav {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.top-nav {
+  transition: opacity .12s ease;
+}
+
+/* Curseur : nouvelle sémantique = position dans la carte entrante. */
+.motion-tuner-help {
+  margin: 5px 0 0;
+  color: #98a2b3;
+  font-size: .66rem;
+  line-height: 1.35;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .top-nav {
+    transition: none !important;
+  }
+}
