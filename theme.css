@@ -1657,3 +1657,193 @@ html.info-overlay-open body {
     pointer-events: auto !important;
   }
 }
+
+
+/* Ajustements Preview V6 — effacement progressif et priorité de scroll */
+.motion-stack-card > * {
+  opacity: var(--stack-content-opacity, 1) !important;
+}
+
+.motion-stack-card.motion-current > * {
+  opacity: 1 !important;
+}
+
+.motion-stack-card.motion-inactive .evolution-panel,
+.motion-stack-card.motion-inactive .table-scroll {
+  overscroll-behavior: none;
+}
+
+.evolution-stage {
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: calc(100svh - 30px) !important;
+  overflow: hidden !important;
+}
+
+.evolution-stage .evolution-panel {
+  max-height: calc(100svh - 185px) !important;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-stage {
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: calc(100svh - 30px) !important;
+  overflow: hidden !important;
+}
+
+.table-stage .table-panel {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.table-scroll-caption {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  z-index: 25 !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+}
+
+.table-stage .table-scroll {
+  flex: 0 1 auto;
+  max-height: calc(100svh - 275px) !important;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.compact-data-table thead th {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 20 !important;
+  background: #f5f5f7 !important;
+}
+
+.compact-data-table thead th:first-child {
+  left: 0 !important;
+  z-index: 34 !important;
+}
+
+.compact-data-table tbody th:first-child,
+.compact-data-table tbody td:first-child {
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 8 !important;
+  background: #fff !important;
+}
+
+/* La carte active seule a la priorité tactile sur son scroll interne. */
+.inner-scroll-active {
+  overscroll-behavior: contain !important;
+}
+
+/* Les mentions légales ne dépendent plus du typewriter JS :
+   les lignes sont toujours présentes et se révèlent à l'ouverture. */
+.legal-reveal-lines {
+  display: grid;
+  gap: 14px;
+  max-width: 620px;
+}
+
+.legal-reveal-lines p {
+  margin: 0;
+  color: rgba(255,255,255,.94);
+  font-size: clamp(.96rem, 2.4vw, 1.08rem);
+  line-height: 1.55;
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity .28s ease,
+    transform .34s cubic-bezier(.22,1,.36,1);
+}
+
+.info-overlay.open .legal-reveal-lines p:nth-child(1) {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: .08s;
+}
+.info-overlay.open .legal-reveal-lines p:nth-child(2) {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: .18s;
+}
+.info-overlay.open .legal-reveal-lines p:nth-child(3) {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: .28s;
+}
+.info-overlay.open .legal-reveal-lines p:nth-child(4) {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: .38s;
+}
+
+/* Le spacer ne se voit jamais : il sert seulement à permettre le verrouillage sticky. */
+.stack-tail-spacer {
+  height: 105svh !important;
+  margin-top: -1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 820px) {
+  .evolution-stage {
+    max-height: calc(100svh - 22px) !important;
+  }
+
+  .evolution-stage .evolution-panel {
+    max-height: calc(100svh - 170px) !important;
+  }
+
+  .table-stage {
+    max-height: calc(100svh - 22px) !important;
+  }
+
+  .table-stage .table-scroll {
+    max-height: calc(100svh - 255px) !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .evolution-stage {
+    max-height: calc(100svh - 16px) !important;
+  }
+
+  .evolution-stage .evolution-panel {
+    max-height: calc(100svh - 160px) !important;
+  }
+
+  .table-stage {
+    max-height: calc(100svh - 16px) !important;
+  }
+
+  .table-stage .table-scroll {
+    max-height: calc(100svh - 238px) !important;
+  }
+
+  .legal-reveal-lines p {
+    font-size: .98rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-stack-card > * {
+    opacity: 1 !important;
+  }
+
+  .legal-reveal-lines p {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
