@@ -30,16 +30,16 @@
 
   let navigating = false;
 
-  function setIncoming(direction) {
+  function setIncoming(exitDirection) {
     try {
-      sessionStorage.setItem(ENTRY_KEY, direction === 'right' ? 'from-left' : 'from-right');
+      sessionStorage.setItem(ENTRY_KEY, exitDirection === 'right' ? 'from-left' : 'from-right');
     } catch (_) {}
   }
 
-  function goTo(target, direction, fromGesture = false) {
+  function goTo(target, exitDirection, fromGesture = false) {
     if (navigating) return;
     navigating = true;
-    setIncoming(direction);
+    setIncoming(exitDirection);
 
     if (reduceMotion) {
       location.href = target;
@@ -50,16 +50,17 @@
 
     if (fromGesture) {
       shell.style.transition = 'transform .30s cubic-bezier(.2,.8,.2,1), opacity .25s ease, filter .25s ease';
-      shell.style.transform = direction === 'right' ? 'translate3d(108vw,0,0)' : 'translate3d(-108vw,0,0)';
+      shell.style.transform = exitDirection === 'right' ? 'translate3d(108vw,0,0)' : 'translate3d(-108vw,0,0)';
       shell.style.opacity = '.12';
       shell.style.filter = 'blur(10px)';
     } else {
-      shell.classList.add(direction === 'right' ? 'motion-exit-right' : 'motion-exit-left');
+      shell.classList.add(exitDirection === 'right' ? 'motion-exit-right' : 'motion-exit-left');
     }
 
     setTimeout(() => { location.href = target; }, fromGesture ? 300 : 430);
   }
 
+  /* Accueil = panneau de gauche. Mes possibilités = panneau de droite. */
   document.querySelectorAll('.nav-link[href]').forEach(link => {
     link.addEventListener('click', event => {
       if (event.defaultPrevented || event.button > 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -69,22 +70,22 @@
 
       if (isExplore && goesToPoss) {
         event.preventDefault();
-        goTo(link.href, 'right');
+        goTo(link.href, 'left');
       } else if (isPossibilities && goesToExplore) {
         event.preventDefault();
-        goTo(link.href, 'left');
+        goTo(link.href, 'right');
       }
     });
   });
 
-  /* Swipe horizontal réel : Explorer -> droite -> Mes possibilités.
-     Sur Mes possibilités, le geste inverse ramène vers Explorer. */
   let touch = null;
   let horizontalGesture = false;
-  const forbiddenStart = 'input,textarea,select,button,a,canvas,.multi-menu,.table-scroll,[contenteditable="true"]';
+  const forbiddenStart = 'input,textarea,select,button,a,canvas,.multi-menu,.table-scroll,.info-modal,[contenteditable="true"]';
 
+  /* Swipe gauche depuis l'accueil -> possibilités.
+     Swipe droite depuis possibilités -> accueil. */
   function allowedDirection(dx) {
-    return (isExplore && dx > 0) || (isPossibilities && dx < 0);
+    return (isExplore && dx < 0) || (isPossibilities && dx > 0);
   }
 
   function resetDrag(animated = true) {
@@ -107,8 +108,8 @@
     if (event.target.closest(forbiddenStart)) return;
 
     const point = event.touches[0];
-    /* Laisse libre le geste système Safari depuis le bord gauche. */
-    if (point.clientX < 28) return;
+    /* Sur la page de droite, on préserve le geste système Safari depuis le bord gauche. */
+    if (isPossibilities && point.clientX < 28) return;
 
     touch = {
       x: point.clientX,
@@ -137,7 +138,7 @@
       }
       horizontalGesture = true;
       peek.textContent = isExplore ? 'Mes possibilités' : 'Explorer les rangs';
-      peek.className = 'motion-swipe-peek ' + (isExplore ? 'motion-peek-left' : 'motion-peek-right');
+      peek.className = 'motion-swipe-peek ' + (isExplore ? 'motion-peek-right' : 'motion-peek-left');
     }
 
     event.preventDefault();
@@ -167,8 +168,8 @@
     horizontalGesture = false;
 
     if (shouldNavigate) {
-      if (isExplore) goTo('possibilites.html', 'right', true);
-      else if (isPossibilities) goTo('./', 'left', true);
+      if (isExplore) goTo('possibilites.html', 'left', true);
+      else if (isPossibilities) goTo('./', 'right', true);
     } else {
       resetDrag(true);
     }
@@ -181,16 +182,21 @@
     resetDrag(true);
   }, { passive: true });
 
-  /* Empilement vertical des grandes sections. */
-  const stackCandidates = [...shell.children].filter(el =>
-    el.matches('.hero, .panel, .metrics, .foot-grid')
-  );
+  /* La page d'accueil empile uniquement les grandes étapes utiles. */
+  const stackCandidates = isExplore
+    ? [
+        document.querySelector('.selection-panel'),
+        document.querySelector('.chart-stage'),
+        document.querySelector('.evolution-stage'),
+        document.querySelector('.table-stage')
+      ].filter(Boolean)
+    : [...shell.children].filter(el => el.matches('.panel'));
 
   function configureStack() {
     stackCandidates.forEach((el, index) => {
       el.classList.add('motion-stack-card');
-      el.style.setProperty('--stack-i', String(Math.min(index, 7)));
-      const tooTall = el.getBoundingClientRect().height > window.innerHeight * .88;
+      el.style.setProperty('--stack-i', String(Math.min(index, 6)));
+      const tooTall = el.getBoundingClientRect().height > window.innerHeight * .84;
       el.classList.toggle('motion-stack-static', tooTall);
     });
   }
@@ -202,15 +208,35 @@
     resizeTimer = setTimeout(configureStack, 120);
   }, { passive: true });
 
-  /* Révélation progressive : au chargement pour ce qui est visible,
-     puis au fur et à mesure que l'utilisateur descend. */
-  const revealTargets = [
-    ...shell.querySelectorAll('.hero-main, .hero-note, .panel, .metric, .info-box, .group-result, .rank-card, .upload-box')
+  /* Révélation progressive, sans animer les conteneurs sticky eux-mêmes. */
+  const exploreReveal = [
+    '.hero-simple .hero-main',
+    '.selection-summary',
+    '.selection-panel .controls',
+    '.chart-stage .chart-head',
+    '.chart-stage .chart-wrap',
+    '.evolution-stage .data-stage-head',
+    '.evolution-stage .evolution-panel',
+    '.table-stage .data-stage-head',
+    '.table-stage .table-panel'
   ];
+  const possibilitiesReveal = [
+    '.hero-main',
+    '.hero-note',
+    '.panel > *',
+    '.rank-card',
+    '.upload-box',
+    '.group-result'
+  ];
+
+  const revealTargets = [...new Set(
+    (isExplore ? exploreReveal : possibilitiesReveal)
+      .flatMap(selector => [...shell.querySelectorAll(selector)])
+  )];
 
   revealTargets.forEach((el, index) => {
     el.classList.add('motion-reveal');
-    el.style.setProperty('--motion-delay', `${Math.min(index, 5) * 55}ms`);
+    el.style.setProperty('--motion-delay', `${Math.min(index, 4) * 55}ms`);
   });
 
   if (reduceMotion || !('IntersectionObserver' in window)) {
@@ -224,7 +250,7 @@
       });
     }, {
       threshold: .08,
-      rootMargin: '0px 0px -8% 0px'
+      rootMargin: '0px 0px -7% 0px'
     });
 
     revealTargets.forEach(el => observer.observe(el));
