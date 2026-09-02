@@ -407,40 +407,25 @@ function dismissTutorial(){specialtyTutorial.hidden=true;specialtyControl.classL
 function maybeShowTutorial(){if(selectedSpecialties.length||tutorialWasSeen())return;specialtyTutorial.hidden=false;specialtyControl.classList.add('tutorial-highlight')}
 tutorialClose.addEventListener('click',e=>{e.stopPropagation();dismissTutorial();specialtyButton.focus()});
 function clearMenuPosition(control){
-  ['--menu-left','--menu-top','--menu-width','--menu-max-height'].forEach(name=>control.style.removeProperty(name));
+  control.style.removeProperty('--menu-max-height');
 }
 function positionMenu(control){
   if(!control?.classList.contains('open')||!window.matchMedia('(max-width: 820px)').matches)return;
-  const button=control.querySelector('.multi-button'),menu=control.querySelector('.multi-menu');
-  if(!button||!menu)return;
+  const button=control.querySelector('.multi-button');
+  if(!button)return;
 
   const rect=button.getBoundingClientRect();
   const vv=window.visualViewport;
   const viewportTop=vv?.offsetTop||0;
-  const viewportLeft=vv?.offsetLeft||0;
   const viewportHeight=vv?.height||window.innerHeight;
-  const viewportWidth=vv?.width||window.innerWidth;
   const viewportBottom=viewportTop+viewportHeight;
-  const viewportRight=viewportLeft+viewportWidth;
-  const gap=8,edge=10;
+  const gap=8,edge=12;
 
-  const width=Math.min(rect.width,Math.max(180,viewportWidth-(edge*2)));
-  const left=Math.max(viewportLeft+edge,Math.min(rect.left,viewportRight-edge-width));
-  const spaceBelow=Math.max(0,viewportBottom-rect.bottom-gap-edge);
-  const spaceAbove=Math.max(0,rect.top-viewportTop-gap-edge);
-  const desiredMax=Math.min(430,viewportHeight*.52);
-  const useAbove=spaceBelow<Math.min(220,desiredMax)&&spaceAbove>spaceBelow;
-  const available=useAbove?spaceAbove:spaceBelow;
-  const maxHeight=Math.max(96,Math.min(desiredMax,available));
-  const naturalHeight=Math.min(menu.scrollHeight||maxHeight,maxHeight);
-  const top=useAbove
-    ? Math.max(viewportTop+edge,rect.top-gap-naturalHeight)
-    : rect.bottom+gap;
-
-  control.style.setProperty('--menu-left',left+'px');
-  control.style.setProperty('--menu-top',top+'px');
-  control.style.setProperty('--menu-width',width+'px');
-  control.style.setProperty('--menu-max-height',maxHeight+'px');
+  /* Le menu est ancré en CSS juste sous le champ.
+     Ici on ne règle que sa hauteur pour qu'il reste dans l'écran. */
+  const availableBelow=Math.max(120,viewportBottom-rect.bottom-gap-edge);
+  const maxHeight=Math.min(430,viewportHeight*.52,availableBelow);
+  control.style.setProperty('--menu-max-height',Math.max(120,maxHeight)+'px');
 }
 function closeMenus(except=null){
   [yearControl,specialtyControl,cityControl].forEach(x=>{
@@ -469,9 +454,7 @@ cityButton.addEventListener('click',e=>{e.stopPropagation();toggleMenu(cityContr
 document.addEventListener('click',e=>{if(!e.target.closest('.multi'))closeMenus()});
 document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;const open=[yearControl,specialtyControl,cityControl].find(x=>x.classList.contains('open'));if(open){e.preventDefault();closeMenus();open.querySelector('.multi-button').focus()}});
 window.addEventListener('resize',repositionOpenMenu,{passive:true});
-window.addEventListener('scroll',repositionOpenMenu,{passive:true});
 window.visualViewport?.addEventListener('resize',repositionOpenMenu,{passive:true});
-window.visualViewport?.addEventListener('scroll',repositionOpenMenu,{passive:true});
 
 function setError(msg=''){errorBox.textContent=msg;errorBox.classList.toggle('show',Boolean(msg))}
 async function fetchJson(path){const r=await fetch(path,{cache:'no-store'});if(!r.ok)throw new Error(`${path} : HTTP ${r.status}`);return r.json()}
