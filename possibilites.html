@@ -7,6 +7,7 @@
   <title>EDN — Mes possibilités</title>
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
+  <script src="france-map-geometry.js"></script>
   <style>
     :root{--bg:#f5f7fb;--panel:#fff;--text:#172033;--muted:#667085;--line:#d9e0ea;--primary:#3657d6;--primary2:#6d8cff;--accent:#0ea5a6;--good:#087f5b;--good-soft:#eaf8f2;--warn:#a15c00;--warn-soft:#fff7e8;--soft:#eef2ff;--soft2:#eafafa;--danger:#b42318;--danger-soft:#fff1f2;--shadow:0 18px 50px rgba(25,39,80,.08);--radius:20px}
     *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);min-height:100vh;background:radial-gradient(circle at top left,rgba(109,140,255,.12),transparent 28rem),radial-gradient(circle at top right,rgba(14,165,166,.10),transparent 26rem),var(--bg)}button,input,select{font:inherit}button{cursor:pointer}.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}.skip-link{position:absolute;left:14px;top:-60px;z-index:1000;background:#172033;color:#fff;padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:800}.skip-link:focus{top:14px}.wrap{width:min(1220px,calc(100% - 28px));margin:0 auto;padding:24px 0 56px}.top-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.brand{font-weight:900;letter-spacing:-.02em;color:#172033;text-decoration:none}.nav-links{display:flex;gap:8px;flex-wrap:wrap}.nav-link{display:inline-flex;align-items:center;min-height:40px;padding:0 13px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.86);color:#475467;text-decoration:none;font-size:.86rem;font-weight:800}.nav-link:hover{background:#fff}.nav-link.active{background:var(--primary);border-color:var(--primary);color:#fff}.hero{display:grid;grid-template-columns:1.35fr .65fr;gap:18px;margin-bottom:18px}.hero-main,.hero-note,.panel{background:rgba(255,255,255,.94);border:1px solid rgba(217,224,234,.9);box-shadow:var(--shadow);border-radius:var(--radius)}.hero-main{padding:30px}.eyebrow{margin:0 0 10px;color:var(--primary);font-size:.78rem;font-weight:850;letter-spacing:.12em;text-transform:uppercase}h1{margin:0;font-size:clamp(2rem,4vw,3.1rem);line-height:1.04;letter-spacing:-.04em}.subtitle{margin:15px 0 0;max-width:800px;color:var(--muted);line-height:1.65;font-size:1rem}.hero-note{padding:24px;display:flex;flex-direction:column;justify-content:center;background:linear-gradient(145deg,#172033,#25345a);color:#fff;border:0}.hero-note strong{font-size:1rem;margin-bottom:8px}.hero-note p{margin:0;color:rgba(255,255,255,.8);line-height:1.55;font-size:.9rem}.panel{padding:24px;margin-top:18px}.context-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field-label{display:block;font-size:.82rem;font-weight:800;color:#344054;margin:0 0 7px}.select,.number-input{width:100%;min-height:48px;border:1px solid var(--line);background:#fff;color:var(--text);border-radius:13px;padding:0 13px;outline:none}.select:focus,.number-input:focus{border-color:var(--primary2);box-shadow:0 0 0 4px rgba(54,87,214,.10)}.context-note{margin:12px 0 0;color:var(--muted);font-size:.82rem;line-height:1.55}.tabs{display:flex;gap:8px;margin-top:18px;background:#edf1f7;padding:5px;border-radius:14px;width:max-content;max-width:100%}.tab{border:0;background:transparent;color:#667085;font-weight:850;padding:10px 15px;border-radius:10px}.tab.active{background:#fff;color:var(--primary);box-shadow:0 2px 10px rgba(23,32,51,.08)}.mode-pane{margin-top:18px}.mode-pane[hidden]{display:none}.simple-grid{display:grid;grid-template-columns:1.3fr .7fr;gap:14px}.section-title{margin:0 0 6px;font-size:1.15rem;letter-spacing:-.02em}.section-sub{margin:0;color:var(--muted);font-size:.87rem;line-height:1.55}.upload-box{margin-top:15px;border:2px dashed #c7d2e6;background:#f9fbff;border-radius:18px;padding:24px;text-align:center;transition:.18s}.upload-box.drag{border-color:var(--primary);background:#eef2ff}.upload-box strong{display:block;font-size:1rem;margin-bottom:6px}.upload-box p{margin:0;color:var(--muted);font-size:.84rem;line-height:1.5}.upload-actions{display:flex;justify-content:center;gap:8px;margin-top:14px;flex-wrap:wrap}.primary-btn,.secondary-btn{min-height:42px;border-radius:11px;padding:0 14px;font-weight:850}.primary-btn{border:1px solid var(--primary);background:var(--primary);color:#fff}.primary-btn:hover{background:#2f4cc0}.secondary-btn{border:1px solid var(--line);background:#fff;color:#475467}.secondary-btn:hover{background:#f8fafc}.privacy{display:flex;align-items:flex-start;gap:9px;margin-top:12px;padding:11px 13px;border-radius:12px;background:var(--good-soft);color:#286454;font-size:.8rem;line-height:1.45;text-align:left}.privacy b{color:#146047}.file-status{display:none;margin-top:12px;padding:12px 14px;border-radius:12px;background:#f8fafc;border:1px solid var(--line);font-size:.83rem;color:#475467;line-height:1.5;text-align:left}.file-status.show{display:block}.progress{height:7px;background:#e7ebf1;border-radius:999px;overflow:hidden;margin-top:8px}.progress>span{display:block;height:100%;width:0;background:var(--primary);transition:width .15s}.rank-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:15px}.rank-card{padding:13px;border:1px solid var(--line);border-radius:14px;background:#fff}.rank-card label{display:block;font-weight:850;font-size:.86rem;margin-bottom:4px}.rank-help{min-height:2.2em;color:var(--muted);font-size:.72rem;line-height:1.4;margin-bottom:8px}.rank-card input{width:100%;height:42px;border:1px solid var(--line);border-radius:10px;padding:0 11px;outline:none}.rank-card input:focus{border-color:var(--primary2);box-shadow:0 0 0 3px rgba(54,87,214,.08)}.advanced-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}.results-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}.results-head h2{margin:0 0 4px;font-size:1.25rem}.results-head p{margin:0;color:var(--muted);font-size:.84rem;line-height:1.5}.count-badge{flex:0 0 auto;border-radius:999px;padding:8px 11px;background:var(--soft2);color:#0b7778;font-size:.78rem;font-weight:850}.empty-state{padding:28px 20px;border:1px dashed #ccd4df;border-radius:16px;text-align:center;color:var(--muted);background:#fafbfc}.empty-state strong{display:block;color:#344054;margin-bottom:5px}.group-result{margin-top:18px}.group-result:first-child{margin-top:0}.group-result-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:9px}.group-result-head h3{margin:0;font-size:.96rem}.group-rank{color:var(--muted);font-size:.78rem;font-weight:750}.specialty-list{display:grid;gap:9px}.specialty-card{border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden}.specialty-toggle{width:100%;border:0;background:#fff;padding:14px;text-align:left;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;color:var(--text)}.specialty-toggle:hover{background:#fbfcff}.specialty-name{font-weight:880;line-height:1.3}.specialty-meta{margin-top:4px;color:var(--muted);font-size:.77rem}.specialty-right{display:flex;align-items:center;gap:9px}.ok-pill{padding:5px 8px;border-radius:999px;background:var(--good-soft);color:var(--good);font-size:.73rem;font-weight:850;white-space:nowrap}.chevron{width:9px;height:9px;border-right:2px solid #667085;border-bottom:2px solid #667085;transform:rotate(45deg);transition:.18s;margin-right:4px}.specialty-card.open .chevron{transform:rotate(225deg)}.city-panel{display:none;border-top:1px solid #edf0f4;padding:6px 14px 12px;background:#fcfdff}.specialty-card.open .city-panel{display:block}.city-row{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid #eef1f5;font-size:.82rem}.city-row:last-child{border-bottom:0}.city-name{font-weight:730}.city-limit{color:#475467;white-space:nowrap}.city-margin{font-weight:850;color:var(--good);white-space:nowrap}.disclaimer{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--warn-soft);color:#795100;font-size:.8rem;line-height:1.5}.error{display:none;margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--danger-soft);border:1px solid #fecdd3;color:var(--danger);font-size:.83rem;line-height:1.5}.error.show{display:block}.source-note{margin-top:18px;text-align:center;color:#98a2b3;font-size:.74rem;line-height:1.5}button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid rgba(54,87,214,.34);outline-offset:2px}
@@ -80,110 +81,131 @@
     .poss-map-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
     .poss-map-head h2{margin:0 0 4px;font-size:1.45rem;letter-spacing:-.03em}
     .poss-map-head p{margin:0;color:#667085;font-size:.86rem;line-height:1.45}
+
     .france-map-shell{
       position:relative;
-      border:1px solid #e1e7ef;
+      border:1px solid #e5eaf1;
       border-radius:22px;
       background:
-        radial-gradient(circle at 18% 18%,rgba(96,138,255,.08),transparent 28%),
-        radial-gradient(circle at 82% 76%,rgba(255,116,116,.07),transparent 28%),
-        linear-gradient(180deg,#fbfdff,#f4f7fb);
+        radial-gradient(circle at 16% 15%,rgba(111,145,255,.045),transparent 29%),
+        radial-gradient(circle at 88% 78%,rgba(255,178,178,.035),transparent 30%),
+        linear-gradient(180deg,#fdfefe 0%,#f8faff 100%);
       overflow:hidden;
       min-height:560px;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.92);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.96);
     }
     .france-map-viewport{
-      width:100%;
-      height:100%;
-      overflow:hidden;
-      touch-action:pan-y;
-      cursor:grab;
-      user-select:none;
-      -webkit-user-select:none;
+      width:100%;height:100%;overflow:hidden;
+      touch-action:pan-y;cursor:grab;
+      user-select:none;-webkit-user-select:none;
+      -webkit-tap-highlight-color:transparent;
     }
     .france-map-viewport.dragging{cursor:grabbing}
-    .france-map-svg{display:block;width:100%;height:min(76svh,760px);min-height:540px}
-    .france-outline{
+    .france-map-svg{
+      display:block;width:100%;
+      height:min(76svh,760px);min-height:540px;
+      shape-rendering:geometricPrecision;
+      text-rendering:geometricPrecision;
+    }
+    .france-outline,.france-corsica,.map-territory{
       fill:none;
-      stroke:#bfcbd9;
-      stroke-width:3.5;
+      stroke:#b8c5d4;
+      stroke-width:1.65;
       stroke-linejoin:round;
       stroke-linecap:round;
-      filter:drop-shadow(0 16px 28px rgba(23,32,51,.10));
+      vector-effect:non-scaling-stroke;
+      filter:drop-shadow(0 8px 20px rgba(23,32,51,.055));
     }
-    .france-corsica{
-      fill:none;
-      stroke:#bfcbd9;
-      stroke-width:2.5;
-      stroke-linejoin:round;
-      stroke-linecap:round;
-      filter:drop-shadow(0 10px 18px rgba(23,32,51,.08));
+    .france-corsica,.map-territory{stroke-width:1.55}
+    .map-territory-label{
+      fill:#7a8495;font-size:10px;font-weight:850;
+      letter-spacing:.095em;text-transform:uppercase;
+      pointer-events:none
     }
-    .map-territory{fill:#fff;stroke:#c7d1df;stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round}
-    .map-territory-label{fill:#667085;font-size:11px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
-    .map-watercolor-blue{fill:#7798ff;opacity:.28;filter:url(#watercolorWash)}
-    .map-watercolor-red{fill:#ff8181;opacity:.24;filter:url(#watercolorWash)}
-    .map-watercolor-white{fill:#fff;opacity:.74;filter:url(#watercolorWash)}
-    .map-pin{cursor:pointer;outline:none}
-    .map-pin .pin-halo{fill:#fff;stroke:#fff;stroke-width:6;opacity:.96}
-    .map-pin .pin-body{fill:#3657d6;stroke:#2847bd;stroke-width:1.4}
-    .map-pin .pin-core{fill:#fff}
-    .map-pin:hover .pin-body,.map-pin:focus .pin-body{fill:#1670df}
-    .map-pin:focus .pin-halo{stroke:#9ab6ff;stroke-width:9}
-    .map-pin-accessible .pin-halo{filter:drop-shadow(0 5px 8px rgba(54,87,214,.22))}
-    .map-gesture-hint{
-      position:absolute;left:50%;bottom:12px;transform:translateX(-50%);z-index:4;
-      pointer-events:none;padding:6px 9px;border-radius:999px;
-      background:rgba(255,255,255,.82);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);
-      color:#667085;font-size:.67rem;font-weight:800;box-shadow:0 3px 14px rgba(23,32,51,.08)
+    .pin-leader{
+      stroke:#9aa9bc;stroke-width:1;opacity:.46;
+      vector-effect:non-scaling-stroke;pointer-events:none
     }
+    .map-pin-anchor{cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent}
+    .map-pin-symbol{transform-origin:0 0;opacity:1}
+    .map-has-selection .map-pin-anchor:not(.is-selected) .map-pin-symbol{opacity:.7}
+    .pin-hit{fill:transparent;pointer-events:all}
+    .pin-halo{fill:#fff;stroke:#fff;stroke-width:5;opacity:.97}
+    .pin-body{fill:#3657d6;stroke:#2847bd;stroke-width:1.25;vector-effect:non-scaling-stroke}
+    .pin-core{fill:#fff}
+    .pin-selected-ring{fill:none;stroke:#1670df;stroke-width:2;opacity:0;vector-effect:non-scaling-stroke}
+    .map-pin-anchor.is-selected .pin-body{fill:#1670df;stroke:#0f5ec3}
+    .map-pin-anchor.is-selected .pin-selected-ring{opacity:1}
+    .map-pin-anchor:focus-visible .pin-selected-ring{opacity:1;stroke:#9ab6ff;stroke-width:3}
+
+    .map-gesture-hint,.map-empty{
+      position:absolute;z-index:5;pointer-events:none;
+      border:1px solid rgba(225,231,239,.82);
+      border-radius:999px;
+      background:rgba(255,255,255,.88);
+      backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+      color:#667085;font-size:.67rem;font-weight:800;
+      box-shadow:0 3px 14px rgba(23,32,51,.055)
+    }
+    .map-gesture-hint{right:12px;bottom:12px;padding:6px 9px;transition:opacity .18s ease}
+    .map-gesture-hint .hint-touch{display:none}
+    @media(pointer:coarse){.map-gesture-hint .hint-touch{display:inline}.map-gesture-hint .hint-mouse{display:none}}
+    @media(pointer:fine){.map-gesture-hint .hint-touch{display:none}.map-gesture-hint .hint-mouse{display:inline}}
+    .france-map-shell.map-interacted .map-gesture-hint{opacity:.22}
+    .map-empty{left:12px;bottom:12px;padding:7px 10px;max-width:255px}
+    .map-empty[hidden]{display:none!important}
+
+    .map-recenter{
+      position:absolute;left:12px;top:12px;z-index:6;
+      min-height:36px;padding:0 11px;border:1px solid #dfe6ef;
+      border-radius:999px;background:rgba(255,255,255,.92);
+      color:#475467;font-size:.72rem;font-weight:850;
+      box-shadow:0 4px 16px rgba(23,32,51,.07);
+      backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+      -webkit-tap-highlight-color:transparent
+    }
+    .map-recenter[hidden]{display:none!important}
+
     .map-selection{margin-top:12px;border:1px solid #e1e6ee;border-radius:16px;background:#fff;padding:14px}
     .map-selection strong{display:block;font-size:1rem;color:#172033}
     .map-selection p{margin:4px 0 0;color:#667085;font-size:.82rem;line-height:1.45}
     .map-specialties{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
     .map-specialty-chip{display:inline-flex;align-items:center;padding:6px 8px;border-radius:999px;background:#eef4ff;color:#245bd7;font-size:.72rem;font-weight:800}
-    .map-empty{position:absolute;inset:50% auto auto 50%;transform:translate(-50%,-50%);width:min(330px,calc(100% - 36px));text-align:center;color:#667085;font-size:.86rem;line-height:1.45;z-index:3}
-    .map-empty strong{display:block;color:#344054;margin-bottom:4px}
-    .map-empty[hidden]{display:none!important}
+
     @media(max-width:820px){
-      /* La dernière carte garde son cadre et son titre fixes.
-         Seul son contenu (carte + détail de ville) défile. */
       .poss-map-card{
         position:sticky!important;
         top:calc(max(0px,env(safe-area-inset-top)) + 32px)!important;
         z-index:44!important;
+        height:calc(100vh - 42px);
         height:calc(100svh - 42px);
+        max-height:calc(100vh - 42px);
         max-height:calc(100svh - 42px);
         overflow:hidden!important;
-        display:flex;
-        flex-direction:column;
+        display:flex;flex-direction:column;
       }
       .poss-map-head{
-        flex:0 0 auto;
-        position:relative;
-        z-index:6;
-        margin-bottom:12px;
-        padding-bottom:2px;
-        background:#fff;
+        flex:0 0 auto;position:relative;z-index:6;
+        margin-bottom:12px;padding-bottom:2px;background:#fff;
       }
       .poss-map-body{
-        flex:1 1 auto;
-        min-height:0;
-        overflow-y:auto;
-        overflow-x:hidden;
+        flex:1 1 auto;min-height:0;
+        overflow-y:auto;overflow-x:hidden;
         -webkit-overflow-scrolling:touch;
-        overscroll-behavior-y:auto;
-        touch-action:pan-y;
-        padding-right:1px;
+        overscroll-behavior-y:auto;touch-action:pan-y;
+        padding-right:1px
       }
       .france-map-shell{min-height:530px}
-      .france-map-svg{height:68svh;min-height:500px}
+      .france-map-svg{height:68vh;height:68svh;min-height:500px}
     }
     @media(max-width:520px){
       .france-map-shell{min-height:500px;border-radius:18px}
-      .france-map-svg{height:64svh;min-height:470px}
+      .france-map-svg{height:64vh;height:64svh;min-height:470px}
       .map-selection{padding:12px}
-      .map-territory-label{font-size:10px}
+      .map-territory-label{font-size:9px}
+    }
+    @media(prefers-reduced-motion:reduce){
+      .map-gesture-hint{transition:none}
     }
     .poss-info-overlay{position:fixed;inset:0;z-index:2200;display:none;place-items:center;padding:max(22px,env(safe-area-inset-top)) 18px max(24px,env(safe-area-inset-bottom))}
     .poss-info-overlay.open{display:grid}
@@ -347,12 +369,13 @@
       <span class="count-badge" id="mapCount">0 ville</span>
     </div>
     <div class="poss-map-body" id="possMapBody">
-      <div class="france-map-shell">
+      <div class="france-map-shell" id="franceMapShell">
         <div class="france-map-viewport" id="franceMapViewport">
           <svg class="france-map-svg" id="franceMapSvg" viewBox="0 0 900 700" role="img" aria-label="Carte de France et territoires ultramarins des villes accessibles"></svg>
         </div>
-        <div class="map-gesture-hint" aria-hidden="true">Pincez ou utilisez la molette pour zoomer</div>
-        <div class="map-empty" id="mapEmpty"><strong>Aucune ville à afficher</strong>Entrez un classement pour voir vos possibilités sur la carte.</div>
+        <button class="map-recenter" id="mapRecenter" type="button" hidden>Recentrer</button>
+        <div class="map-gesture-hint" aria-hidden="true"><span class="hint-touch">Pincez pour zoomer</span><span class="hint-mouse">Utilisez la molette pour zoomer</span></div>
+        <div class="map-empty" id="mapEmpty">Entrez un classement pour afficher les villes</div>
       </div>
       <div class="map-selection" id="mapSelection">
         <strong>Carte interactive</strong>
@@ -456,77 +479,22 @@ const CITY_COORDS={
   'MARTINIQUE / GUADELOUPE':[15.9,-61.0]
 };
 
-const FRANCE_MAINLAND_GEO=[
-  [50.95,1.85],   /* Calais */
-  [51.05,2.37],   /* Dunkerque */
-  [50.63,3.06],   /* Lille */
-  [50.14,4.83],   /* Givet */
-  [49.52,5.76],   /* Longwy */
-  [49.04,7.95],   /* Wissembourg */
-  [48.58,7.75],   /* Strasbourg */
-  [47.59,7.59],   /* Bâle */
-  [46.20,6.15],   /* Genève */
-  [45.92,6.87],   /* Chamonix */
-  [44.90,6.64],   /* Alpes du Sud */
-  [43.77,7.50],   /* Menton */
-  [43.71,7.26],   /* Nice */
-  [43.12,5.93],   /* Toulon */
-  [43.30,5.37],   /* Marseille */
-  [43.40,4.40],   /* Camargue */
-  [43.61,3.88],   /* Montpellier */
-  [42.70,2.90],   /* Perpignan */
-  [42.55,1.73],   /* Pyrénées est */
-  [42.82,0.70],   /* Pyrénées centrales */
-  [43.10,-0.30],  /* Pyrénées ouest */
-  [43.37,-1.79],  /* Hendaye */
-  [43.48,-1.56],  /* Biarritz */
-  [44.65,-1.17],  /* Arcachon */
-  [45.57,-1.06],  /* Pointe de Grave */
-  [46.16,-1.15],  /* La Rochelle */
-  [47.27,-2.21],  /* Saint-Nazaire */
-  [47.75,-3.37],  /* Lorient */
-  [48.04,-4.74],  /* Pointe du Raz */
-  [48.39,-4.49],  /* Brest */
-  [48.73,-3.98],  /* Roscoff */
-  [48.65,-2.03],  /* Saint-Malo */
-  [49.64,-1.62],  /* Cherbourg */
-  [49.49,0.10],   /* Le Havre */
-  [49.92,1.08],   /* Dieppe */
-  [50.95,1.85]
-];
-
-const CORSICA_GEO=[
-  [42.98,9.40],
-  [42.72,9.47],
-  [42.37,9.43],
-  [41.92,9.39],
-  [41.40,9.20],
-  [41.36,8.78],
-  [41.78,8.55],
-  [42.25,8.62],
-  [42.68,9.06],
-  [42.98,9.40]
-];
-
-const OVERSEAS_TERRITORIES={
-  'MARTINIQUE / GUADELOUPE':{
-    label:'Antilles',
-    labelPos:[720,92],
-    pin:[787,177],
-    shapes:[
-      /* Guadeloupe : forme papillon stylisée */
-      'M704 145 C711 129 724 123 736 132 C742 138 741 149 735 158 C744 153 754 154 760 162 C765 171 758 183 747 187 C736 192 726 184 724 174 C715 178 706 174 701 166 C697 159 699 151 704 145Z',
-      /* Martinique : île allongée nord-sud */
-      'M792 132 C802 124 814 129 819 140 C824 151 818 164 811 174 C806 182 811 192 806 202 C801 214 788 219 780 210 C773 201 777 190 782 181 C787 171 780 160 783 149 C785 141 787 136 792 132Z'
-    ]
+const MAP_GEOMETRY=window.FRANCE_MAP_GEOMETRY||{mainland:[],corsica:[],guadeloupe:[],martinique:[],reunion:[]};
+const OVERSEAS_LAYOUT={
+  antilles:{
+    key:'MARTINIQUE / GUADELOUPE',
+    label:'GUADELOUPE · MARTINIQUE',
+    labelPos:[700,94],
+    guadeloupeBox:{x:704,y:110,w:82,h:74},
+    martiniqueBox:{x:812,y:112,w:42,h:86},
+    pin:[796,202]
   },
-  'LA REUNION':{
-    label:'La Réunion',
-    labelPos:[725,324],
-    pin:[790,382],
-    shapes:[
-      'M754 365 C762 347 783 340 803 346 C819 350 831 363 830 377 C828 391 816 403 799 409 C781 415 761 409 751 397 C743 387 746 375 754 365Z'
-    ]
+  reunion:{
+    key:'LA REUNION',
+    label:'LA RÉUNION',
+    labelPos:[743,305],
+    box:{x:752,y:322,w:100,h:78},
+    pin:[802,414]
   }
 };
 
@@ -614,250 +582,300 @@ function setupGroups(){
 }
 function mapProject(lat,lon){
   const west=-5.5,east=10.0,north=51.5,south=41.0;
-  const x=42+((lon-west)/(east-west))*600;
-  const y=48+((north-lat)/(north-south))*585;
-  return [Math.max(36,Math.min(650,x)),Math.max(42,Math.min(645,y))];
+  const x=24+((lon-west)/(east-west))*660;
+  const y=20+((north-lat)/(north-south))*640;
+  return [Math.max(18,Math.min(690,x)),Math.max(14,Math.min(665,y))];
 }
-function geoPath(points){
-  return points.map(([lat,lon],i)=>{
-    const [x,y]=mapProject(lat,lon);
+function pathFromRing(ring,projector=([lat,lon])=>mapProject(lat,lon)){
+  return ring.map((point,i)=>{
+    const [x,y]=projector(point);
     return `${i?'L':'M'}${x.toFixed(1)} ${y.toFixed(1)}`;
   }).join(' ')+' Z';
 }
+function boundsOfRings(rings){
+  let minLat=Infinity,maxLat=-Infinity,minLon=Infinity,maxLon=-Infinity;
+  rings.forEach(r=>r.forEach(([lat,lon])=>{minLat=Math.min(minLat,lat);maxLat=Math.max(maxLat,lat);minLon=Math.min(minLon,lon);maxLon=Math.max(maxLon,lon)}));
+  return {minLat,maxLat,minLon,maxLon};
+}
+function fitProjector(rings,box,padding=4){
+  const b=boundsOfRings(rings);
+  const spanLon=Math.max(.0001,b.maxLon-b.minLon),spanLat=Math.max(.0001,b.maxLat-b.minLat);
+  const availW=Math.max(1,box.w-padding*2),availH=Math.max(1,box.h-padding*2);
+  const s=Math.min(availW/spanLon,availH/spanLat);
+  const contentW=spanLon*s,contentH=spanLat*s;
+  const ox=box.x+(box.w-contentW)/2,oy=box.y+(box.h-contentH)/2;
+  return ([lat,lon])=>[ox+(lon-b.minLon)*s,oy+(b.maxLat-lat)*s];
+}
+function geometryPaths(rings,projector){
+  return rings.map(r=>pathFromRing(r,projector));
+}
+function svgPaths(paths,className=''){
+  return paths.map(d=>`<path${className?` class="${className}"`:''} d="${d}"></path>`).join('');
+}
 
 const mapViewState={
-  scale:1,minScale:1,maxScale:4,
-  tx:0,ty:0,
-  pointers:new Map(),
-  dragging:false,
-  lastPoint:null,
-  pinchLastDist:0,
-  pinchLastMid:null,
-  initialized:false
+  scale:1,minScale:1,maxScale:4,tx:0,ty:0,
+  pointers:new Map(),dragging:false,lastPoint:null,
+  pinchLastDist:0,pinchLastMid:null,initialized:false,
+  gestureMoved:false,suppressClicksUntil:0,
+  frame:0,selectedKey:null
 };
+const MAP_BOUNDS={minX:12,maxX:870,minY:15,maxY:645};
 function clampMap(v,min,max){return Math.max(min,Math.min(max,v))}
-function applyMapTransform(){
-  const layer=$('mapPanZoom');if(!layer)return;
-  layer.setAttribute('transform',`translate(${mapViewState.tx} ${mapViewState.ty}) scale(${mapViewState.scale})`);
+function clampMapTranslation(){
+  const s=mapViewState.scale,keepX=100,keepY=90;
+  mapViewState.tx=clampMap(mapViewState.tx,keepX-MAP_BOUNDS.maxX*s,900-keepX-MAP_BOUNDS.minX*s);
+  mapViewState.ty=clampMap(mapViewState.ty,keepY-MAP_BOUNDS.maxY*s,700-keepY-MAP_BOUNDS.minY*s);
+}
+function pinBaseScale(){
+  const svg=$('franceMapSvg');const w=svg?.getBoundingClientRect().width||900;
+  const userPerPx=900/Math.max(1,w);
+  return (20*userPerPx)/18;
+}
+function updatePinVisuals(){
+  const svg=$('franceMapSvg');if(!svg)return;
+  const exact=mapViewState.scale>=1.55;
+  const symbolScale=pinBaseScale()/mapViewState.scale;
+  svg.querySelectorAll('.map-pin-anchor').forEach(anchor=>{
+    const x=Number(exact?anchor.dataset.exactX:anchor.dataset.displayX);
+    const y=Number(exact?anchor.dataset.exactY:anchor.dataset.displayY);
+    anchor.setAttribute('transform',`translate(${x} ${y})`);
+    anchor.querySelector('.map-pin-symbol')?.setAttribute('transform',`scale(${symbolScale})`);
+    const leader=svg.querySelector(`.pin-leader[data-map-key="${CSS.escape(anchor.dataset.mapKey||'')}"]`);
+    if(leader)leader.style.display=exact?'none':'';
+  });
+}
+function renderMapTransform(){
+  mapViewState.frame=0;
+  clampMapTranslation();
+  const layer=$('mapPanZoom');
+  if(layer)layer.setAttribute('transform',`translate(${mapViewState.tx} ${mapViewState.ty}) scale(${mapViewState.scale})`);
+  updatePinVisuals();
+  const recenter=$('mapRecenter');
+  if(recenter)recenter.hidden=mapViewState.scale<=1.01;
+}
+function scheduleMapTransform(){
+  if(mapViewState.frame)return;
+  mapViewState.frame=requestAnimationFrame(renderMapTransform);
 }
 function resetMapZoom(){
   mapViewState.scale=1;mapViewState.tx=0;mapViewState.ty=0;
-  const viewport=$('franceMapViewport');
-  if(viewport)viewport.style.touchAction='pan-y';
-  applyMapTransform();
+  const viewport=$('franceMapViewport');if(viewport)viewport.style.touchAction='pan-y';
+  scheduleMapTransform();
 }
 function zoomMapAround(svgX,svgY,nextScale){
   const old=mapViewState.scale;
   nextScale=clampMap(nextScale,mapViewState.minScale,mapViewState.maxScale);
-  if(Math.abs(nextScale-old)<0.001)return;
+  if(Math.abs(nextScale-old)<.001)return;
   const ratio=nextScale/old;
   mapViewState.tx=svgX-ratio*(svgX-mapViewState.tx);
   mapViewState.ty=svgY-ratio*(svgY-mapViewState.ty);
   mapViewState.scale=nextScale;
-  const viewport=$('franceMapViewport');
-  if(viewport)viewport.style.touchAction=mapViewState.scale>1?'none':'pan-y';
-  applyMapTransform();
+  const viewport=$('franceMapViewport');if(viewport)viewport.style.touchAction=mapViewState.scale>1?'none':'pan-y';
+  $('franceMapShell')?.classList.add('map-interacted');
+  scheduleMapTransform();
 }
-function initMapInteractions(){
-  if(mapViewState.initialized)return;
-  const viewport=$('franceMapViewport'),svg=$('franceMapSvg');
-  if(!viewport||!svg)return;
-  mapViewState.initialized=true;
-
-  const toSvg=(clientX,clientY)=>{
-    const p=svg.createSVGPoint();p.x=clientX;p.y=clientY;
-    const m=svg.getScreenCTM();return m?p.matrixTransform(m.inverse()):{x:clientX,y:clientY};
-  };
-  const pointerDistance=(a,b)=>Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
-  const pointerMid=(a,b)=>({clientX:(a.clientX+b.clientX)/2,clientY:(a.clientY+b.clientY)/2});
-
-  viewport.addEventListener('wheel',e=>{
-    e.preventDefault();
-    const p=toSvg(e.clientX,e.clientY);
-    zoomMapAround(p.x,p.y,mapViewState.scale*(e.deltaY<0?1.14:.88));
-  },{passive:false});
-
-  viewport.addEventListener('dblclick',e=>{
-    e.preventDefault();
-    const p=toSvg(e.clientX,e.clientY);
-    if(mapViewState.scale>1.15)resetMapZoom();
-    else zoomMapAround(p.x,p.y,1.8);
+function selectMapPin(key){
+  mapViewState.selectedKey=key;
+  const svg=$('franceMapSvg');if(!svg)return;
+  svg.classList.toggle('map-has-selection',Boolean(key));
+  svg.querySelectorAll('.map-pin-anchor').forEach(a=>{
+    const selected=a.dataset.mapKey===key;
+    a.classList.toggle('is-selected',selected);
+    a.setAttribute('aria-pressed',String(selected));
   });
-
-  viewport.addEventListener('pointerdown',e=>{
-    viewport.setPointerCapture?.(e.pointerId);
-    mapViewState.pointers.set(e.pointerId,e);
-    viewport.style.touchAction=mapViewState.scale>1?'none':'pan-y';
-    if(mapViewState.pointers.size===1){
-      mapViewState.dragging=true;
-      mapViewState.lastPoint=toSvg(e.clientX,e.clientY);
-      viewport.classList.add('dragging');
-    }else if(mapViewState.pointers.size===2){
-      const pts=[...mapViewState.pointers.values()];
-      mapViewState.pinchLastDist=pointerDistance(pts[0],pts[1]);
-      const mid=pointerMid(pts[0],pts[1]);
-      mapViewState.pinchLastMid=toSvg(mid.clientX,mid.clientY);
-    }
-  });
-
-  viewport.addEventListener('pointermove',e=>{
-    if(!mapViewState.pointers.has(e.pointerId))return;
-    mapViewState.pointers.set(e.pointerId,e);
-    if(mapViewState.pointers.size===2){
-      const pts=[...mapViewState.pointers.values()];
-      const dist=pointerDistance(pts[0],pts[1]);
-      const midClient=pointerMid(pts[0],pts[1]);
-      const mid=toSvg(midClient.clientX,midClient.clientY);
-      if(mapViewState.pinchLastMid){
-        mapViewState.tx+=mid.x-mapViewState.pinchLastMid.x;
-        mapViewState.ty+=mid.y-mapViewState.pinchLastMid.y;
-        applyMapTransform();
-      }
-      if(mapViewState.pinchLastDist>0){
-        zoomMapAround(mid.x,mid.y,mapViewState.scale*(dist/mapViewState.pinchLastDist));
-      }
-      mapViewState.pinchLastDist=dist;
-      mapViewState.pinchLastMid=mid;
-      return;
-    }
-    if(mapViewState.pointers.size===1&&mapViewState.dragging&&mapViewState.scale>1){
-      const now=toSvg(e.clientX,e.clientY);
-      if(mapViewState.lastPoint){
-        mapViewState.tx+=now.x-mapViewState.lastPoint.x;
-        mapViewState.ty+=now.y-mapViewState.lastPoint.y;
-        applyMapTransform();
-      }
-      mapViewState.lastPoint=now;
-    }
-  });
-
-  const endPointer=e=>{
-    mapViewState.pointers.delete(e.pointerId);
-    if(mapViewState.pointers.size<2){
-      mapViewState.pinchLastDist=0;
-      mapViewState.pinchLastMid=null;
-    }
-    if(mapViewState.pointers.size===1){
-      const remaining=[...mapViewState.pointers.values()][0];
-      mapViewState.lastPoint=toSvg(remaining.clientX,remaining.clientY);
-    }
-    if(mapViewState.pointers.size===0){
-      mapViewState.dragging=false;
-      mapViewState.lastPoint=null;
-      viewport.classList.remove('dragging');
-      if(mapViewState.scale<=1.02)resetMapZoom();
-      viewport.style.touchAction=mapViewState.scale>1?'none':'pan-y';
-    }
-  };
-  viewport.addEventListener('pointerup',endPointer);
-  viewport.addEventListener('pointercancel',endPointer);
 }
-function mapPinMarkup(x,y,label,count,key){
-  return `<g class="map-pin map-pin-accessible" data-map-key="${escapeHtml(key)}" transform="translate(${x.toFixed(1)} ${y.toFixed(1)})" role="button" tabindex="0" aria-label="${escapeHtml(label)}, ${count} spécialité${count>1?'s':''}"><circle class="pin-halo" cx="0" cy="0" r="9"></circle><path class="pin-body" d="M0 12 C-4 6 -9 0 -9 -7 A9 9 0 1 1 9 -7 C9 0 4 6 0 12Z"></path><circle class="pin-core" cx="0" cy="-7" r="3.2"></circle></g>`;
+function resolvePinCollisions(entries,minDist=34){
+  const offsets=[[0,0],[24,0],[-24,0],[0,24],[0,-24],[18,18],[-18,18],[18,-18],[-18,-18],[34,0],[-34,0],[0,34],[0,-34],[28,20],[-28,20],[28,-20],[-28,-20]];
+  const placed=[];
+  return entries.slice().sort((a,b)=>cityLabel(a.city).localeCompare(cityLabel(b.city),'fr')).map(entry=>{
+    let display=[entry.exactX,entry.exactY];
+    for(const [dx,dy] of offsets){
+      const candidate=[entry.exactX+dx,entry.exactY+dy];
+      const ok=placed.every(p=>Math.hypot(candidate[0]-p[0],candidate[1]-p[1])>=minDist);
+      if(ok){display=candidate;break}
+    }
+    placed.push(display);
+    return {...entry,displayX:display[0],displayY:display[1]};
+  });
+}
+function mapPinMarkup(entry){
+  const moved=Math.hypot(entry.displayX-entry.exactX,entry.displayY-entry.exactY)>1;
+  const leader=moved?`<line class="pin-leader" data-map-key="${escapeHtml(entry.key)}" x1="${entry.exactX.toFixed(1)}" y1="${entry.exactY.toFixed(1)}" x2="${entry.displayX.toFixed(1)}" y2="${entry.displayY.toFixed(1)}"></line>`:'';
+  const anchor=`<g class="map-pin-anchor" data-map-key="${escapeHtml(entry.key)}" data-exact-x="${entry.exactX.toFixed(2)}" data-exact-y="${entry.exactY.toFixed(2)}" data-display-x="${entry.displayX.toFixed(2)}" data-display-y="${entry.displayY.toFixed(2)}" transform="translate(${entry.displayX.toFixed(1)} ${entry.displayY.toFixed(1)})" role="button" tabindex="0" aria-pressed="false" aria-label="${escapeHtml(entry.label)}, ${entry.count} spécialité${entry.count>1?'s':''}"><g class="map-pin-symbol"><circle class="pin-hit" cx="0" cy="0" r="20"></circle><circle class="pin-selected-ring" cx="0" cy="-2" r="13"></circle><circle class="pin-halo" cx="0" cy="-2" r="9"></circle><path class="pin-body" d="M0 10 C-4 5 -8 0 -8 -6 A8 8 0 1 1 8 -6 C8 0 4 5 0 10Z"></path><circle class="pin-core" cx="0" cy="-6" r="2.7"></circle></g></g>`;
+  return leader+anchor;
 }
 function showMapCity(city,items){
   const title=cityLabel(city);
   const specs=[...items.specialties].sort((a,b)=>a.localeCompare(b,'fr'));
   $('mapSelection').innerHTML=`<strong>${escapeHtml(title)}</strong><p>${specs.length} spécialité${specs.length>1?'s':''} accessible${specs.length>1?'s':''} avec votre sélection.</p><div class="map-specialties">${specs.map(s=>`<span class="map-specialty-chip">${escapeHtml(s)}</span>`).join('')}</div>`;
 }
+function initMapInteractions(){
+  if(mapViewState.initialized)return;
+  const viewport=$('franceMapViewport'),svg=$('franceMapSvg');
+  if(!viewport||!svg)return;
+  mapViewState.initialized=true;
+  const toSvg=(clientX,clientY)=>{
+    const p=svg.createSVGPoint();p.x=clientX;p.y=clientY;
+    const m=svg.getScreenCTM();return m?p.matrixTransform(m.inverse()):{x:clientX,y:clientY};
+  };
+  const pd=(a,b)=>Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
+  const pm=(a,b)=>({clientX:(a.clientX+b.clientX)/2,clientY:(a.clientY+b.clientY)/2});
+  viewport.addEventListener('wheel',e=>{
+    e.preventDefault();mapViewState.gestureMoved=true;
+    const p=toSvg(e.clientX,e.clientY);
+    zoomMapAround(p.x,p.y,mapViewState.scale*(e.deltaY<0?1.13:.89));
+  },{passive:false});
+  viewport.addEventListener('dblclick',e=>{
+    e.preventDefault();mapViewState.gestureMoved=true;
+    const p=toSvg(e.clientX,e.clientY);
+    if(mapViewState.scale>1.15)resetMapZoom();else zoomMapAround(p.x,p.y,1.8);
+  });
+  viewport.addEventListener('pointerdown',e=>{
+    viewport.setPointerCapture?.(e.pointerId);
+    mapViewState.pointers.set(e.pointerId,e);
+    mapViewState.gestureMoved=false;
+    if(mapViewState.pointers.size===1){
+      mapViewState.dragging=true;mapViewState.lastPoint=toSvg(e.clientX,e.clientY);viewport.classList.add('dragging');
+    }else if(mapViewState.pointers.size===2){
+      viewport.style.touchAction='none';mapViewState.gestureMoved=true;
+      const pts=[...mapViewState.pointers.values()];
+      mapViewState.pinchLastDist=pd(pts[0],pts[1]);
+      const mid=pm(pts[0],pts[1]);mapViewState.pinchLastMid=toSvg(mid.clientX,mid.clientY);
+    }
+  });
+  viewport.addEventListener('pointermove',e=>{
+    if(!mapViewState.pointers.has(e.pointerId))return;
+    mapViewState.pointers.set(e.pointerId,e);
+    if(mapViewState.pointers.size===2){
+      mapViewState.gestureMoved=true;
+      const pts=[...mapViewState.pointers.values()],dist=pd(pts[0],pts[1]),midClient=pm(pts[0],pts[1]),mid=toSvg(midClient.clientX,midClient.clientY);
+      if(mapViewState.pinchLastMid){mapViewState.tx+=mid.x-mapViewState.pinchLastMid.x;mapViewState.ty+=mid.y-mapViewState.pinchLastMid.y}
+      if(mapViewState.pinchLastDist>0)zoomMapAround(mid.x,mid.y,mapViewState.scale*(dist/mapViewState.pinchLastDist));
+      mapViewState.pinchLastDist=dist;mapViewState.pinchLastMid=mid;scheduleMapTransform();return;
+    }
+    if(mapViewState.pointers.size===1&&mapViewState.dragging&&mapViewState.scale>1){
+      const now=toSvg(e.clientX,e.clientY);
+      if(mapViewState.lastPoint){
+        const dx=now.x-mapViewState.lastPoint.x,dy=now.y-mapViewState.lastPoint.y;
+        if(Math.hypot(dx,dy)>.8)mapViewState.gestureMoved=true;
+        mapViewState.tx+=dx;mapViewState.ty+=dy;scheduleMapTransform();
+      }
+      mapViewState.lastPoint=now;
+    }
+  });
+  const endPointer=e=>{
+    mapViewState.pointers.delete(e.pointerId);
+    if(mapViewState.gestureMoved)mapViewState.suppressClicksUntil=performance.now()+260;
+    if(mapViewState.pointers.size<2){mapViewState.pinchLastDist=0;mapViewState.pinchLastMid=null}
+    if(mapViewState.pointers.size===1){
+      const remaining=[...mapViewState.pointers.values()][0];mapViewState.lastPoint=toSvg(remaining.clientX,remaining.clientY);
+    }
+    if(mapViewState.pointers.size===0){
+      mapViewState.dragging=false;mapViewState.lastPoint=null;viewport.classList.remove('dragging');
+      if(mapViewState.scale<=1.02)resetMapZoom();
+      viewport.style.touchAction=mapViewState.scale>1?'none':'pan-y';
+    }
+  };
+  viewport.addEventListener('pointerup',endPointer);
+  viewport.addEventListener('pointercancel',endPointer);
+  $('mapRecenter')?.addEventListener('click',()=>{resetMapZoom();$('franceMapShell')?.classList.add('map-interacted')});
+  const onResize=()=>requestAnimationFrame(()=>{clampMapTranslation();scheduleMapTransform()});
+  window.addEventListener('resize',onResize,{passive:true});
+  window.addEventListener('orientationchange',onResize,{passive:true});
+}
 function renderFranceMap(cityMap=new Map()){
   const svg=$('franceMapSvg');if(!svg)return;
-  const mainlandPath=geoPath(FRANCE_MAINLAND_GEO);
-  const corsicaPath=geoPath(CORSICA_GEO);
+  const mainlandPaths=geometryPaths(MAP_GEOMETRY.mainland);
+  const corsicaPaths=geometryPaths(MAP_GEOMETRY.corsica);
+  const gpProj=fitProjector(MAP_GEOMETRY.guadeloupe,OVERSEAS_LAYOUT.antilles.guadeloupeBox,2);
+  const mqProj=fitProjector(MAP_GEOMETRY.martinique,OVERSEAS_LAYOUT.antilles.martiniqueBox,2);
+  const reProj=fitProjector(MAP_GEOMETRY.reunion,OVERSEAS_LAYOUT.reunion.box,2);
+  const gpPaths=geometryPaths(MAP_GEOMETRY.guadeloupe,gpProj);
+  const mqPaths=geometryPaths(MAP_GEOMETRY.martinique,mqProj);
+  const rePaths=geometryPaths(MAP_GEOMETRY.reunion,reProj);
 
   const defs=`
     <defs>
-      <clipPath id="mainlandClip"><path d="${mainlandPath}"></path></clipPath>
-      <clipPath id="corsicaClip"><path d="${corsicaPath}"></path></clipPath>
-      <filter id="watercolorWash" x="-30%" y="-30%" width="160%" height="160%">
-        <feTurbulence type="fractalNoise" baseFrequency=".016 .038" numOctaves="2" seed="7" result="noise"></feTurbulence>
-        <feDisplacementMap in="SourceGraphic" in2="noise" scale="10" xChannelSelector="R" yChannelSelector="B"></feDisplacementMap>
-        <feGaussianBlur stdDeviation="3.2"></feGaussianBlur>
-      </filter>
-      <filter id="paperTexture" x="-20%" y="-20%" width="140%" height="140%">
-        <feTurbulence type="fractalNoise" baseFrequency=".7" numOctaves="2" seed="11" result="grain"></feTurbulence>
-        <feColorMatrix in="grain" type="saturate" values="0"></feColorMatrix>
-        <feComponentTransfer><feFuncA type="table" tableValues="0 .028 .05"></feFuncA></feComponentTransfer>
-      </filter>
+      <clipPath id="mainlandClip">${svgPaths(mainlandPaths)}</clipPath>
+      <clipPath id="corsicaClip">${svgPaths(corsicaPaths)}</clipPath>
+      <clipPath id="gpClip">${svgPaths(gpPaths)}</clipPath>
+      <clipPath id="mqClip">${svgPaths(mqPaths)}</clipPath>
+      <clipPath id="reClip">${svgPaths(rePaths)}</clipPath>
       <linearGradient id="softTricolor" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="#6f91ff" stop-opacity=".42"></stop>
-        <stop offset="31%" stop-color="#9fb6ff" stop-opacity=".25"></stop>
-        <stop offset="43%" stop-color="#ffffff" stop-opacity=".84"></stop>
-        <stop offset="61%" stop-color="#ffffff" stop-opacity=".92"></stop>
-        <stop offset="72%" stop-color="#ffb2b2" stop-opacity=".24"></stop>
-        <stop offset="100%" stop-color="#ff7979" stop-opacity=".40"></stop>
+        <stop offset="0%" stop-color="#6f91ff" stop-opacity=".25"></stop>
+        <stop offset="28%" stop-color="#9fb6ff" stop-opacity=".13"></stop>
+        <stop offset="43%" stop-color="#ffffff" stop-opacity=".92"></stop>
+        <stop offset="62%" stop-color="#ffffff" stop-opacity=".96"></stop>
+        <stop offset="78%" stop-color="#ffb2b2" stop-opacity=".11"></stop>
+        <stop offset="100%" stop-color="#ff7979" stop-opacity=".19"></stop>
       </linearGradient>
+      <radialGradient id="blueWash"><stop offset="0%" stop-color="#6f91ff" stop-opacity=".12"></stop><stop offset="100%" stop-color="#6f91ff" stop-opacity="0"></stop></radialGradient>
+      <radialGradient id="redWash"><stop offset="0%" stop-color="#ffb2b2" stop-opacity=".10"></stop><stop offset="100%" stop-color="#ffb2b2" stop-opacity="0"></stop></radialGradient>
+      <filter id="paperGrain" x="-10%" y="-10%" width="120%" height="120%">
+        <feTurbulence type="fractalNoise" baseFrequency=".55" numOctaves="2" seed="11" result="grain"></feTurbulence>
+        <feColorMatrix in="grain" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 .045 0"></feColorMatrix>
+      </filter>
     </defs>`;
 
-  const mainland=`
-    <g clip-path="url(#mainlandClip)">
-      <rect x="28" y="30" width="645" height="635" fill="url(#softTricolor)"></rect>
-      <ellipse class="map-watercolor-blue" cx="180" cy="350" rx="170" ry="320"></ellipse>
-      <ellipse class="map-watercolor-white" cx="350" cy="350" rx="155" ry="310"></ellipse>
-      <ellipse class="map-watercolor-red" cx="545" cy="350" rx="180" ry="320"></ellipse>
-      <rect x="28" y="30" width="645" height="635" fill="#fff" opacity=".18" filter="url(#paperTexture)"></rect>
-    </g>
-    <path class="france-outline" d="${mainlandPath}"></path>
-    <g clip-path="url(#corsicaClip)">
-      <rect x="590" y="500" width="72" height="140" fill="url(#softTricolor)"></rect>
-      <ellipse class="map-watercolor-red" cx="625" cy="565" rx="34" ry="58"></ellipse>
-    </g>
-    <path class="france-corsica" d="${corsicaPath}"></path>`;
+  const wash=(clipId,x,y,w,h)=>`<g clip-path="url(#${clipId})"><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#fff"></rect><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#softTricolor)"></rect><ellipse cx="${x+w*.24}" cy="${y+h*.53}" rx="${w*.34}" ry="${h*.52}" fill="url(#blueWash)"></ellipse><ellipse cx="${x+w*.78}" cy="${y+h*.50}" rx="${w*.34}" ry="${h*.54}" fill="url(#redWash)"></ellipse><rect x="${x}" y="${y}" width="${w}" height="${h}" opacity=".05" filter="url(#paperGrain)"></rect></g>`;
 
-  let territories='';
-  Object.entries(OVERSEAS_TERRITORIES).forEach(([key,cfg])=>{
-    territories+=`<g class="map-overseas-territory" data-territory="${escapeHtml(key)}"><text class="map-territory-label" x="${cfg.labelPos[0]}" y="${cfg.labelPos[1]}">${escapeHtml(cfg.label)}</text>`;
-    cfg.shapes.forEach((shape,idx)=>{
-      const clipId=`territory-${key.replace(/[^A-Za-z0-9]/g,'')}-${idx}`;
-      territories+=`<defs><clipPath id="${clipId}"><path d="${shape}"></path></clipPath></defs><g clip-path="url(#${clipId})"><rect x="680" y="90" width="190" height="350" fill="url(#softTricolor)"></rect><ellipse class="map-watercolor-blue" cx="752" cy="220" rx="46" ry="92"></ellipse><ellipse class="map-watercolor-red" cx="820" cy="255" rx="48" ry="100"></ellipse></g><path class="map-territory" d="${shape}"></path>`;
-    });
-    territories+='</g>';
-  });
+  const geography=`
+    ${wash('mainlandClip',10,8,680,650)}
+    ${svgPaths(mainlandPaths,'france-outline')}
+    ${wash('corsicaClip',590,500,88,140)}
+    ${svgPaths(corsicaPaths,'france-corsica')}
+    <text class="map-territory-label" x="${OVERSEAS_LAYOUT.antilles.labelPos[0]}" y="${OVERSEAS_LAYOUT.antilles.labelPos[1]}">${OVERSEAS_LAYOUT.antilles.label}</text>
+    ${wash('gpClip',OVERSEAS_LAYOUT.antilles.guadeloupeBox.x,OVERSEAS_LAYOUT.antilles.guadeloupeBox.y,OVERSEAS_LAYOUT.antilles.guadeloupeBox.w,OVERSEAS_LAYOUT.antilles.guadeloupeBox.h)}
+    ${svgPaths(gpPaths,'map-territory')}
+    ${wash('mqClip',OVERSEAS_LAYOUT.antilles.martiniqueBox.x,OVERSEAS_LAYOUT.antilles.martiniqueBox.y,OVERSEAS_LAYOUT.antilles.martiniqueBox.w,OVERSEAS_LAYOUT.antilles.martiniqueBox.h)}
+    ${svgPaths(mqPaths,'map-territory')}
+    <text class="map-territory-label" x="${OVERSEAS_LAYOUT.reunion.labelPos[0]}" y="${OVERSEAS_LAYOUT.reunion.labelPos[1]}">${OVERSEAS_LAYOUT.reunion.label}</text>
+    ${wash('reClip',OVERSEAS_LAYOUT.reunion.box.x,OVERSEAS_LAYOUT.reunion.box.y,OVERSEAS_LAYOUT.reunion.box.w,OVERSEAS_LAYOUT.reunion.box.h)}
+    ${svgPaths(rePaths,'map-territory')}
+  `;
 
-  const accessibleMainland=[],accessibleOverseas=[];
+  const entryMap=new Map(),mainEntries=[],overEntries=[];
+  let idx=0;
   for(const [city,items] of cityMap.entries()){
     const coord=CITY_COORDS[city];if(!coord)continue;
-    if(OVERSEAS_TERRITORIES[city])accessibleOverseas.push([city,items]);
-    else {
+    const key=`pin-${idx++}`,count=items.specialties.size,label=cityLabel(city);
+    if(city===OVERSEAS_LAYOUT.antilles.key){
+      const [x,y]=OVERSEAS_LAYOUT.antilles.pin;overEntries.push({key,city,items,label,count,exactX:x,exactY:y,displayX:x,displayY:y});
+    }else if(city===OVERSEAS_LAYOUT.reunion.key){
+      const [x,y]=OVERSEAS_LAYOUT.reunion.pin;overEntries.push({key,city,items,label,count,exactX:x,exactY:y,displayX:x,displayY:y});
+    }else{
       const [lat,lon]=coord;
-      if(lat>=41&&lat<=52&&lon>=-6&&lon<=10)accessibleMainland.push([city,items,lat,lon]);
+      if(lat>=41&&lat<=52&&lon>=-6&&lon<=10){
+        const [x,y]=mapProject(lat,lon);mainEntries.push({key,city,items,label,count,exactX:x,exactY:y});
+      }
     }
   }
+  const resolved=resolvePinCollisions(mainEntries);
+  const allEntries=[...resolved,...overEntries];
+  allEntries.forEach(e=>entryMap.set(e.key,e));
+  const pinMarkup=allEntries.map(mapPinMarkup).join('');
 
-  let pins='';
-  accessibleMainland.forEach(([city,items,lat,lon],idx)=>{
-    const [x,y]=mapProject(lat,lon);
-    pins+=mapPinMarkup(x,y,cityLabel(city),items.specialties.size,`main-${idx}`);
-  });
-  accessibleOverseas.forEach(([city,items],idx)=>{
-    const cfg=OVERSEAS_TERRITORIES[city];
-    pins+=mapPinMarkup(cfg.pin[0],cfg.pin[1],cityLabel(city),items.specialties.size,`over-${idx}`);
-  });
+  mapViewState.selectedKey=null;
+  svg.classList.remove('map-has-selection');
+  svg.innerHTML=defs+`<g id="mapPanZoom">${geography}${pinMarkup}</g>`;
+  scheduleMapTransform();
 
-  svg.innerHTML=defs+`<g id="mapPanZoom">${mainland}${territories}${pins}</g>`;
-  applyMapTransform();
-
-  svg.querySelectorAll('.map-pin').forEach(pin=>{
-    const key=pin.dataset.mapKey||'';
+  svg.querySelectorAll('.map-pin-anchor').forEach(anchor=>{
     const activate=()=>{
-      if(key.startsWith('main-')){
-        const idx=Number(key.slice(5));const [city,items]=accessibleMainland[idx]||[];if(city)showMapCity(city,items);
-      }else if(key.startsWith('over-')){
-        const idx=Number(key.slice(5));const [city,items]=accessibleOverseas[idx]||[];if(city)showMapCity(city,items);
-      }
+      if(performance.now()<mapViewState.suppressClicksUntil)return;
+      const e=entryMap.get(anchor.dataset.mapKey);if(!e)return;
+      selectMapPin(e.key);showMapCity(e.city,e.items);
     };
-    pin.addEventListener('click',activate);
-    pin.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate()}});
+    anchor.addEventListener('click',activate);
+    anchor.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate()}});
   });
 
-  const allCount=cityMap.size;
-  const shownCount=accessibleMainland.length+accessibleOverseas.length;
+  const shownCount=allEntries.length,allCount=cityMap.size;
   $('mapCount').textContent=`${allCount} ville${allCount>1?'s':''}`;
   $('mapSubtitle').textContent=allCount?`${allCount} ville${allCount>1?'s':''} accessible${allCount>1?'s':''} avec votre sélection.`:'Les villes accessibles apparaîtront ici.';
   $('mapEmpty').hidden=shownCount>0;
-  if(!shownCount){
-    $('mapSelection').innerHTML='<strong>Carte interactive</strong><p>Touchez un pin pour voir quelles spécialités sont accessibles dans cette ville.</p>';
-  }
+  $('mapSelection').innerHTML=shownCount?'<strong>Carte interactive</strong><p>Touchez un pin pour voir quelles spécialités sont accessibles dans cette ville.</p>':'<strong>Carte interactive</strong><p>Les territoires restent visibles même sans résultat.</p>';
   initMapInteractions();
 }
 function rowsFor(spec){return state.data?.specialties?.[spec]?.[state.tour]||[]}
