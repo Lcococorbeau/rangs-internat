@@ -353,17 +353,20 @@
       const nextTop = next.getBoundingClientRect().top;
       const strip = 9;
 
-      /* La carte précédente ne s'efface que lorsque la suivante la recouvre
-         réellement. Le bord inférieur est "mangé" exactement au rythme
-         du chevauchement, sans disparition anticipée du contenu. */
-      const overlap = clamp01((rect.bottom - nextTop) / Math.max(rect.height - strip, 1));
-      const clipBottom = Math.max(0, Math.min(rect.height - strip, rect.bottom - nextTop));
+      /* La carte suivante peut d'abord recouvrir naturellement la précédente.
+         L'effacement supplémentaire ne commence qu'à 50 % de recouvrement,
+         puis s'achève progressivement vers 90 %. */
+      const rawOverlap = clamp01((rect.bottom - nextTop) / Math.max(rect.height - strip, 1));
+      const eraseStart = .50;
+      const eraseEnd = .90;
+      const eraseProgress = clamp01((rawOverlap - eraseStart) / (eraseEnd - eraseStart));
+      const clipBottom = (rect.height - strip) * eraseProgress;
 
-      card.style.clipPath = clipBottom > 0
+      card.style.clipPath = eraseProgress > 0
         ? `inset(0 0 ${clipBottom.toFixed(1)}px 0 round 20px)`
         : 'inset(0 0 0 0 round 20px)';
       card.style.setProperty('--stack-content-opacity', '1');
-      card.classList.toggle('motion-covered', overlap > .995);
+      card.classList.toggle('motion-covered', eraseProgress > .995);
     });
 
     if (activeIndex !== nextActive) {
