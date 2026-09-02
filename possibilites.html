@@ -96,7 +96,7 @@
     .france-outline{
       fill:none;
       stroke:#bfcbd9;
-      stroke-width:3.2;
+      stroke-width:3.5;
       stroke-linejoin:round;
       stroke-linecap:round;
       filter:drop-shadow(0 16px 28px rgba(23,32,51,.10));
@@ -402,53 +402,63 @@ const CITY_COORDS={
   'MARTINIQUE / GUADELOUPE':[15.9,-61.0]
 };
 
-const FRANCE_MAINLAND_PATH=`
-M279 92
-C253 84 229 92 212 109
-C191 130 172 143 151 149
-C127 156 104 173 98 193
-C91 216 107 233 123 246
-C101 256 83 272 79 292
-C75 312 91 326 111 330
-C97 347 98 365 112 380
-C129 399 153 404 171 420
-C182 431 176 449 184 464
-C195 485 223 493 245 505
-C265 516 276 538 294 553
-C316 571 342 576 365 568
-C383 562 392 548 405 536
-C423 520 443 525 464 527
-C490 530 520 524 540 507
-C558 491 568 471 586 457
-C604 442 628 437 644 420
-C662 402 668 378 670 355
-C672 331 690 315 698 293
-C706 269 701 246 686 229
-C672 213 654 205 639 192
-C624 179 619 158 603 148
-C585 137 563 142 545 133
-C527 124 520 105 500 99
-C477 92 454 103 433 111
-C413 119 395 114 376 105
-C354 95 333 78 308 82
-C297 84 289 89 279 92
-Z`;
+const FRANCE_MAINLAND_GEO=[
+  [50.95,1.85],   /* Calais */
+  [51.05,2.37],   /* Dunkerque */
+  [50.63,3.06],   /* Lille */
+  [50.14,4.83],   /* Givet */
+  [49.52,5.76],   /* Longwy */
+  [49.04,7.95],   /* Wissembourg */
+  [48.58,7.75],   /* Strasbourg */
+  [47.59,7.59],   /* Bâle */
+  [46.20,6.15],   /* Genève */
+  [45.92,6.87],   /* Chamonix */
+  [44.90,6.64],   /* Alpes du Sud */
+  [43.77,7.50],   /* Menton */
+  [43.71,7.26],   /* Nice */
+  [43.12,5.93],   /* Toulon */
+  [43.30,5.37],   /* Marseille */
+  [43.40,4.40],   /* Camargue */
+  [43.61,3.88],   /* Montpellier */
+  [42.70,2.90],   /* Perpignan */
+  [42.55,1.73],   /* Pyrénées est */
+  [42.82,0.70],   /* Pyrénées centrales */
+  [43.10,-0.30],  /* Pyrénées ouest */
+  [43.37,-1.79],  /* Hendaye */
+  [43.48,-1.56],  /* Biarritz */
+  [44.65,-1.17],  /* Arcachon */
+  [45.57,-1.06],  /* Pointe de Grave */
+  [46.16,-1.15],  /* La Rochelle */
+  [47.27,-2.21],  /* Saint-Nazaire */
+  [47.75,-3.37],  /* Lorient */
+  [48.04,-4.74],  /* Pointe du Raz */
+  [48.39,-4.49],  /* Brest */
+  [48.73,-3.98],  /* Roscoff */
+  [48.65,-2.03],  /* Saint-Malo */
+  [49.64,-1.62],  /* Cherbourg */
+  [49.49,0.10],   /* Le Havre */
+  [49.92,1.08],   /* Dieppe */
+  [50.95,1.85]
+];
 
-const CORSICA_PATH=`
-M682 511
-C690 498 704 495 714 504
-C724 513 726 530 724 545
-C721 562 714 579 705 592
-C696 604 686 596 681 583
-C676 570 674 553 675 539
-C676 528 677 518 682 511
-Z`;
+const CORSICA_GEO=[
+  [42.98,9.40],
+  [42.72,9.47],
+  [42.37,9.43],
+  [41.92,9.39],
+  [41.40,9.20],
+  [41.36,8.78],
+  [41.78,8.55],
+  [42.25,8.62],
+  [42.68,9.06],
+  [42.98,9.40]
+];
 
 const OVERSEAS_INSETS={
   'MARTINIQUE / GUADELOUPE':{
     label:'Antilles',
-    frame:[638,88,214,174],
-    pin:[748,174],
+    frame:[660,82,200,170],
+    pin:[760,170],
     shapes:[
       'M679 152 C688 139 701 138 708 147 C714 156 709 168 700 175 C690 181 680 173 679 152Z',
       'M729 133 C741 119 760 121 769 135 C777 148 772 164 759 170 C746 177 734 164 729 133Z',
@@ -457,8 +467,8 @@ const OVERSEAS_INSETS={
   },
   'LA REUNION':{
     label:'La Réunion',
-    frame:[638,286,214,156],
-    pin:[749,365],
+    frame:[660,280,200,154],
+    pin:[760,360],
     shapes:[
       'M713 350 C723 332 750 326 771 338 C789 348 794 366 781 381 C768 397 744 402 724 391 C705 381 703 365 713 350Z'
     ]
@@ -548,10 +558,16 @@ function setupGroups(){
   updateGroupButton();
 }
 function mapProject(lat,lon){
-  const west=-5.5,east=8.8,north=51.5,south=41.0;
-  const x=96+((lon-west)/(east-west))*590;
-  const y=88+((north-lat)/(north-south))*492;
-  return [Math.max(90,Math.min(690,x)),Math.max(78,Math.min(590,y))];
+  const west=-5.5,east=10.0,north=51.5,south=41.0;
+  const x=86+((lon-west)/(east-west))*525;
+  const y=78+((north-lat)/(north-south))*500;
+  return [Math.max(78,Math.min(620,x)),Math.max(70,Math.min(590,y))];
+}
+function geoPath(points){
+  return points.map(([lat,lon],i)=>{
+    const [x,y]=mapProject(lat,lon);
+    return `${i?'L':'M'}${x.toFixed(1)} ${y.toFixed(1)}`;
+  }).join(' ')+' Z';
 }
 function mapPinMarkup(x,y,label,count,key){
   return `<g class="map-pin map-pin-accessible" data-map-key="${escapeHtml(key)}" transform="translate(${x.toFixed(1)} ${y.toFixed(1)})" role="button" tabindex="0" aria-label="${escapeHtml(label)}, ${count} spécialité${count>1?'s':''}"><circle class="pin-halo" cx="0" cy="0" r="9"></circle><path class="pin-body" d="M0 12 C-4 6 -9 0 -9 -7 A9 9 0 1 1 9 -7 C9 0 4 6 0 12Z"></path><circle class="pin-core" cx="0" cy="-7" r="3.2"></circle></g>`;
@@ -563,11 +579,13 @@ function showMapCity(city,items){
 }
 function renderFranceMap(cityMap=new Map()){
   const svg=$('franceMapSvg');if(!svg)return;
+  const mainlandPath=geoPath(FRANCE_MAINLAND_GEO);
+  const corsicaPath=geoPath(CORSICA_GEO);
 
   const defs=`
     <defs>
-      <clipPath id="mainlandClip"><path d="${FRANCE_MAINLAND_PATH}"></path></clipPath>
-      <clipPath id="corsicaClip"><path d="${CORSICA_PATH}"></path></clipPath>
+      <clipPath id="mainlandClip"><path d="${mainlandPath}"></path></clipPath>
+      <clipPath id="corsicaClip"><path d="${corsicaPath}"></path></clipPath>
       <filter id="watercolorWash" x="-30%" y="-30%" width="160%" height="160%">
         <feTurbulence type="fractalNoise" baseFrequency=".016 .038" numOctaves="2" seed="7" result="noise"></feTurbulence>
         <feDisplacementMap in="SourceGraphic" in2="noise" scale="10" xChannelSelector="R" yChannelSelector="B"></feDisplacementMap>
@@ -590,18 +608,18 @@ function renderFranceMap(cityMap=new Map()){
 
   const mainland=`
     <g clip-path="url(#mainlandClip)">
-      <rect x="55" y="55" width="680" height="560" fill="url(#softTricolor)"></rect>
-      <ellipse class="map-watercolor-blue" cx="210" cy="320" rx="165" ry="290"></ellipse>
-      <ellipse class="map-watercolor-white" cx="390" cy="325" rx="150" ry="275"></ellipse>
-      <ellipse class="map-watercolor-red" cx="575" cy="320" rx="170" ry="290"></ellipse>
-      <rect x="55" y="55" width="680" height="560" fill="#fff" opacity=".2" filter="url(#paperTexture)"></rect>
+      <rect x="72" y="62" width="560" height="545" fill="url(#softTricolor)"></rect>
+      <ellipse class="map-watercolor-blue" cx="200" cy="330" rx="150" ry="285"></ellipse>
+      <ellipse class="map-watercolor-white" cx="355" cy="330" rx="140" ry="280"></ellipse>
+      <ellipse class="map-watercolor-red" cx="520" cy="330" rx="155" ry="285"></ellipse>
+      <rect x="72" y="62" width="560" height="545" fill="#fff" opacity=".18" filter="url(#paperTexture)"></rect>
     </g>
-    <path class="france-outline" d="${FRANCE_MAINLAND_PATH}"></path>
+    <path class="france-outline" d="${mainlandPath}"></path>
     <g clip-path="url(#corsicaClip)">
-      <rect x="660" y="490" width="90" height="125" fill="url(#softTricolor)"></rect>
-      <ellipse class="map-watercolor-red" cx="714" cy="550" rx="42" ry="64"></ellipse>
+      <rect x="555" y="505" width="72" height="92" fill="url(#softTricolor)"></rect>
+      <ellipse class="map-watercolor-red" cx="592" cy="548" rx="32" ry="50"></ellipse>
     </g>
-    <path class="france-corsica" d="${CORSICA_PATH}"></path>`;
+    <path class="france-corsica" d="${corsicaPath}"></path>`;
 
   let insets='';
   Object.entries(OVERSEAS_INSETS).forEach(([key,cfg])=>{
