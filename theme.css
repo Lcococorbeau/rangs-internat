@@ -1847,3 +1847,66 @@ html.info-overlay-open body {
     transition: none !important;
   }
 }
+
+
+/* Curseur de réglage Preview */
+.motion-tuner {
+  margin: 0 0 18px;
+  padding: 14px 16px 12px;
+  border: 1px solid rgba(217,224,234,.96);
+  border-radius: 16px;
+  background: rgba(255,255,255,.96);
+  box-shadow: 0 10px 30px rgba(23,32,51,.08);
+  font-family: var(--site-font, inherit);
+}
+
+.motion-tuner-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.motion-tuner-head strong {
+  color: #172033;
+  font-size: .86rem;
+  font-weight: 850;
+}
+
+.motion-tuner-value {
+  color: var(--apple-blue, #0071e3);
+  font-size: .82rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.motion-tuner-label {
+  display: block;
+  margin-bottom: 7px;
+  color: #667085;
+  font-size: .76rem;
+  font-weight: 720;
+}
+
+.motion-tuner-range {
+  width: 100%;
+  accent-color: var(--apple-blue, #0071e3);
+  cursor: pointer;
+}
+
+.motion-tuner-scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 3px;
+  color: #98a2b3;
+  font-size: .65rem;
+  font-weight: 700;
+}
+
+@media (max-width: 520px) {
+  .motion-tuner {
+    padding: 12px 14px 10px;
+    border-radius: 14px;
+  }
+}
