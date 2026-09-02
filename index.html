@@ -146,20 +146,48 @@
       <a class="nav-link" href="possibilites.html">Mes possibilités</a>
     </div>
   </nav>
-  <section class="hero">
+  <section class="hero hero-simple">
     <div class="hero-main">
       <p class="eyebrow" id="eyebrow">EDN · Choix de spécialité</p>
       <h1>Évolution des rangs limites</h1>
-      <p class="subtitle">Comparez une ou plusieurs années, spécialités et subdivisions. En comparaison interannuelle, les tours sont alignés par phase : simulations, tours à blanc, puis choix définitif. Chaque courbe représente un rang maximal observé ; l’axe vertical part systématiquement de <strong>0</strong>.</p>
+      <div class="hero-info-links" aria-label="Aide">
+        <button class="apple-info-link" type="button" data-info-open="howItWorksModal">Comment ça marche <span aria-hidden="true">›</span></button>
+        <button class="apple-info-link" type="button" data-info-open="readChartModal">Lire le graphique <span aria-hidden="true">›</span></button>
+      </div>
+      <span class="sr-only" id="tourBadge">Chargement…</span>
     </div>
-    <aside class="hero-note">
-      <strong>Lecture rapide</strong>
-      <p>Plus le rang est élevé, plus la combinaison spécialité–ville reste accessible loin dans le classement. En mode « Toutes les villes », le rang max le plus élevé de la spécialité est retenu à chaque tour.</p>
-      <span class="tour-badge" id="tourBadge">Chargement…</span>
-    </aside>
   </section>
 
-  <section class="panel">
+  <div class="info-modal" id="howItWorksModal" hidden>
+    <div class="info-modal-backdrop" data-info-close></div>
+    <section class="info-modal-card" role="dialog" aria-modal="true" aria-labelledby="howItWorksTitle">
+      <button class="info-modal-close" type="button" data-info-close aria-label="Fermer">×</button>
+      <p class="info-modal-kicker">Mode d’emploi</p>
+      <h2 id="howItWorksTitle">Comment ça marche</h2>
+      <div class="info-modal-copy" id="modeExplainer"></div>
+      <p class="info-modal-foot">Sélectionnez une ou plusieurs années, spécialités et villes. Les courbes sont recalculées automatiquement.</p>
+    </section>
+  </div>
+
+  <div class="info-modal" id="readChartModal" hidden>
+    <div class="info-modal-backdrop" data-info-close></div>
+    <section class="info-modal-card" role="dialog" aria-modal="true" aria-labelledby="readChartTitle">
+      <button class="info-modal-close" type="button" data-info-close aria-label="Fermer">×</button>
+      <p class="info-modal-kicker">Lecture</p>
+      <h2 id="readChartTitle">Lire le graphique</h2>
+      <div class="info-modal-copy">
+        <p><strong>Plus le rang est élevé</strong>, plus la combinaison spécialité–ville reste accessible loin dans le classement.</p>
+        <p>En mode <strong>« Toutes les villes »</strong>, le site retient à chaque tour le rang maximal observé parmi les subdivisions. Touchez un point pour voir la ville correspondante.</p>
+      </div>
+    </section>
+  </div>
+
+  <section class="panel selection-panel">
+    <div class="metrics selection-summary" aria-label="Sélection actuelle">
+      <article class="metric"><div class="k" id="metric1Label">Année</div><div class="v" id="metric1Value">—</div><div class="s" id="metric1Sub"></div></article>
+      <article class="metric"><div class="k" id="metric2Label">Spécialité</div><div class="v" id="metric2Value">—</div><div class="s" id="metric2Sub"></div></article>
+      <article class="metric"><div class="k" id="metric3Label">Ville</div><div class="v" id="metric3Value">—</div><div class="s" id="metric3Sub"></div></article>
+    </div>
     <div class="controls">
       <div class="multi" id="yearControl">
         <span class="field-label">Année(s) — au moins une</span>
@@ -191,36 +219,91 @@
       <button class="reset-btn" id="resetButton" type="button">Réinitialiser</button>
     </div>
     <div class="error-box" id="errorBox"></div>
-    <div class="mode-explainer" id="modeExplainer"></div>
-    <div class="series-legend" id="seriesLegend" aria-label="Courbes affichées"></div>
   </section>
 
-  <section class="metrics" aria-label="Indicateurs">
-    <article class="metric"><div class="k" id="metric1Label">Année</div><div class="v" id="metric1Value">—</div><div class="s" id="metric1Sub"></div></article>
-    <article class="metric"><div class="k" id="metric2Label">Spécialité</div><div class="v" id="metric2Value">—</div><div class="s" id="metric2Sub"></div></article>
-    <article class="metric"><div class="k" id="metric3Label">Ville</div><div class="v" id="metric3Value">—</div><div class="s" id="metric3Sub"></div></article>
-  </section>
-
-  <section class="panel">
-    <div class="chart-head"><div><h2 id="chartTitle">Chargement…</h2><p id="chartSubtitle"></p></div><span class="badge">Interactif · survolez ou touchez un point</span></div>
+  <section class="panel data-stage chart-stage">
+    <div class="chart-head">
+      <div>
+        <h2 id="chartTitle">Chargement…</h2>
+        <p id="chartSubtitle"></p>
+      </div>
+      <div class="chart-head-actions">
+        <button class="legend-trigger" id="legendButton" type="button" data-info-open="legendModal">Légende <span aria-hidden="true">›</span></button>
+        <span class="badge">Interactif · touchez un point</span>
+      </div>
+    </div>
     <p class="sr-only" id="chartA11ySummary">Graphique des rangs limites. Les données sont également disponibles sous forme de tableau.</p>
     <div class="chart-wrap"><canvas id="rankChart" role="img" aria-describedby="chartA11ySummary"></canvas><div class="loading show" id="loading">Chargement des données…</div><div class="no-data" id="noData">Aucune donnée disponible pour cette sélection.</div></div>
-    <div class="table-actions"><button class="evolution-toggle" id="evolutionToggle" type="button" aria-expanded="false" aria-controls="evolutionPanel">Évolution</button><button class="table-toggle" id="tableToggle" type="button" aria-expanded="false" aria-controls="tablePanel">Afficher les données en tableau</button></div>
-    <div class="evolution-panel" id="evolutionPanel" hidden></div>
-    <div class="table-panel" id="tablePanel" hidden>
-      <div class="table-toolbar"><p class="table-note">Le tableau reprend exactement les années, spécialités et villes sélectionnées ci-dessus.</p><button class="table-orientation-btn" id="transposeTableButton" type="button" aria-pressed="false">↔ Inverser lignes / colonnes</button></div>
+  </section>
+
+  <section class="panel data-stage evolution-stage">
+    <div class="data-stage-head">
+      <p class="data-stage-kicker">Synthèse</p>
+      <h2>Évolution</h2>
+      <p>Écart entre la première et la dernière donnée disponible pour chaque courbe.</p>
+    </div>
+    <div class="evolution-panel" id="evolutionPanel"></div>
+  </section>
+
+  <section class="panel data-stage table-stage">
+    <div class="data-stage-head">
+      <p class="data-stage-kicker">Détail</p>
+      <h2>Données</h2>
+      <p>Le tableau reprend exactement la sélection affichée sur le graphique.</p>
+    </div>
+    <div class="table-panel" id="tablePanel">
+      <div class="table-toolbar"><p class="table-note">Faites glisser horizontalement le tableau si nécessaire.</p><button class="table-orientation-btn" id="transposeTableButton" type="button" aria-pressed="false">↔ Inverser lignes / colonnes</button></div>
       <div class="table-scroll" id="tableContainer"></div>
     </div>
   </section>
 
-  <section class="foot-grid">
-    <div class="info-box"><h3>Mode « Toutes les villes confondues »</h3><p>Pour chaque spécialité, le graphique conserve à chaque tour le <code>rang max le plus élevé</code> parmi toutes les subdivisions. L’infobulle indique la ville correspondante, y compris en cas d’égalité.</p></div>
-    <div class="info-box"><h3>Comparaisons multiples</h3><p>Les sélections sont croisées : <code>années × spécialités × villes</code>. « Tout cocher » trace une courbe par ville ; « Toutes les villes confondues » garde une seule courbe agrégée. En comparaison interannuelle, chaque série a sa couleur et l’année en cours peut être pointillée.</p></div>
-  </section>
+  <div class="info-modal" id="legendModal" hidden>
+    <div class="info-modal-backdrop" data-info-close></div>
+    <section class="info-modal-card legend-modal-card" role="dialog" aria-modal="true" aria-labelledby="legendModalTitle">
+      <button class="info-modal-close" type="button" data-info-close aria-label="Fermer">×</button>
+      <p class="info-modal-kicker">Courbes</p>
+      <h2 id="legendModalTitle">Légende</h2>
+      <div class="series-legend legend-modal-list" id="seriesLegend" aria-label="Courbes affichées"></div>
+    </section>
+  </div>
+
   <p class="source-note">Données issues des fichiers de suivi des tours de simulation EDN. Lorsqu’une ville manque dans un tour existant mais possède des valeurs avant et après, la courbe relie simplement les deux valeurs connues sans ajouter de point au tour manquant. Les tours futurs ne sont jamais extrapolés.</p>
   <div class="sr-only" id="liveStatus" aria-live="polite" aria-atomic="true"></div>
 </main>
 
+<script>
+(() => {
+  let currentInfoModal = null;
+  const openInfoModal = modal => {
+    if (!modal) return;
+    currentInfoModal = modal;
+    modal.hidden = false;
+    document.documentElement.classList.add('info-modal-open');
+    requestAnimationFrame(() => modal.classList.add('open'));
+    const close = modal.querySelector('.info-modal-close');
+    if (close) close.focus({preventScroll:true});
+  };
+  const closeInfoModal = modal => {
+    if (!modal || modal.hidden) return;
+    modal.classList.remove('open');
+    document.documentElement.classList.remove('info-modal-open');
+    setTimeout(() => { modal.hidden = true; }, 220);
+    if (currentInfoModal === modal) currentInfoModal = null;
+  };
+  document.addEventListener('click', event => {
+    const opener = event.target.closest('[data-info-open]');
+    if (opener) {
+      openInfoModal(document.getElementById(opener.dataset.infoOpen));
+      return;
+    }
+    const closer = event.target.closest('[data-info-close]');
+    if (closer) closeInfoModal(closer.closest('.info-modal'));
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && currentInfoModal) closeInfoModal(currentInfoModal);
+  });
+})();
+</script>
 <script>
 const fmt=new Intl.NumberFormat('fr-FR');
 const YEAR_PHASES={2024:{sim:6,blank:6},2025:{sim:4,blank:4}};
@@ -233,7 +316,7 @@ const specialtyButton=document.getElementById('specialtyButton'),cityButton=docu
 const specialtyOptions=document.getElementById('specialtyOptions'),cityOptions=document.getElementById('cityOptions');
 const modeExplainer=document.getElementById('modeExplainer'),seriesLegend=document.getElementById('seriesLegend');
 const noData=document.getElementById('noData'),loading=document.getElementById('loading'),errorBox=document.getElementById('errorBox');
-const selectAllSpecialtiesButton=document.getElementById('selectAllSpecialtiesButton'),selectAllCitiesButton=document.getElementById('selectAllCitiesButton'),evolutionToggle=document.getElementById('evolutionToggle'),evolutionPanel=document.getElementById('evolutionPanel'),tableToggle=document.getElementById('tableToggle'),tablePanel=document.getElementById('tablePanel'),tableContainer=document.getElementById('tableContainer'),transposeTableButton=document.getElementById('transposeTableButton'),liveStatus=document.getElementById('liveStatus'),chartA11ySummary=document.getElementById('chartA11ySummary');
+const selectAllSpecialtiesButton=document.getElementById('selectAllSpecialtiesButton'),selectAllCitiesButton=document.getElementById('selectAllCitiesButton'),evolutionPanel=document.getElementById('evolutionPanel'),tablePanel=document.getElementById('tablePanel'),tableContainer=document.getElementById('tableContainer'),transposeTableButton=document.getElementById('transposeTableButton'),liveStatus=document.getElementById('liveStatus'),chartA11ySummary=document.getElementById('chartA11ySummary');
 const specialtyTutorial=document.getElementById('specialtyTutorial'),tutorialClose=document.getElementById('tutorialClose');
 let lastTableState={slots:[],requests:[],datasets:[]},tableTransposed=false;
 const prefersReducedMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -388,11 +471,9 @@ function renderEvolution(){
   });
   evolutionPanel.innerHTML=rows.join('');
 }
-evolutionToggle.addEventListener('click',()=>{const opening=evolutionPanel.hidden;evolutionPanel.hidden=!opening;evolutionToggle.setAttribute('aria-expanded',String(opening));if(opening)renderEvolution()});
 function clearChartTooltip(){chart.setActiveElements([]);if(chart.tooltip?.setActiveElements)chart.tooltip.setActiveElements([],{x:0,y:0});chart.update('none')}
 document.addEventListener('pointerdown',e=>{if(e.target!==rankCanvas&&!rankCanvas.contains(e.target))clearChartTooltip()});
 rankCanvas.addEventListener('pointerdown',e=>{requestAnimationFrame(()=>{const hits=chart.getElementsAtEventForMode(e,'nearest',{intersect:true},false);if(!hits.length)clearChartTooltip()})});
-tableToggle.addEventListener('click',()=>{const opening=tablePanel.hidden;tablePanel.hidden=!opening;tableToggle.setAttribute('aria-expanded',String(opening));tableToggle.textContent=opening?'Masquer le tableau':'Afficher les données en tableau';if(opening)renderDataTable()});
 transposeTableButton.addEventListener('click',()=>{tableTransposed=!tableTransposed;transposeTableButton.setAttribute('aria-pressed',String(tableTransposed));renderDataTable();liveStatus.textContent=tableTransposed?'Tableau inversé : les séries sont en lignes et les étapes en colonnes.':'Tableau rétabli : les étapes sont en lignes et les séries en colonnes.'});
 function update(){if(!YEAR_MAP.size||!SPECIALTIES.length)return;const slots=axisSlots(),requests=buildRequests();const datasets=requests.map(r=>{const points=pointsFor(r,slots),color=seriesColorFor(r,requests);return {label:requestLabel(r),data:points.map(p=>p.y),pointMeta:points,isGlobal:r.city==='__ALL__',borderColor:color,backgroundColor:'rgba(0,0,0,0)',pointBackgroundColor:'#fff',pointBorderColor:color,pointBorderWidth:2.5,pointRadius:4.5,pointHoverRadius:7,pointHitRadius:18,pointStyle:yearPointStyle(r.year),borderWidth:3,borderDash:yearDash(r.year),tension:.25,fill:false,spanGaps:true}});chart.$axisSlots=slots;chart.data.labels=slots.map(s=>s.label);chart.data.datasets=datasets;chart.options.scales.x.title.text=selectedYears.length>1?'Phase du processus de choix':'Tour de choix';chart.update();const hasAnyData=datasets.some(ds=>ds.data.some(Number.isFinite));noData.textContent=selectedSpecialties.length===0?'Sélectionnez une spécialité pour commencer.':'Aucune donnée disponible pour cette sélection.';noData.classList.toggle('show',selectedSpecialties.length===0||!hasAnyData);updateExplainer();updateLegend(requests,datasets);updateMetrics(requests,datasets,slots);lastTableState={slots,requests,datasets};if(!tablePanel.hidden)renderDataTable();if(!evolutionPanel.hidden)renderEvolution();const existing=datasets.filter(ds=>ds.data.some(Number.isFinite)).length;chartA11ySummary.textContent=`Graphique de ${existing} courbe${existing>1?'s':''} de rangs limites pour ${selectedYears.join(', ')}. Les mêmes données sont disponibles avec le bouton Afficher les données en tableau.`;liveStatus.textContent=`Graphique mis à jour : ${existing} courbe${existing>1?'s':''}, ${selectedYears.length} année${selectedYears.length>1?'s':''} sélectionnée${selectedYears.length>1?'s':''}.`;const comboCount=new Set(requests.map(r=>`${r.spec}|||${r.city}`)).size;if(selectedSpecialties.length===0){document.getElementById('chartTitle').textContent='Sélectionnez une spécialité';document.getElementById('chartSubtitle').textContent='Le graphique apparaîtra ici automatiquement.'}else if(selectedYears.length>1&&comboCount===1){document.getElementById('chartTitle').textContent=comboLabel(requests[0]);document.getElementById('chartSubtitle').textContent=`Comparaison ${selectedYears.join(' vs ')} · couleurs distinctes, 2026 en pointillés si incomplète`}else if(selectedYears.length>1){document.getElementById('chartTitle').textContent=`Comparaison de ${selectedYears.length} années · ${requests.length} séries`;document.getElementById('chartSubtitle').textContent='Une couleur par série · pointillés uniquement pour l’année incomplète'}else if(requests.length===1){document.getElementById('chartTitle').textContent=comboLabel(requests[0]);document.getElementById('chartSubtitle').textContent=`Rang limite à chaque tour · ${selectedYears[0]}`}else{document.getElementById('chartTitle').textContent=`Comparaison de ${requests.length} combinaisons · ${selectedYears[0]}`;document.getElementById('chartSubtitle').textContent='Chaque couleur correspond à une combinaison indiquée dans la légende'}}
 loadManifest().catch(err=>{console.error(err);loading.classList.remove('show');setError('Impossible de charger le manifeste des données. Vérifiez la présence du dossier data sur Vercel.')});
