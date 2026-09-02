@@ -609,107 +609,148 @@
     }, { passive: true });
   }
 
-  /* Révélation Apple-like plus perceptible :
-     les grands ensembles se construisent par éléments successifs,
-     avec un mouvement vertical lisible et une longue décélération. */
-  const exploreReveal = [
-    '.hero-simple .eyebrow',
-    '.hero-simple h1',
-    '.hero-simple .hero-info-links',
-    '.selection-summary .metric',
-    '.selection-panel .controls > *',
-    '.chart-stage .chart-head > *',
-    '.chart-stage .chart-wrap',
-    '.evolution-stage .data-stage-head > *',
-    '.evolution-stage .evolution-panel',
-    '.table-stage .data-stage-head > *',
-    '.table-stage .table-panel'
+  /* Hiérarchie visuelle stricte :
+     Titre -> repère/kicker -> sous-titre -> action -> contenu -> grand visuel.
+     Le déclenchement se fait par SECTION, pas élément par élément : un sous-titre
+     ne peut donc plus "partir" avant son titre simplement à cause du viewport. */
+  const roleSpecs = isExplore ? [
+    ['.hero-simple h1', 'title'],
+    ['.hero-simple .eyebrow', 'kicker'],
+    ['.hero-simple .hero-info-links', 'action'],
+
+    ['.selection-summary .metric', 'content', 70],
+    ['.selection-panel .controls > *', 'content', 65],
+
+    ['.chart-stage h2', 'title'],
+    ['#chartSubtitle', 'subtitle'],
+    ['.chart-stage .chart-head-actions', 'action'],
+    ['.chart-stage .chart-wrap', 'visual'],
+
+    ['.evolution-stage h2', 'title'],
+    ['.evolution-stage .data-stage-kicker', 'kicker'],
+    ['.evolution-stage .data-stage-head > p:last-child', 'subtitle'],
+    ['.evolution-stage .evolution-panel', 'visual'],
+
+    ['.table-stage h2', 'title'],
+    ['.table-stage .data-stage-kicker', 'kicker'],
+    ['.table-stage .data-stage-head > p:last-child', 'subtitle'],
+    ['.table-stage .table-panel', 'visual']
+  ] : [
+    ['.poss-hero h1', 'title'],
+    ['.poss-hero .eyebrow', 'kicker'],
+    ['.poss-hero .poss-info-links', 'action'],
+
+    ['#contextTitle', 'title'],
+    ['.poss-summary > *', 'content', 75],
+
+    ['#simplePane > .poss-panel-title', 'title'],
+    ['#simplePane > .friendly-field', 'content', 75],
+    ['#simplePane > .mode-link', 'action'],
+
+    ['#advancedPane .section-title', 'title'],
+    ['#advancedPane .back-link', 'action'],
+    ['#advancedPane .upload-box', 'content'],
+    ['#advancedPane .rank-review', 'content'],
+    ['#advancedPane .manual-link', 'action'],
+    ['#advancedPane .manual-ranks-wrap', 'content'],
+
+    ['.poss-results-card .results-head h2', 'title'],
+    ['.poss-results-card .results-summary-line', 'subtitle'],
+    ['.poss-results-card .count-badge', 'action'],
+    ['.poss-results-card #results', 'visual'],
+
+    ['.poss-map-card .poss-map-head h2', 'title'],
+    ['.poss-map-card .poss-map-head p', 'subtitle'],
+    ['.poss-map-card .poss-map-body', 'visual']
   ];
 
-  const possibilitiesReveal = [
-    '.poss-hero .eyebrow',
-    '.poss-hero h1',
-    '.poss-hero .poss-info-links',
-    '#yearChoice',
-    '#tourChoice',
-    '.poss-summary .summary-jump',
-    '#rankStage .poss-panel-title',
-    '#rankStage .friendly-field',
-    '#rankStage .mode-link',
-    '#rankStage .advanced-head',
-    '#rankStage .upload-box',
-    '#rankStage .rank-review',
-    '#rankStage .manual-link',
-    '.poss-results-card .results-head',
-    '.poss-results-card #results',
-    '.poss-map-card .poss-map-head',
-    '.poss-map-card .poss-map-body',
-    '.group-result'
-  ];
+  const revealGroups = new Map();
+  const roleCounters = new Map();
 
-  const revealTargets = [...new Set(
-    (isExplore ? exploreReveal : possibilitiesReveal)
-      .flatMap(selector => [...shell.querySelectorAll(selector)])
-  )];
-
-  const groupCounts = new Map();
-
-  function prepareReveal(el) {
-    if (!el || el.classList.contains('apple-motion-item')) return;
-    const group = el.closest('.motion-stack-card,.poss-stack-card,.panel,.hero') || shell;
-    const order = groupCounts.get(group) || 0;
-    groupCounts.set(group, order + 1);
-    el.classList.add('apple-motion-item');
-    el.style.setProperty('--apple-motion-order', String(Math.min(order, 5)));
+  function motionGroupFor(el) {
+    return el.closest('.hero,.selection-panel,.chart-stage,.evolution-stage,.table-stage,.poss-stack-card,.panel') || shell;
   }
 
-  revealTargets.forEach(prepareReveal);
+  function registerRole(el, role, staggerStep = 0) {
+    if (!el || el.classList.contains('apple-motion-role')) return;
+
+    const group = motionGroupFor(el);
+    let roleMap = roleCounters.get(group);
+    if (!roleMap) {
+      roleMap = new Map();
+      roleCounters.set(group, roleMap);
+    }
+    const roleIndex = roleMap.get(role) || 0;
+    roleMap.set(role, roleIndex + 1);
+
+    el.classList.add('apple-motion-role', `apple-motion-${role}`);
+    el.style.setProperty('--apple-stagger', `${Math.min(roleIndex, 5) * staggerStep}ms`);
+
+    if (!revealGroups.has(group)) revealGroups.set(group, []);
+    revealGroups.get(group).push(el);
+  }
+
+  roleSpecs.forEach(([selector, role, staggerStep = 0]) => {
+    shell.querySelectorAll(selector).forEach(el => registerRole(el, role, staggerStep));
+  });
+
+  /* Les classes de préparation étaient posées dans <head>, avant le premier rendu.
+     On ne les retire qu'une fois tous les rôles attribués : aucun titre ne doit
+     apparaître une frame avant son animation. */
+  document.documentElement.classList.remove('apple-motion-prep');
+
+  const revealGroup = group => {
+    const elements = revealGroups.get(group) || [];
+    if (!elements.length || group.classList.contains('apple-motion-group-visible')) return;
+    group.classList.add('apple-motion-group-visible');
+    requestAnimationFrame(() => {
+      elements.forEach(el => el.classList.add('apple-motion-visible'));
+    });
+  };
 
   if (reduceMotion || !('IntersectionObserver' in window)) {
-    revealTargets.forEach(el => el.classList.add('apple-motion-visible'));
+    [...revealGroups.keys()].forEach(revealGroup);
   } else {
-    const revealNow = el => {
-      if (el.classList.contains('apple-motion-visible')) return;
-      el.classList.add('apple-motion-visible');
-    };
-
-    const observer = new IntersectionObserver(entries => {
+    const groupObserver = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (!entry.isIntersecting) return;
-        revealNow(entry.target);
-        observer.unobserve(entry.target);
+        revealGroup(entry.target);
+        groupObserver.unobserve(entry.target);
       });
     }, {
-      threshold: .10,
-      rootMargin: '0px 0px -4% 0px'
+      threshold: .08,
+      rootMargin: '0px 0px -5% 0px'
     });
 
-    revealTargets.forEach(el => {
-      const rect = el.getBoundingClientRect();
-      const initiallyVisible = rect.bottom > 0 && rect.top < window.innerHeight * .94;
+    [...revealGroups.keys()].forEach(group => {
+      const rect = group.getBoundingClientRect();
+      const initiallyVisible = rect.bottom > 0 && rect.top < window.innerHeight * .96;
       if (initiallyVisible) {
-        setTimeout(() => revealNow(el), 90);
+        /* Le premier titre est volontairement rapide ; les rôles secondaires
+           utilisent ensuite leurs propres délais CSS. */
+        setTimeout(() => revealGroup(group), 70);
       } else {
-        observer.observe(el);
+        groupObserver.observe(group);
       }
     });
 
-    /* Les résultats de "Mes possibilités" peuvent être créés après le chargement.
-       Ils héritent du même langage de révélation lorsqu'ils apparaissent. */
+    /* Les résultats générés après interaction suivent la même hiérarchie :
+       nouveau groupe -> titre/meta/contenu, jamais l'inverse. */
     if (isPossibilities) {
       const dynamicObserver = new MutationObserver(mutations => {
-        const added = [];
+        const newResults = [];
         mutations.forEach(mutation => {
           mutation.addedNodes.forEach(node => {
             if (!(node instanceof Element)) return;
-            if (node.matches('.group-result,.specialty-card,.city-row')) added.push(node);
-            added.push(...node.querySelectorAll?.('.group-result,.specialty-card,.city-row') || []);
+            if (node.matches('.group-result,.specialty-card,.city-row')) newResults.push(node);
+            newResults.push(...(node.querySelectorAll?.('.group-result,.specialty-card,.city-row') || []));
           });
         });
-        [...new Set(added)].forEach((el, index) => {
-          if (el.classList.contains('apple-motion-item')) return;
-          el.classList.add('apple-motion-item','apple-motion-dynamic');
-          el.style.setProperty('--apple-motion-order', String(Math.min(index, 4)));
+
+        [...new Set(newResults)].forEach((el, index) => {
+          if (el.classList.contains('apple-motion-role')) return;
+          el.classList.add('apple-motion-role', 'apple-motion-content', 'apple-motion-dynamic');
+          el.style.setProperty('--apple-stagger', `${Math.min(index, 5) * 55}ms`);
           requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('apple-motion-visible')));
         });
       });
