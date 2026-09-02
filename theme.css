@@ -38,7 +38,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Signature de création — discrète et élégante */
+/* Signature de création — manuscrite, discrète et élégante */
 .brand-lockup {
   display:flex;
   align-items:baseline;
@@ -48,26 +48,27 @@ body {
 .creator-signature {
   display:inline-flex;
   align-items:baseline;
-  color:rgba(23,32,51,.72);
-  font-family:var(--site-font);
-  font-size:.84rem;
-  font-weight:520;
-  font-style:italic;
+  color:rgba(23,32,51,.76);
+  font-family:"Snell Roundhand","Apple Chancery","Segoe Script",cursive;
+  font-size:1.03rem;
+  font-weight:400;
+  font-style:normal;
   letter-spacing:.008em;
   line-height:1;
   white-space:nowrap;
+  -webkit-font-smoothing:antialiased;
 }
 
 .creator-signature strong {
-  margin-left:4px;
+  margin-left:5px;
   color:#172033;
   font-family:inherit;
-  font-weight:680;
-  font-style:italic;
+  font-weight:600;
+  font-style:normal;
 }
 
 @media (max-width:520px) {
-  .creator-signature { font-size:.81rem; }
+  .creator-signature { font-size:.96rem; }
 }
 
 /* Mentions légales — pied de page partagé */
@@ -2048,3 +2049,28 @@ html.info-overlay-open body {
     overscroll-behavior: contain;
   }
 }
+
+/* Fin de pile — conserve juste le débattement nécessaire au sticky,
+   sans ajouter presque un écran vide après la dernière carte. */
+.stack-tail-spacer {
+  height:clamp(56px, 14svh, 132px) !important;
+  margin-top:-1px !important;
+  pointer-events:none !important;
+  opacity:0 !important;
+}
+
+.poss-stack-tail {
+  height:clamp(52px, 12svh, 112px) !important;
+  pointer-events:none !important;
+}
+
+@media (max-width:520px) {
+  .stack-tail-spacer {
+    height:clamp(44px, 10svh, 84px) !important;
+  }
+
+  .poss-stack-tail {
+    height:clamp(40px, 9svh, 76px) !important;
+  }
+}
+
