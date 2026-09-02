@@ -356,7 +356,9 @@
       finalLock = null;
       return;
     }
-    finalLock = targetScrollY(tableStage);
+    const desired = targetScrollY(tableStage);
+    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    finalLock = Math.min(desired, maxScroll);
   }
 
   function updateStackState() {
@@ -539,6 +541,45 @@
       if (stackCandidates[activeIndex] !== tableStage) return;
       if (window.scrollY < finalLock - 3) return;
       if (tableScroll && canScrollDown(tableScroll)) return;
+      openLegalOverlay();
+    }, { passive: true });
+  }
+
+  /* Mes possibilités : une fois réellement arrivé au bas de la page,
+     un nouveau geste de scroll vers le bas ouvre les mentions légales. */
+  if (!isExplore && legalOverlay) {
+    const lastInnerScroll = document.querySelector('.poss-map-card .poss-map-body');
+    let bottomTouch = null;
+
+    const pageAtBottom = () => {
+      const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+      return window.scrollY >= maxScroll - 5;
+    };
+
+    const contentAtBottom = () => !lastInnerScroll || !canScrollDown(lastInnerScroll);
+
+    document.addEventListener('touchstart', event => {
+      if (event.touches.length !== 1 || event.target.closest('.info-overlay')) return;
+      bottomTouch = {
+        y: event.touches[0].clientY,
+        armed: pageAtBottom() && contentAtBottom()
+      };
+    }, { passive: true });
+
+    document.addEventListener('touchmove', event => {
+      if (!bottomTouch || !bottomTouch.armed || event.touches.length !== 1) return;
+      if (!pageAtBottom() || !contentAtBottom()) return;
+      const dy = event.touches[0].clientY - bottomTouch.y;
+      if (dy < -58) openLegalOverlay();
+    }, { passive: true });
+
+    document.addEventListener('touchend', () => {
+      bottomTouch = null;
+    }, { passive: true });
+
+    window.addEventListener('wheel', event => {
+      if (event.deltaY <= 35) return;
+      if (!pageAtBottom() || !contentAtBottom()) return;
       openLegalOverlay();
     }, { passive: true });
   }
