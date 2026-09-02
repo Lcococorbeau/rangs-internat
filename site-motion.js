@@ -40,8 +40,8 @@
   const isExplore = currentPath === '/' || currentPath.endsWith('/index.html') || currentPath.endsWith('/');
   const isPossibilities = currentPath.endsWith('/possibilites.html');
   const ENTRY_KEY = 'rangs-motion-entry';
-  const ERASE_KEY = 'rangs-preview-erase-start';
-  let eraserPosition = .70;
+  const ERASE_KEY = 'rangs-preview-eraser-position-v2';
+  let eraserPosition = .20;
 
   try {
     const savedErase = Number(localStorage.getItem(ERASE_KEY));
@@ -368,6 +368,7 @@
 
   function updateStackState() {
     if (!isExplore || !stackCandidates.length) return;
+    if (document.documentElement.classList.contains('info-overlay-open')) return;
 
     const vh = window.innerHeight;
     let nextActive = 0;
