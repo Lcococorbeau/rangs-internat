@@ -158,35 +158,13 @@
     </div>
   </section>
 
-  <div class="info-modal" id="howItWorksModal" hidden>
-    <div class="info-modal-backdrop" data-info-close></div>
-    <section class="info-modal-card" role="dialog" aria-modal="true" aria-labelledby="howItWorksTitle">
-      <button class="info-modal-close" type="button" data-info-close aria-label="Fermer">×</button>
-      <p class="info-modal-kicker">Mode d’emploi</p>
-      <h2 id="howItWorksTitle">Comment ça marche</h2>
-      <div class="info-modal-copy" id="modeExplainer"></div>
-      <p class="info-modal-foot">Sélectionnez une ou plusieurs années, spécialités et villes. Les courbes sont recalculées automatiquement.</p>
-    </section>
-  </div>
-
-  <div class="info-modal" id="readChartModal" hidden>
-    <div class="info-modal-backdrop" data-info-close></div>
-    <section class="info-modal-card" role="dialog" aria-modal="true" aria-labelledby="readChartTitle">
-      <button class="info-modal-close" type="button" data-info-close aria-label="Fermer">×</button>
-      <p class="info-modal-kicker">Lecture</p>
-      <h2 id="readChartTitle">Lire le graphique</h2>
-      <div class="info-modal-copy">
-        <p><strong>Plus le rang est élevé</strong>, plus la combinaison spécialité–ville reste accessible loin dans le classement.</p>
-        <p>En mode <strong>« Toutes les villes »</strong>, le site retient à chaque tour le rang maximal observé parmi les subdivisions. Touchez un point pour voir la ville correspondante.</p>
-      </div>
-    </section>
-  </div>
+  <div class="sr-only" id="modeExplainer"></div>
 
   <section class="panel selection-panel">
     <div class="metrics selection-summary" aria-label="Sélection actuelle">
-      <article class="metric"><div class="k" id="metric1Label">Année</div><div class="v" id="metric1Value">—</div><div class="s" id="metric1Sub"></div></article>
-      <article class="metric"><div class="k" id="metric2Label">Spécialité</div><div class="v" id="metric2Value">—</div><div class="s" id="metric2Sub"></div></article>
-      <article class="metric"><div class="k" id="metric3Label">Ville</div><div class="v" id="metric3Value">—</div><div class="s" id="metric3Sub"></div></article>
+      <article class="metric summary-inspect" data-summary-kind="year" tabindex="0" role="button" aria-label="Voir les années sélectionnées"><div class="k" id="metric1Label">Année</div><div class="v" id="metric1Value">—</div><div class="s" id="metric1Sub"></div></article>
+      <article class="metric summary-inspect" data-summary-kind="specialty" tabindex="0" role="button" aria-label="Voir les spécialités sélectionnées"><div class="k" id="metric2Label">Spécialité</div><div class="v" id="metric2Value">—</div><div class="s" id="metric2Sub"></div></article>
+      <article class="metric summary-inspect" data-summary-kind="city" tabindex="0" role="button" aria-label="Voir les villes sélectionnées"><div class="k" id="metric3Label">Ville</div><div class="v" id="metric3Value">—</div><div class="s" id="metric3Sub"></div></article>
     </div>
     <div class="controls">
       <div class="multi" id="yearControl">
@@ -257,50 +235,146 @@
     </div>
   </section>
 
-  <div class="info-modal" id="legendModal" hidden>
-    <div class="info-modal-backdrop" data-info-close></div>
-    <section class="info-modal-card legend-modal-card" role="dialog" aria-modal="true" aria-labelledby="legendModalTitle">
-      <button class="info-modal-close" type="button" data-info-close aria-label="Fermer">×</button>
-      <p class="info-modal-kicker">Courbes</p>
-      <h2 id="legendModalTitle">Légende</h2>
-      <div class="series-legend legend-modal-list" id="seriesLegend" aria-label="Courbes affichées"></div>
-    </section>
-  </div>
-
   <p class="source-note">Données issues des fichiers de suivi des tours de simulation EDN. Lorsqu’une ville manque dans un tour existant mais possède des valeurs avant et après, la courbe relie simplement les deux valeurs connues sans ajouter de point au tour manquant. Les tours futurs ne sont jamais extrapolés.</p>
   <div class="sr-only" id="liveStatus" aria-live="polite" aria-atomic="true"></div>
 </main>
 
+
+<div class="info-overlay" id="howItWorksModal" data-typewriter hidden>
+  <button class="info-overlay-backdrop" type="button" data-info-close aria-label="Fermer"></button>
+  <section class="info-overlay-content" role="dialog" aria-modal="true" aria-labelledby="howItWorksTitle">
+    <button class="info-overlay-close" type="button" data-info-close aria-label="Fermer">×</button>
+    <p class="info-overlay-kicker">COMMENT ÇA MARCHE</p>
+    <h2 id="howItWorksTitle">Trois choix, puis le graphique.</h2>
+    <div class="typewriter-lines">
+      <p data-type-line>1. Choisissez une ou plusieurs années.</p>
+      <p data-type-line>2. Sélectionnez les spécialités que vous voulez comparer.</p>
+      <p data-type-line>3. Choisissez une ou plusieurs villes, ou gardez « Toutes les villes ».</p>
+      <p data-type-line>Le graphique se met à jour automatiquement à chaque changement.</p>
+    </div>
+  </section>
+</div>
+
+<div class="info-overlay" id="readChartModal" data-typewriter hidden>
+  <button class="info-overlay-backdrop" type="button" data-info-close aria-label="Fermer"></button>
+  <section class="info-overlay-content" role="dialog" aria-modal="true" aria-labelledby="readChartTitle">
+    <button class="info-overlay-close" type="button" data-info-close aria-label="Fermer">×</button>
+    <p class="info-overlay-kicker">LIRE LE GRAPHIQUE</p>
+    <h2 id="readChartTitle">Un rang plus haut = accessible plus loin.</h2>
+    <div class="typewriter-lines">
+      <p data-type-line>Chaque point correspond au dernier rang observé pour un tour de choix.</p>
+      <p data-type-line>Plus la courbe est haute, plus la combinaison reste accessible loin dans le classement.</p>
+      <p data-type-line>Avec « Toutes les villes », le site retient le rang maximal observé parmi les subdivisions.</p>
+      <p data-type-line>Touchez un point pour connaître la ville correspondante.</p>
+    </div>
+  </section>
+</div>
+
+<div class="info-overlay" id="legendModal" hidden>
+  <button class="info-overlay-backdrop" type="button" data-info-close aria-label="Fermer"></button>
+  <section class="info-overlay-content legend-overlay-content" role="dialog" aria-modal="true" aria-labelledby="legendModalTitle">
+    <button class="info-overlay-close" type="button" data-info-close aria-label="Fermer">×</button>
+    <p class="info-overlay-kicker">COURBES</p>
+    <h2 id="legendModalTitle">Légende</h2>
+    <div class="series-legend legend-modal-list" id="seriesLegend" aria-label="Courbes affichées"></div>
+  </section>
+</div>
+
+<div class="info-overlay" id="summaryDetailOverlay" hidden>
+  <button class="info-overlay-backdrop" type="button" data-info-close aria-label="Fermer"></button>
+  <section class="info-overlay-content summary-detail-content" role="dialog" aria-modal="true" aria-labelledby="summaryDetailTitle">
+    <button class="info-overlay-close" type="button" data-info-close aria-label="Fermer">×</button>
+    <p class="info-overlay-kicker">SÉLECTION</p>
+    <h2 id="summaryDetailTitle">Sélection</h2>
+    <div class="summary-detail-list" id="summaryDetailList"></div>
+  </section>
+</div>
+
 <script>
 (() => {
-  let currentInfoModal = null;
-  const openInfoModal = modal => {
-    if (!modal) return;
-    currentInfoModal = modal;
-    modal.hidden = false;
-    document.documentElement.classList.add('info-modal-open');
-    requestAnimationFrame(() => modal.classList.add('open'));
-    const close = modal.querySelector('.info-modal-close');
-    if (close) close.focus({preventScroll:true});
+  let currentOverlay = null;
+  let typingTimer = null;
+
+  const stopTyping = () => {
+    if (typingTimer) clearTimeout(typingTimer);
+    typingTimer = null;
   };
-  const closeInfoModal = modal => {
-    if (!modal || modal.hidden) return;
-    modal.classList.remove('open');
-    document.documentElement.classList.remove('info-modal-open');
-    setTimeout(() => { modal.hidden = true; }, 220);
-    if (currentInfoModal === modal) currentInfoModal = null;
+
+  const prepareTypedLines = overlay => {
+    const lines = [...overlay.querySelectorAll('[data-type-line]')];
+    lines.forEach(line => {
+      if (!line.dataset.fullText) line.dataset.fullText = line.textContent.trim();
+      line.textContent = '';
+      line.classList.remove('typed');
+    });
+    return lines;
   };
+
+  const typeLines = overlay => {
+    stopTyping();
+    const lines = prepareTypedLines(overlay);
+    let lineIndex = 0;
+    let charIndex = 0;
+
+    const step = () => {
+      if (!currentOverlay || currentOverlay !== overlay || lineIndex >= lines.length) {
+        typingTimer = null;
+        return;
+      }
+      const line = lines[lineIndex];
+      const full = line.dataset.fullText || '';
+      if (charIndex === 0) line.classList.add('typed');
+      line.textContent = full.slice(0, charIndex + 1);
+      charIndex += 1;
+
+      if (charIndex >= full.length) {
+        lineIndex += 1;
+        charIndex = 0;
+        typingTimer = setTimeout(step, 150);
+      } else {
+        typingTimer = setTimeout(step, 13);
+      }
+    };
+
+    typingTimer = setTimeout(step, 150);
+  };
+
+  const openOverlay = overlay => {
+    if (!overlay) return;
+    if (currentOverlay && currentOverlay !== overlay) closeOverlay(currentOverlay, true);
+    currentOverlay = overlay;
+    overlay.hidden = false;
+    document.documentElement.classList.add('info-overlay-open');
+    requestAnimationFrame(() => {
+      overlay.classList.add('open');
+      if (overlay.hasAttribute('data-typewriter')) typeLines(overlay);
+    });
+  };
+
+  const closeOverlay = (overlay, immediate = false) => {
+    if (!overlay || overlay.hidden) return;
+    stopTyping();
+    overlay.classList.remove('open');
+    document.documentElement.classList.remove('info-overlay-open');
+    const finish = () => { overlay.hidden = true; };
+    if (immediate) finish(); else setTimeout(finish, 180);
+    if (currentOverlay === overlay) currentOverlay = null;
+  };
+
+  window.RangsOverlays = { open: openOverlay, close: closeOverlay };
+
   document.addEventListener('click', event => {
     const opener = event.target.closest('[data-info-open]');
     if (opener) {
-      openInfoModal(document.getElementById(opener.dataset.infoOpen));
+      openOverlay(document.getElementById(opener.dataset.infoOpen));
       return;
     }
     const closer = event.target.closest('[data-info-close]');
-    if (closer) closeInfoModal(closer.closest('.info-modal'));
+    if (closer) closeOverlay(closer.closest('.info-overlay'));
   });
+
   document.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && currentInfoModal) closeInfoModal(currentInfoModal);
+    if (event.key === 'Escape' && currentOverlay) closeOverlay(currentOverlay);
   });
 })();
 </script>
@@ -453,11 +527,61 @@ function updateMetrics(requests,datasets,slots){
   setMetric(2,selectedSpecialties.length>1?'Spécialités':'Spécialité',selectedSpecialties.length?specialtySummary.value:'À sélectionner',selectedSpecialties.length?specialtySummary.sub:'');
   setMetric(3,(selectedCities.length>1||selectedCities[0]==='__ALL__')?'Villes':'Ville',citySummary.value,citySummary.sub);
 }
+function summaryItems(kind){
+  if(kind==='year')return {title:selectedYears.length>1?'Années sélectionnées':'Année sélectionnée',items:selectedYears.map(String)};
+  if(kind==='specialty')return {title:selectedSpecialties.length>1?'Spécialités sélectionnées':'Spécialité sélectionnée',items:selectedSpecialties.length?[...selectedSpecialties]:['Aucune spécialité sélectionnée']};
+  const items=selectedCities.length===1&&selectedCities[0]==='__ALL__'?['Toutes les villes confondues']:selectedCities.map(displayCity);
+  return {title:items.length>1?'Villes sélectionnées':'Ville sélectionnée',items};
+}
+function openSummaryInspector(kind){
+  const overlay=document.getElementById('summaryDetailOverlay');
+  const title=document.getElementById('summaryDetailTitle');
+  const list=document.getElementById('summaryDetailList');
+  if(!overlay||!title||!list)return;
+  const data=summaryItems(kind);
+  title.textContent=data.title;
+  list.innerHTML=data.items.map(item=>`<div class="summary-detail-item">${escapeHtml(item)}</div>`).join('');
+  window.RangsOverlays?.open(overlay);
+}
+document.querySelectorAll('.summary-inspect').forEach(card=>{
+  let holdTimer=null;
+  let startX=0,startY=0;
+  card.addEventListener('pointerdown',event=>{
+    if(event.pointerType!=='touch'&&event.pointerType!=='pen')return;
+    startX=event.clientX;startY=event.clientY;
+    holdTimer=setTimeout(()=>{holdTimer=null;openSummaryInspector(card.dataset.summaryKind)},520);
+  });
+  card.addEventListener('pointermove',event=>{
+    if(!holdTimer)return;
+    if(Math.hypot(event.clientX-startX,event.clientY-startY)>12){clearTimeout(holdTimer);holdTimer=null}
+  });
+  ['pointerup','pointercancel','pointerleave'].forEach(type=>card.addEventListener(type,()=>{if(holdTimer){clearTimeout(holdTimer);holdTimer=null}}));
+  card.addEventListener('dblclick',()=>openSummaryInspector(card.dataset.summaryKind));
+  card.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();openSummaryInspector(card.dataset.summaryKind)}});
+});
+
 function updateYearCopy(){const years=selectedYears.join(' · ');document.title=`EDN ${years} — Évolution des rangs limites`;document.getElementById('eyebrow').textContent=`EDN ${years} · Choix de spécialité`;if(selectedYears.length===1){const p=YEAR_MAP.get(selectedYears[0]);const nums=numericTours(p),hasDef=(p?.tours||[]).includes('Définitif');const range=nums.length?`Tours ${Math.min(...nums)} à ${Math.max(...nums)}`:'Tours disponibles';document.getElementById('tourBadge').textContent=`${range}${hasDef?' + définitif':''}`}else{const profiles=selectedYears.map(y=>phaseProfile(y,YEAR_MAP.get(y)));document.getElementById('tourBadge').textContent=`Comparaison par phases · ${Math.max(...profiles.map(p=>p.sim))} simulations + ${Math.max(...profiles.map(p=>p.blank))} blancs`}}
 function updateExplainer(){if(selectedSpecialties.length===0){modeExplainer.innerHTML='<b>Pour commencer :</b> sélectionnez une ou plusieurs spécialités. Vous pouvez ensuite comparer des villes, des années, ou utiliser « Tout cocher ».';return}if(selectedYears.length>1){const years=selectedYears.join(' et ');modeExplainer.innerHTML=`<b>Comparaison ${escapeHtml(years)} :</b> les courbes sont alignées par phase. En 2024 : 6 simulations puis 6 tours à blanc. À partir de 2025 : 4 simulations puis 4 tours à blanc. Lorsqu’une donnée manque dans un tour existant, la courbe relie simplement les deux valeurs connues sans ajouter de point au tour manquant ; les emplacements structurels et les tours futurs ne sont jamais interprétés comme des données manquantes.`;return}if(selectedCities[0]==='__ALL__')modeExplainer.innerHTML=`<b>Mode toutes les villes confondues :</b> ${selectedSpecialties.length===1?'la courbe retient':'chaque courbe retient'}, à chaque tour, le rang max le plus élevé parmi toutes les subdivisions. Touchez un point pour voir la ville qui porte ce rang limite.`;else if(selectedSpecialties.length===1&&selectedCities.length>1)modeExplainer.innerHTML=`<b>Comparaison de villes :</b> ${selectedCities.length} courbes pour <strong>${escapeHtml(selectedSpecialties[0])}</strong>, une par subdivision sélectionnée.`;else if(selectedSpecialties.length>1&&selectedCities.length===1)modeExplainer.innerHTML=`<b>Comparaison de spécialités :</b> ${selectedSpecialties.length} courbes pour <strong>${escapeHtml(displayCity(selectedCities[0]))}</strong>, une par spécialité sélectionnée.`;else modeExplainer.innerHTML=`<b>Comparaison croisée :</b> ${selectedSpecialties.length} spécialité${selectedSpecialties.length>1?'s':''} × ${selectedCities.length} ville${selectedCities.length>1?'s':''}.`}
 function updateLegend(requests,datasets){seriesLegend.innerHTML='';requests.forEach((r,i)=>{const ds=datasets[i],exists=ds.data.some(Number.isFinite),chip=document.createElement('div');chip.className='series-chip'+(exists?'':' nonexistent');const dot=document.createElement('span');dot.className='series-dot'+(exists?'':' empty');if(exists)dot.style.background=ds.borderColor;const text=document.createElement('span');text.textContent=requestLabel(r)+(exists?'':' — inexistant');chip.append(dot,text);seriesLegend.appendChild(chip)})}
 function tableCell(ds,index){const point=ds.pointMeta?.[index];if(!Number.isFinite(ds.data?.[index]))return '<span aria-label="Donnée absente">—</span>';const rank=fmt.format(ds.data[index]);if(ds.isGlobal&&point?.cities?.length)return `${escapeHtml(rank)}<span class="table-city">${escapeHtml(point.cities.map(displayCity).join(' · '))}</span>`;return escapeHtml(rank)}
-function renderDataTable(){const {slots,requests,datasets}=lastTableState;if(!slots.length||!requests.length){tableContainer.innerHTML='<p>Sélectionnez au moins une spécialité pour afficher le tableau.</p>';return}const caption=`Données des rangs limites — ${selectedYears.join(', ')}`;if(!tableTransposed){const headers=datasets.map((ds,i)=>`<th scope="col">${escapeHtml(requestLabel(requests[i]))}</th>`).join('');const rows=slots.map((slot,rowIndex)=>`<tr><th scope="row">${escapeHtml(slot.label)}</th>${datasets.map(ds=>`<td>${tableCell(ds,rowIndex)}</td>`).join('')}</tr>`).join('');tableContainer.innerHTML=`<table class="data-table"><caption>${escapeHtml(caption)}</caption><thead><tr><th scope="col">Étape</th>${headers}</tr></thead><tbody>${rows}</tbody></table>`;return}const headers=slots.map(slot=>`<th scope="col">${escapeHtml(slot.label)}</th>`).join('');const rows=datasets.map((ds,i)=>`<tr><th scope="row">${escapeHtml(requestLabel(requests[i]))}</th>${slots.map((slot,colIndex)=>`<td>${tableCell(ds,colIndex)}</td>`).join('')}</tr>`).join('');tableContainer.innerHTML=`<table class="data-table"><caption>${escapeHtml(caption)} — lignes et colonnes inversées</caption><thead><tr><th scope="col">Série</th>${headers}</tr></thead><tbody>${rows}</tbody></table>`}
+function tableSeriesHeader(r){
+  const city=r.city==='__ALL__'?'Toutes les villes':displayCity(r.city);
+  return `<span class="table-series-name">${escapeHtml(r.spec)}</span><span class="table-series-meta">${escapeHtml(city)} · ${escapeHtml(String(r.year))}</span>`;
+}
+function renderDataTable(){
+  const {slots,requests,datasets}=lastTableState;
+  if(!slots.length||!requests.length){tableContainer.innerHTML='<p>Sélectionnez au moins une spécialité pour afficher le tableau.</p>';return}
+  const caption=`Données des rangs limites — ${selectedYears.join(', ')}`;
+  if(!tableTransposed){
+    const headers=requests.map(r=>`<th scope="col">${tableSeriesHeader(r)}</th>`).join('');
+    const rows=slots.map((slot,rowIndex)=>`<tr><th scope="row">${escapeHtml(slot.label)}</th>${datasets.map(ds=>`<td>${tableCell(ds,rowIndex)}</td>`).join('')}</tr>`).join('');
+    tableContainer.innerHTML=`<table class="data-table compact-data-table" style="--data-cols:${datasets.length};--first-col:76px;--data-col:132px"><caption>${escapeHtml(caption)}</caption><thead><tr><th scope="col">Étape</th>${headers}</tr></thead><tbody>${rows}</tbody></table>`;
+    return;
+  }
+  const headers=slots.map(slot=>`<th scope="col">${escapeHtml(slot.label)}</th>`).join('');
+  const rows=requests.map((r,i)=>`<tr><th scope="row">${tableSeriesHeader(r)}</th>${slots.map((slot,colIndex)=>`<td>${tableCell(datasets[i],colIndex)}</td>`).join('')}</tr>`).join('');
+  tableContainer.innerHTML=`<table class="data-table compact-data-table transposed-data-table" style="--data-cols:${slots.length};--first-col:150px;--data-col:86px"><caption>${escapeHtml(caption)} — lignes et colonnes inversées</caption><thead><tr><th scope="col">Série</th>${headers}</tr></thead><tbody>${rows}</tbody></table>`;
+}
 function evolutionEndpointLabel(point){return point?.tour||point?.slot||'—'}
 function renderEvolution(){
   const {requests,datasets}=lastTableState;
