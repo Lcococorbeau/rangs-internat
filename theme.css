@@ -2084,4 +2084,47 @@ html.info-overlay-open body {
   border: 0 !important;
 }
 
+/* Desktop / Mac — les menus déroulants doivent pouvoir sortir de leur carte.
+   Le comportement mobile existant reste inchangé. */
+@media (min-width:821px) {
+  /* Explorer les rangs */
+  .motion-stack-card:has(.multi.open) {
+    clip-path:none !important;
+    overflow:visible !important;
+    z-index:950 !important;
+  }
+
+  .motion-stack-card:has(.multi.open) > * {
+    overflow:visible !important;
+  }
+
+  .multi.open {
+    position:relative !important;
+    z-index:960 !important;
+  }
+
+  .multi.open .multi-menu {
+    z-index:970 !important;
+  }
+
+  /* Mes possibilités */
+  .poss-stack-card:has(.choice-multi.open) {
+    clip-path:none !important;
+    overflow:visible !important;
+    z-index:1000 !important;
+  }
+
+  .poss-stack-card:has(.choice-multi.open) > * {
+    overflow:visible !important;
+  }
+
+  .choice-multi.open {
+    position:relative !important;
+    z-index:1010 !important;
+  }
+
+  .choice-multi.open .choice-menu {
+    z-index:1020 !important;
+  }
+}
 
