@@ -42,38 +42,16 @@
   const ENTRY_KEY = 'rangs-motion-entry';
   const eraserPosition = .20;
 
-  /* Première visite : apparition douce et séquencée des grandes cartes.
-     Une seule fois par navigateur, et jamais si l’utilisateur réduit les animations. */
-  const FIRST_LOAD_KEY = 'rangs-first-load-whoosh-v1';
-  let firstLoadWhoosh = false;
+  /* Philosophie Apple-like :
+     le contenu apparaît au moment où l'attention arrive dessus.
+     La première visite garde un léger stagger supplémentaire, sans blur. */
+  const FIRST_LOAD_KEY = 'rangs-apple-motion-v1';
+  let firstVisit = false;
   try {
-    firstLoadWhoosh = localStorage.getItem(FIRST_LOAD_KEY) !== '1';
-    if (firstLoadWhoosh) localStorage.setItem(FIRST_LOAD_KEY, '1');
+    firstVisit = localStorage.getItem(FIRST_LOAD_KEY) !== '1';
+    if (firstVisit) localStorage.setItem(FIRST_LOAD_KEY, '1');
   } catch (_) {
-    firstLoadWhoosh = true;
-  }
-
-  if (firstLoadWhoosh && !reduceMotion && !document.documentElement.dataset.motionEntry) {
-    requestAnimationFrame(() => {
-      const cards = [...shell.children].filter(el =>
-        el.matches('.hero, .selection-panel, .data-stage, .poss-stack-card, .panel')
-      );
-      cards.forEach((card, index) => {
-        card.animate(
-          [
-            { opacity: 0, transform: 'translate3d(0,28px,0) scale(.985)', filter: 'blur(8px)' },
-            { opacity: .72, transform: 'translate3d(0,7px,0) scale(.996)', filter: 'blur(2px)', offset: .72 },
-            { opacity: 1, transform: 'translate3d(0,0,0) scale(1)', filter: 'blur(0)' }
-          ],
-          {
-            duration: 560,
-            delay: 55 + index * 88,
-            easing: 'cubic-bezier(.22,.86,.28,1)',
-            fill: 'backwards'
-          }
-        );
-      });
-    });
+    firstVisit = true;
   }
 
   const clearEntryState = () => {
@@ -117,10 +95,10 @@
     peek.classList.remove('motion-peek-visible');
 
     if (fromGesture) {
-      shell.style.transition = 'transform .30s cubic-bezier(.2,.8,.2,1), opacity .25s ease, filter .25s ease';
+      shell.style.transition = 'transform .34s cubic-bezier(.16,1,.3,1), opacity .28s ease';
       shell.style.transform = exitDirection === 'right' ? 'translate3d(108vw,0,0)' : 'translate3d(-108vw,0,0)';
-      shell.style.opacity = '.12';
-      shell.style.filter = 'blur(10px)';
+      shell.style.opacity = '.14';
+      shell.style.filter = 'none';
     } else {
       shell.classList.add(exitDirection === 'right' ? 'motion-exit-right' : 'motion-exit-left');
     }
@@ -157,7 +135,7 @@
   }
 
   function resetDrag(animated = true) {
-    shell.style.transition = animated ? 'transform .28s cubic-bezier(.2,.8,.2,1), opacity .22s ease, filter .22s ease' : 'none';
+    shell.style.transition = animated ? 'transform .30s cubic-bezier(.16,1,.3,1), opacity .24s ease' : 'none';
     shell.style.transform = 'translate3d(0,0,0)';
     shell.style.opacity = '1';
     shell.style.filter = 'blur(0)';
@@ -218,7 +196,7 @@
     shell.style.transition = 'none';
     shell.style.transform = `translate3d(${translated}px,0,0)`;
     shell.style.opacity = String(1 - progress * .18);
-    shell.style.filter = `blur(${progress * 4}px)`;
+    shell.style.filter = 'none';
     peek.style.opacity = String(.15 + progress * .75);
     peek.classList.add('motion-peek-visible');
   }, { passive: false });
@@ -631,7 +609,11 @@
     }, { passive: true });
   }
 
-  /* Révélation progressive, sans animer les conteneurs sticky eux-mêmes. */
+  /* Révélation Apple-like :
+     - déclenchée à l'entrée dans le viewport ;
+     - déplacement court, aucune brume ;
+     - décélération longue ;
+     - stagger local à chaque carte plutôt qu'un décalage global. */
   const exploreReveal = [
     '.hero-simple .hero-main',
     '.selection-summary',
@@ -644,9 +626,15 @@
     '.table-stage .table-panel'
   ];
   const possibilitiesReveal = [
-    '.hero-main',
-    '.hero-note',
-    '.panel > *',
+    '.poss-hero .hero-main',
+    '.poss-stack-card > .poss-panel-title',
+    '.poss-stack-card > .poss-summary',
+    '.poss-stack-card > .mode-pane',
+    '.poss-stack-card > .poss-results-head',
+    '.poss-stack-card > #results',
+    '.poss-stack-card > .poss-map-head',
+    '.poss-stack-card > .poss-map-body',
+    '.panel > .section-title',
     '.rank-card',
     '.upload-box',
     '.group-result'
@@ -657,25 +645,44 @@
       .flatMap(selector => [...shell.querySelectorAll(selector)])
   )];
 
-  revealTargets.forEach((el, index) => {
+  const groupCounts = new Map();
+  revealTargets.forEach(el => {
+    const group = el.closest('.motion-stack-card,.poss-stack-card,.panel,.hero') || shell;
+    const order = groupCounts.get(group) || 0;
+    groupCounts.set(group, order + 1);
     el.classList.add('motion-reveal');
-    el.style.setProperty('--motion-delay', `${Math.min(index, 4) * 55}ms`);
+    const baseDelay = firstVisit ? 55 : 0;
+    el.style.setProperty('--motion-delay', `${baseDelay + Math.min(order,3) * 85}ms`);
   });
 
   if (reduceMotion || !('IntersectionObserver' in window)) {
     revealTargets.forEach(el => el.classList.add('motion-visible'));
   } else {
+    const revealNow = el => {
+      if (el.classList.contains('motion-visible')) return;
+      el.classList.add('motion-visible');
+    };
+
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (!entry.isIntersecting) return;
-        entry.target.classList.add('motion-visible');
+        revealNow(entry.target);
         observer.unobserve(entry.target);
       });
     }, {
-      threshold: .08,
-      rootMargin: '0px 0px -7% 0px'
+      threshold: .07,
+      rootMargin: '0px 0px -6% 0px'
     });
 
-    revealTargets.forEach(el => observer.observe(el));
+    revealTargets.forEach(el => {
+      const rect = el.getBoundingClientRect();
+      const initiallyVisible = rect.bottom > 0 && rect.top < window.innerHeight * .96;
+      if (initiallyVisible) {
+        /* Deux frames garantissent qu'on voit réellement le départ à opacity 0. */
+        requestAnimationFrame(() => requestAnimationFrame(() => revealNow(el)));
+      } else {
+        observer.observe(el);
+      }
+    });
   }
 })();
