@@ -1965,3 +1965,80 @@ html.stack-engaged .top-nav {
     transition: none !important;
   }
 }
+
+
+/* Preview V11 — overlays sans perturbation de la pile */
+html.info-overlay-open,
+html.info-overlay-open body {
+  overflow: visible !important;
+}
+
+.info-overlay {
+  touch-action: none;
+}
+
+.info-overlay-content {
+  touch-action: none;
+}
+
+/* En-tête compact du tableau + bouton nudge à droite */
+.table-tablehead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: stretch;
+  width: 100%;
+  background: #f5f5f7;
+  border: 1px solid var(--line, #d9e0ea);
+  border-bottom: 0;
+  border-radius: 12px 12px 0 0;
+  overflow: hidden;
+}
+
+.table-tablehead .table-scroll-caption {
+  border: 0 !important;
+  border-radius: 0 !important;
+  min-width: 0 !important;
+  height: 44px;
+}
+
+.table-orientation-icon {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0 !important;
+  border-left: 1px solid #e1e5eb !important;
+  border-radius: 0 !important;
+  background: #f5f5f7 !important;
+  color: #475467;
+  font-size: 1.22rem;
+  font-weight: 800;
+  line-height: 1;
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.table-orientation-icon:hover,
+.table-orientation-icon:focus-visible {
+  color: var(--apple-blue, #0071e3);
+  background: #eef4ff !important;
+}
+
+.table-stage .table-scroll {
+  border-radius: 0 0 12px 12px !important;
+}
+
+@media (max-width: 820px) {
+  .table-tablehead .table-scroll-caption,
+  .table-orientation-icon {
+    height: 42px;
+  }
+
+  .table-orientation-icon {
+    width: 42px;
+    min-width: 42px;
+    font-size: 1.14rem;
+  }
+}
