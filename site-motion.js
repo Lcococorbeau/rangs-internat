@@ -441,10 +441,6 @@
 
   function alignExploreFinalThenOpenLegal() {
     if (!tableStage || finalLock === null) return;
-    const openWhenSettled = () => {
-      updateStackState();
-      if (exploreStackFullyAligned()) openLegalOverlay();
-    };
 
     if (exploreStackFullyAligned()) {
       openLegalOverlay();
@@ -456,11 +452,16 @@
       behavior: reduceMotion ? 'auto' : 'smooth'
     });
 
-    if (reduceMotion) {
-      requestAnimationFrame(openWhenSettled);
-    } else {
-      setTimeout(openWhenSettled, 260);
-    }
+    const started = performance.now();
+    const waitForRail = () => {
+      updateStackState();
+      if (exploreStackFullyAligned()) {
+        openLegalOverlay();
+        return;
+      }
+      if (performance.now() - started < 720) requestAnimationFrame(waitForRail);
+    };
+    requestAnimationFrame(waitForRail);
   }
 
   function updateStackState() {
