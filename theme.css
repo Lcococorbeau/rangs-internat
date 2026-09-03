@@ -2543,3 +2543,10 @@ html.stack-final-aligned body{
   overscroll-behavior-y:none;
 }
 
+
+
+/* Preview — le déclencheur juridique normal est retiré du flux.
+   Les mentions légales n'apparaissent qu'au geste supplémentaire en fin de pile. */
+.preview-legal-footer{
+  display:none !important;
+}
