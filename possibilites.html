@@ -898,9 +898,6 @@ function renderFranceMap(cityMap=new Map()){
       selectMapPin(e.key);showMapCity(e.city,e.items);
     };
     anchor.addEventListener('click',activate);
-    anchor.addEventListener('pointerup',e=>{
-      if(e.pointerType==='mouse' && performance.now()>=mapViewState.suppressClicksUntil) activate();
-    });
     anchor.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate()}});
   });
 
