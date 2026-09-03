@@ -2366,3 +2366,124 @@ main.wrap.motion-exit-left {
   }
 }
 
+/* Preview — rail de signature + animation hiérarchique fluide */
+:root{
+  --signature-rail-bottom: 44px;
+}
+
+/* La signature reste dans une zone réservée, sans bandeau visuel. */
+.top-nav{
+  position:sticky !important;
+  top:max(0px,env(safe-area-inset-top)) !important;
+  z-index:1200 !important;
+  background:transparent !important;
+  overflow:visible !important;
+}
+
+.top-nav .brand-lockup{
+  position:relative;
+  z-index:3;
+  min-height:22px;
+  pointer-events:none;
+}
+
+/* Les onglets s'effacent juste avant contact avec les cartes. */
+.top-nav .nav-links{
+  transition:
+    opacity .11s ease-out,
+    transform .13s cubic-bezier(.16,1,.3,1);
+}
+
+html.nav-links-covered .top-nav .nav-links{
+  opacity:0 !important;
+  transform:translate3d(0,-5px,0) !important;
+  pointer-events:none !important;
+}
+
+/* Aucune carte de la pile Explorer ne peut remonter dans le rail de signature. */
+.motion-stack-card{
+  top:calc(var(--signature-rail-bottom) + (var(--stack-i,0) * 8px)) !important;
+}
+
+.hero-simple.motion-stack-card{
+  top:calc(var(--signature-rail-bottom) + (var(--stack-i,0) * 8px)) !important;
+}
+
+/* Même principe pour la pile "Mes possibilités" sur mobile. */
+@media(max-width:820px){
+  .poss-stack-card:not(.poss-hero){
+    top:calc(var(--signature-rail-bottom) + (var(--poss-stack-i,0) * 8px)) !important;
+  }
+  .poss-map-card{
+    top:calc(var(--signature-rail-bottom) + 32px) !important;
+  }
+}
+
+/* Préparation pré-paint : chaque contrôle est préparé pour une révélation,
+   puis relâché explicitement par JS. */
+html.apple-motion-prep .selection-panel .controls > *{
+  opacity:0 !important;
+}
+
+/* Fin d'état garantie : aucun sélecteur ne peut rester invisible. */
+.selection-panel .controls > *.apple-motion-visible{
+  opacity:1 !important;
+  transform:translate3d(0,0,0) !important;
+}
+
+/* Mouvements plus courts + timings resserrés :
+   on garde la hiérarchie, sans donner une impression de chargement réseau. */
+.apple-motion-title{
+  transform:translate3d(0,16px,0);
+  transition:
+    opacity .38s ease-out,
+    transform .48s cubic-bezier(.16,1,.3,1);
+  transition-delay:calc(20ms + var(--apple-stagger,0ms));
+}
+
+.apple-motion-kicker{
+  transform:translate3d(0,4px,0);
+  transition:
+    opacity .42s ease-out,
+    transform .48s cubic-bezier(.16,1,.3,1);
+  transition-delay:calc(0ms + var(--apple-stagger,0ms));
+}
+
+.apple-motion-subtitle{
+  transform:translate3d(0,7px,0);
+  transition:
+    opacity .60s cubic-bezier(.22,.61,.36,1),
+    transform .66s cubic-bezier(.16,1,.3,1);
+  transition-delay:calc(90ms + var(--apple-stagger,0ms));
+}
+
+.apple-motion-action{
+  transform:translate3d(0,7px,0);
+  transition:
+    opacity .52s ease-out,
+    transform .58s cubic-bezier(.16,1,.3,1);
+  transition-delay:calc(135ms + var(--apple-stagger,0ms));
+}
+
+.apple-motion-content{
+  transform:translate3d(0,14px,0);
+  transition:
+    opacity .56s ease-out,
+    transform .64s cubic-bezier(.16,1,.3,1);
+  transition-delay:calc(170ms + var(--apple-stagger,0ms));
+}
+
+.apple-motion-visual{
+  transform:translate3d(0,18px,0) scale(.993);
+  transition:
+    opacity .64s ease-out,
+    transform .72s cubic-bezier(.16,1,.3,1);
+  transition-delay:calc(210ms + var(--apple-stagger,0ms));
+}
+
+.apple-motion-dynamic{
+  transform:translate3d(0,14px,0);
+  transition-duration:.46s,.54s;
+  transition-delay:calc(45ms + var(--apple-stagger,0ms));
+}
+
