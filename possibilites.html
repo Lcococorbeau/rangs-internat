@@ -241,7 +241,33 @@
       .city-limit,.city-margin{grid-column:2!important}
     }
 
-  </style>
+  
+    @media(min-width:821px){
+      .poss-results-card{
+        max-height:min(78vh,760px);
+        display:flex;
+        flex-direction:column;
+        overflow:hidden!important;
+      }
+      .poss-results-card .results-head,
+      .poss-results-card .poss-quiet-links{
+        flex:0 0 auto;
+      }
+      .poss-results-card .results-scroll{
+        flex:1 1 auto;
+        min-height:0;
+        overflow-y:auto!important;
+        overflow-x:hidden!important;
+        overscroll-behavior:contain;
+        scrollbar-gutter:stable;
+        padding-right:4px;
+      }
+      .map-pin-anchor,
+      .map-pin-anchor *{
+        pointer-events:auto;
+      }
+    }
+</style>
   <link rel="stylesheet" href="theme.css">
   <script>
     window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
@@ -732,6 +758,10 @@ function initMapInteractions(){
     if(mapViewState.scale>1.15)resetMapZoom();else zoomMapAround(p.x,p.y,1.8);
   });
   viewport.addEventListener('pointerdown',e=>{
+    if(e.target.closest?.('.map-pin-anchor')){
+      mapViewState.gestureMoved=false;
+      return;
+    }
     viewport.setPointerCapture?.(e.pointerId);
     mapViewState.pointers.set(e.pointerId,e);
     mapViewState.gestureMoved=false;
@@ -868,6 +898,9 @@ function renderFranceMap(cityMap=new Map()){
       selectMapPin(e.key);showMapCity(e.city,e.items);
     };
     anchor.addEventListener('click',activate);
+    anchor.addEventListener('pointerup',e=>{
+      if(e.pointerType==='mouse' && performance.now()>=mapViewState.suppressClicksUntil) activate();
+    });
     anchor.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate()}});
   });
 
@@ -926,6 +959,16 @@ function renderResults(){
     const card=btn.closest('.specialty-card');const open=card.classList.toggle('open');btn.setAttribute('aria-expanded',String(open));
   }));
 }
+const desktopResultsScroll=$('results');
+desktopResultsScroll?.addEventListener('wheel',e=>{
+  if(!window.matchMedia('(min-width:821px)').matches)return;
+  const canUp=desktopResultsScroll.scrollTop>0;
+  const canDown=desktopResultsScroll.scrollTop+desktopResultsScroll.clientHeight<desktopResultsScroll.scrollHeight-1;
+  if((e.deltaY<0&&canUp)||(e.deltaY>0&&canDown)){
+    e.stopPropagation();
+  }
+},{passive:true});
+
 function setMode(mode){
   state.mode=mode;const simple=mode==='simple';
   $('simplePane').hidden=!simple;$('advancedPane').hidden=simple;
