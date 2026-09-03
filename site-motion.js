@@ -256,18 +256,19 @@
   const navLinks = topNav?.querySelector('.nav-links');
   const headerCoverCard = shell.querySelector('.hero,.poss-stack-card,.panel');
 
-  function updateHeaderVisibility() {
-    if (!topNav || !navLinks || !headerCoverCard) return;
+  function measureSignatureRail() {
+    if (!topNav) return;
     const signature = topNav.querySelector('.brand-lockup,.creator-signature');
     const signatureRect = signature?.getBoundingClientRect();
-    if (signatureRect) {
-      const railBottom = Math.ceil(signatureRect.bottom + 8);
-      document.documentElement.style.setProperty('--signature-rail-bottom', `${railBottom}px`);
-    }
+    if (!signatureRect) return;
+    const railBottom = Math.ceil(signatureRect.bottom + 8);
+    document.documentElement.style.setProperty('--signature-rail-bottom', `${railBottom}px`);
+  }
+
+  function updateHeaderVisibility() {
+    if (!topNav || !navLinks || !headerCoverCard) return;
     const linksRect = navLinks.getBoundingClientRect();
     const cardRect = headerCoverCard.getBoundingClientRect();
-    /* On masque quelques pixels AVANT le contact : aucune tranche bleue ne peut rester visible.
-       L'opacité repart dès que la géométrie laisse de nouveau de la place. */
     const covered = window.scrollY > 1 && cardRect.top <= linksRect.bottom + 8;
     document.documentElement.classList.toggle('nav-links-covered', covered);
   }
@@ -547,7 +548,6 @@
            Si son contenu est long, c'est son contenu interne qui scrolle. */
         el.classList.remove('motion-stack-static');
       });
-      if (possMapStage && possTail) ensureTailCanReach(possMapStage, possTail);
       return;
     }
 
@@ -555,6 +555,7 @@
     computeFinalLock();
   }
 
+  measureSignatureRail();
   configureStack();
   updateInternalPriority();
   updateHeaderVisibility();
@@ -574,23 +575,19 @@
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
+      measureSignatureRail();
       configureStack();
       updateHeaderVisibility();
     }, 100);
   }, { passive: true });
 
-  if ('ResizeObserver' in window) {
+  if ('ResizeObserver' in window && isExplore) {
     const ro = new ResizeObserver(() => {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(configureStack, 80);
     });
-    if (isExplore) {
-      if (evolutionStage) ro.observe(evolutionStage);
-      if (tableStage) ro.observe(tableStage);
-    } else {
-      if (possResultsStage) ro.observe(possResultsStage);
-      if (possMapStage) ro.observe(possMapStage);
-    }
+    if (evolutionStage) ro.observe(evolutionStage);
+    if (tableStage) ro.observe(tableStage);
   }
 
   /* Petit geste = scroll interne de la carte active.
@@ -671,32 +668,26 @@
     }, { passive: false });
   }
 
-  /* Mes possibilités : une fois réellement arrivé au bas de la page,
-     un nouveau geste de scroll vers le bas ouvre les mentions légales. */
+  /* Mes possibilités : une fois la carte finale réellement verrouillée sur son rail,
+     un geste supplémentaire ouvre les mentions légales. */
   if (!isExplore && legalOverlay) {
     const lastInnerScroll = possMapScroll;
     let bottomTouch = null;
-
-    const pageAtBottom = () => {
-      const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-      return window.scrollY >= maxScroll - 5;
-    };
-
     const contentAtBottom = () => !lastInnerScroll || !canScrollDown(lastInnerScroll);
 
     document.addEventListener('touchstart', event => {
       if (event.touches.length !== 1 || event.target.closest('.info-overlay')) return;
       bottomTouch = {
         y: event.touches[0].clientY,
-        armed: pageAtBottom() && contentAtBottom() && possibilitiesFinalAligned()
+        armed: possibilitiesFinalAligned() && contentAtBottom()
       };
     }, { passive: true });
 
     document.addEventListener('touchmove', event => {
       if (!bottomTouch || !bottomTouch.armed || event.touches.length !== 1) return;
-      if (!pageAtBottom() || !contentAtBottom() || !possibilitiesFinalAligned()) return;
+      if (!possibilitiesFinalAligned() || !contentAtBottom()) return;
       const dy = event.touches[0].clientY - bottomTouch.y;
-      if (dy < -58) {
+      if (dy < -42) {
         event.preventDefault();
         openLegalOverlay();
       }
@@ -707,8 +698,8 @@
     }, { passive: true });
 
     window.addEventListener('wheel', event => {
-      if (event.deltaY <= 35) return;
-      if (!pageAtBottom() || !contentAtBottom() || !possibilitiesFinalAligned()) return;
+      if (event.deltaY <= 24) return;
+      if (!possibilitiesFinalAligned() || !contentAtBottom()) return;
       event.preventDefault();
       openLegalOverlay();
     }, { passive: false });
