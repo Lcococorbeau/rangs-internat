@@ -2487,3 +2487,9 @@ html.apple-motion-prep .selection-panel .controls > *{
   transition-delay:calc(45ms + var(--apple-stagger,0ms));
 }
 
+
+
+/* Un panneau explicitement sorti de la pile ne doit pas être décalé par le rail. */
+.motion-stack-card.motion-stack-static{
+  top:auto !important;
+}
