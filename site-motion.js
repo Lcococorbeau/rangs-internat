@@ -238,7 +238,7 @@
         document.querySelector('.evolution-stage'),
         document.querySelector('.table-stage')
       ].filter(Boolean)
-    : [...shell.children].filter(el => el.matches('.panel'));
+    : [...shell.querySelectorAll(':scope > .poss-stack-card')];
 
   const evolutionStage = document.querySelector('.evolution-stage');
   const evolutionScroll = document.querySelector('.evolution-stage .evolution-panel');
@@ -403,11 +403,16 @@
   function ensureTailCanReach(card, tail) {
     if (!card || !tail) return null;
     const desired = targetScrollY(card);
+    const currentTail = Math.max(1, tail.getBoundingClientRect().height);
     const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-    const deficit = Math.ceil(desired - maxScroll);
-    if (deficit > 1) {
-      const nextHeight = Math.ceil(tail.getBoundingClientRect().height + deficit + 10);
-      tail.style.setProperty('height', `${nextHeight}px`, 'important');
+
+    /* maxScroll contient déjà currentTail.
+       On recalcule donc la hauteur exacte qui fait coïncider le bas de page
+       avec le rail sticky final. Cela supprime le petit dépassement + retour
+       qui produisait le "soubresaut". */
+    const exactTail = Math.max(1, currentTail + desired - maxScroll);
+    if (Math.abs(exactTail - currentTail) > 1) {
+      tail.style.setProperty('height', `${Math.ceil(exactTail)}px`, 'important');
     }
     return desired;
   }
@@ -432,6 +437,30 @@
     if (isExplore || !possMapStage) return false;
     const expectedTop = stickyTop(possMapStage);
     return Math.abs(possMapStage.getBoundingClientRect().top - expectedTop) <= 4;
+  }
+
+  function alignExploreFinalThenOpenLegal() {
+    if (!tableStage || finalLock === null) return;
+    const openWhenSettled = () => {
+      updateStackState();
+      if (exploreStackFullyAligned()) openLegalOverlay();
+    };
+
+    if (exploreStackFullyAligned()) {
+      openLegalOverlay();
+      return;
+    }
+
+    window.scrollTo({
+      top: finalLock,
+      behavior: reduceMotion ? 'auto' : 'smooth'
+    });
+
+    if (reduceMotion) {
+      requestAnimationFrame(openWhenSettled);
+    } else {
+      setTimeout(openWhenSettled, 260);
+    }
   }
 
   function updateStackState() {
@@ -502,12 +531,8 @@
 
     if (tableStage) {
       computeFinalLock();
-      const currentY = window.scrollY;
-      const movingDown = currentY >= lastWindowY;
-      if (stackCandidates[activeIndex] === tableStage && finalLock !== null && currentY > finalLock + 1 && movingDown) {
-        window.scrollTo(0, finalLock);
-      }
       lastWindowY = window.scrollY;
+      document.documentElement.classList.toggle('stack-final-aligned', exploreStackFullyAligned());
     }
   }
 
@@ -516,9 +541,10 @@
       stackCandidates.forEach((el,index)=>{
         el.classList.add('motion-stack-card');
         el.style.setProperty('--stack-i', String(Math.min(index, 6)));
-        const mustStayOnRail = el === possResultsStage || el === possMapStage;
-        const tooTall = !mustStayOnRail && el.getBoundingClientRect().height > window.innerHeight * .92;
-        el.classList.toggle('motion-stack-static', tooTall);
+        el.style.setProperty('--poss-stack-i', String(Math.min(index, 6)));
+        /* Sur "Mes possibilités", une carte ne quitte jamais son rail sticky.
+           Si son contenu est long, c'est son contenu interne qui scrolle. */
+        el.classList.remove('motion-stack-static');
       });
       if (possMapStage && possTail) ensureTailCanReach(possMapStage, possTail);
       return;
@@ -538,6 +564,9 @@
       stackFrame = null;
       updateHeaderVisibility();
       updateStackState();
+      if (!isExplore) {
+        document.documentElement.classList.toggle('stack-final-aligned', possibilitiesFinalAligned());
+      }
     });
   }, { passive: true });
 
@@ -596,11 +625,7 @@
             scrollToCard(activeIndex + 1);
           } else {
             const atTableEnd = !tableScroll || !canScrollDown(tableScroll);
-            if (atTableEnd && exploreStackFullyAligned()) {
-              openLegalOverlay();
-            } else {
-              scrollToCard(stackCandidates.length - 1);
-            }
+            if (atTableEnd) alignExploreFinalThenOpenLegal();
           }
         } else if (dy > 0 && activeIndex > 0) {
           scrollToCard(activeIndex - 1);
@@ -615,23 +640,34 @@
     document.addEventListener('touchmove', event => {
       if (!tableStage || finalLock === null || !verticalTouch || event.touches.length !== 1) return;
       if (stackCandidates[activeIndex] !== tableStage) return;
-      if (!exploreStackFullyAligned()) return;
 
       const dy = event.touches[0].clientY - verticalTouch.y;
       if (dy >= -64) return;
-
       if (tableScroll && canScrollDown(tableScroll)) return;
 
-      openLegalOverlay();
-    }, { passive: true });
+      if (exploreStackFullyAligned()) {
+        event.preventDefault();
+        openLegalOverlay();
+      }
+    }, { passive: false });
 
     window.addEventListener('wheel', event => {
       if (!tableStage || finalLock === null || event.deltaY <= 35) return;
       if (stackCandidates[activeIndex] !== tableStage) return;
-      if (!exploreStackFullyAligned()) return;
       if (tableScroll && canScrollDown(tableScroll)) return;
-      openLegalOverlay();
-    }, { passive: true });
+
+      if (exploreStackFullyAligned()) {
+        event.preventDefault();
+        openLegalOverlay();
+        return;
+      }
+
+      const nearFinal = window.scrollY >= finalLock - Math.min(180, window.innerHeight * .20);
+      if (nearFinal && event.deltaY >= 70) {
+        event.preventDefault();
+        alignExploreFinalThenOpenLegal();
+      }
+    }, { passive: false });
   }
 
   /* Mes possibilités : une fois réellement arrivé au bas de la page,
@@ -659,8 +695,11 @@
       if (!bottomTouch || !bottomTouch.armed || event.touches.length !== 1) return;
       if (!pageAtBottom() || !contentAtBottom() || !possibilitiesFinalAligned()) return;
       const dy = event.touches[0].clientY - bottomTouch.y;
-      if (dy < -58) openLegalOverlay();
-    }, { passive: true });
+      if (dy < -58) {
+        event.preventDefault();
+        openLegalOverlay();
+      }
+    }, { passive: false });
 
     document.addEventListener('touchend', () => {
       bottomTouch = null;
@@ -669,8 +708,9 @@
     window.addEventListener('wheel', event => {
       if (event.deltaY <= 35) return;
       if (!pageAtBottom() || !contentAtBottom() || !possibilitiesFinalAligned()) return;
+      event.preventDefault();
       openLegalOverlay();
-    }, { passive: true });
+    }, { passive: false });
   }
 
   /* "Mes possibilités" : la liste de résultats est un vrai scroll interne.
