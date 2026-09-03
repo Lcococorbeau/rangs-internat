@@ -668,24 +668,36 @@
     }, { passive: false });
   }
 
-  /* Mes possibilités : une fois la carte finale réellement verrouillée sur son rail,
-     un geste supplémentaire ouvre les mentions légales. */
+  /* Mes possibilités :
+     - mobile : les mentions s'ouvrent après verrouillage réel de la dernière carte ;
+     - ordinateur : elles ne peuvent s'ouvrir qu'une fois le bas PHYSIQUE de la page atteint.
+       Ainsi, après un clic sur une ville, l'utilisateur peut d'abord faire défiler
+       et lire les spécialités/villes affichées sous la carte. */
   if (!isExplore && legalOverlay) {
     const lastInnerScroll = possMapScroll;
     let bottomTouch = null;
     const contentAtBottom = () => !lastInnerScroll || !canScrollDown(lastInnerScroll);
+    const desktopMode = () => window.matchMedia('(min-width:821px)').matches;
+    const pageAtBottom = () => {
+      const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+      return window.scrollY >= maxScroll - 3;
+    };
+    const legalReady = () =>
+      possibilitiesFinalAligned() &&
+      contentAtBottom() &&
+      (!desktopMode() || pageAtBottom());
 
     document.addEventListener('touchstart', event => {
       if (event.touches.length !== 1 || event.target.closest('.info-overlay')) return;
       bottomTouch = {
         y: event.touches[0].clientY,
-        armed: possibilitiesFinalAligned() && contentAtBottom()
+        armed: legalReady()
       };
     }, { passive: true });
 
     document.addEventListener('touchmove', event => {
       if (!bottomTouch || !bottomTouch.armed || event.touches.length !== 1) return;
-      if (!possibilitiesFinalAligned() || !contentAtBottom()) return;
+      if (!legalReady()) return;
       const dy = event.touches[0].clientY - bottomTouch.y;
       if (dy < -42) {
         event.preventDefault();
@@ -699,7 +711,7 @@
 
     window.addEventListener('wheel', event => {
       if (event.deltaY <= 24) return;
-      if (!possibilitiesFinalAligned() || !contentAtBottom()) return;
+      if (!legalReady()) return;
       event.preventDefault();
       openLegalOverlay();
     }, { passive: false });
