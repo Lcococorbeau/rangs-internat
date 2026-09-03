@@ -2501,3 +2501,45 @@ html.apple-motion-prep .selection-panel .controls > *{
   min-height:1px;
 }
 
+/* Preview — pile stricte : aucun rebord supérieur ne peut franchir son rail. */
+@media(max-width:820px){
+  .poss-stack-card.motion-stack-card{
+    position:sticky !important;
+    top:calc(var(--signature-rail-bottom,44px) + (var(--stack-i,0) * 8px)) !important;
+    z-index:calc(60 + var(--stack-i,0)) !important;
+    transform:none !important;
+    overflow-anchor:none;
+  }
+
+  /* La première carte fait désormais partie de la pile au lieu de repartir sous la signature. */
+  .poss-hero.motion-stack-card{
+    position:sticky !important;
+    top:var(--signature-rail-bottom,44px) !important;
+    z-index:60 !important;
+    overflow:hidden !important;
+  }
+
+  /* La dernière carte suit exactement le même rail régulier que les précédentes. */
+  .poss-map-card.motion-stack-card{
+    top:calc(var(--signature-rail-bottom,44px) + (4 * 8px)) !important;
+    z-index:64 !important;
+  }
+
+  /* Le panneau résultats ne change jamais de géométrie extérieure quand on déplie une spécialité. */
+  .poss-results-card.motion-stack-card{
+    top:calc(var(--signature-rail-bottom,44px) + (3 * 8px)) !important;
+    z-index:63 !important;
+    overflow-anchor:none;
+  }
+
+  .poss-results-card .results-scroll{
+    overflow-anchor:none;
+  }
+}
+
+/* Au rail final, Safari ne doit plus produire de rubber-band vertical. */
+html.stack-final-aligned,
+html.stack-final-aligned body{
+  overscroll-behavior-y:none;
+}
+
