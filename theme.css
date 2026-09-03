@@ -616,45 +616,42 @@ main.wrap {
 }
 
 html[data-motion-entry="from-left"] main.wrap {
-  transform: translate3d(-16vw, 0, 0);
-  opacity: 0;
-  filter: blur(9px);
+  transform: translate3d(-7vw, 0, 0);
+  opacity: .08;
+  filter: none;
 }
 
 html[data-motion-entry="from-right"] main.wrap {
-  transform: translate3d(16vw, 0, 0);
-  opacity: 0;
-  filter: blur(9px);
+  transform: translate3d(7vw, 0, 0);
+  opacity: .08;
+  filter: none;
 }
 
 html.motion-entry-ready main.wrap {
   transform: translate3d(0, 0, 0);
   opacity: 1;
-  filter: blur(0);
+  filter: none;
   transition:
-    transform .56s cubic-bezier(.22, 1, .36, 1),
-    opacity .38s ease,
-    filter .52s cubic-bezier(.22, 1, .36, 1);
+    transform .66s cubic-bezier(.16, 1, .3, 1),
+    opacity .48s ease-out;
 }
 
 main.wrap.motion-exit-right {
   transform: translate3d(108vw, 0, 0);
-  opacity: .12;
-  filter: blur(10px);
+  opacity: .14;
+  filter: none;
   transition:
-    transform .46s cubic-bezier(.32, 0, .2, 1),
-    opacity .34s ease,
-    filter .42s ease;
+    transform .42s cubic-bezier(.32, 0, .18, 1),
+    opacity .30s ease;
 }
 
 main.wrap.motion-exit-left {
   transform: translate3d(-108vw, 0, 0);
-  opacity: .12;
-  filter: blur(10px);
+  opacity: .14;
+  filter: none;
   transition:
-    transform .46s cubic-bezier(.32, 0, .2, 1),
-    opacity .34s ease,
-    filter .42s ease;
+    transform .42s cubic-bezier(.32, 0, .18, 1),
+    opacity .30s ease;
 }
 
 .motion-swipe-peek {
@@ -725,21 +722,113 @@ main.wrap.motion-exit-left {
   z-index: 900 !important;
 }
 
-.motion-reveal {
-  opacity: 0;
-  transform: translate3d(0, 24px, 0) scale(.988);
-  filter: blur(7px);
-  transition:
-    opacity .58s ease,
-    transform .72s cubic-bezier(.22, 1, .36, 1),
-    filter .68s cubic-bezier(.22, 1, .36, 1);
-  transition-delay: var(--motion-delay, 0ms);
+/* Préparation avant premier rendu : les éléments clés ne flashent jamais à l'écran
+   avant que site-motion.js leur attribue leur rôle. Un timeout dans <head> libère
+   cette préparation si le JS principal ne se charge pas. */
+html.apple-motion-prep .hero h1,
+html.apple-motion-prep .hero .eyebrow,
+html.apple-motion-prep .hero .hero-info-links,
+html.apple-motion-prep .hero .poss-info-links,
+html.apple-motion-prep .selection-summary .metric,
+html.apple-motion-prep .selection-panel .controls > *,
+html.apple-motion-prep .chart-stage h2,
+html.apple-motion-prep .chart-stage #chartSubtitle,
+html.apple-motion-prep .chart-stage .chart-head-actions,
+html.apple-motion-prep .chart-stage .chart-wrap,
+html.apple-motion-prep .data-stage .data-stage-kicker,
+html.apple-motion-prep .data-stage .data-stage-head h2,
+html.apple-motion-prep .data-stage .data-stage-head > p:last-child,
+html.apple-motion-prep .evolution-panel,
+html.apple-motion-prep .table-panel,
+html.apple-motion-prep .poss-panel-title,
+html.apple-motion-prep .poss-summary > *,
+html.apple-motion-prep #rankStage .friendly-field,
+html.apple-motion-prep #rankStage .mode-link,
+html.apple-motion-prep .poss-results-card .results-head > *,
+html.apple-motion-prep .poss-results-card #results,
+html.apple-motion-prep .poss-map-card .poss-map-head > *,
+html.apple-motion-prep .poss-map-card .poss-map-body {
+  opacity: 0 !important;
 }
 
-.motion-reveal.motion-visible {
+/* Base commune : aucun blur. */
+.apple-motion-role {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* 1 — TITRE : premier point d'accroche.
+   Plus rapide, mouvement net, arrêt franc. */
+.apple-motion-title {
+  transform: translate3d(0, 22px, 0);
+  transition:
+    opacity .44s ease-out,
+    transform .58s cubic-bezier(.16,1,.3,1);
+  transition-delay: var(--apple-stagger, 0ms);
+}
+
+/* 2 — REPÈRE / KICKER : secondaire au titre malgré sa position DOM éventuelle. */
+.apple-motion-kicker {
+  transform: translate3d(0, 7px, 0);
+  transition:
+    opacity .62s ease-out,
+    transform .72s cubic-bezier(.16,1,.3,1);
+  transition-delay: calc(70ms + var(--apple-stagger, 0ms));
+}
+
+/* 3 — SOUS-TITRE : volontairement plus doux que le titre.
+   Moins de déplacement, davantage de temps, départ retardé. */
+.apple-motion-subtitle {
+  transform: translate3d(0, 10px, 0);
+  transition:
+    opacity .92s cubic-bezier(.22,.61,.36,1),
+    transform .98s cubic-bezier(.16,1,.3,1);
+  transition-delay: calc(135ms + var(--apple-stagger, 0ms));
+}
+
+/* 4 — ACTION / LIEN : arrive après l'explication. */
+.apple-motion-action {
+  transform: translate3d(0, 9px, 0);
+  transition:
+    opacity .78s ease-out,
+    transform .88s cubic-bezier(.16,1,.3,1);
+  transition-delay: calc(215ms + var(--apple-stagger, 0ms));
+}
+
+/* 5 — CONTENU INTERACTIF : construit la section après sa hiérarchie textuelle. */
+.apple-motion-content {
+  transform: translate3d(0, 25px, 0);
+  transition:
+    opacity .78s ease-out,
+    transform .94s cubic-bezier(.16,1,.3,1);
+  transition-delay: calc(280ms + var(--apple-stagger, 0ms));
+}
+
+/* 6 — GRAND VISUEL : graphique/tableau/carte, dernier élément à se poser. */
+.apple-motion-visual {
+  transform: translate3d(0, 34px, 0) scale(.986);
+  transform-origin: center bottom;
+  transition:
+    opacity .88s ease-out,
+    transform 1.08s cubic-bezier(.16,1,.3,1);
+  transition-delay: calc(335ms + var(--apple-stagger, 0ms));
+}
+
+.apple-motion-role.apple-motion-visible {
   opacity: 1;
-  transform: translate3d(0, 0, 0) scale(1);
-  filter: blur(0);
+  transform: translate3d(0,0,0) scale(1);
+}
+
+/* Les éléments injectés dynamiquement restent plus discrets. */
+.apple-motion-dynamic {
+  transform: translate3d(0, 20px, 0);
+  transition-duration: .62s, .78s;
+  transition-delay: calc(80ms + var(--apple-stagger, 0ms));
+}
+
+.apple-motion-dynamic.apple-motion-visible {
+  opacity: 1;
+  transform: translate3d(0,0,0);
 }
 
 @media (max-width: 820px) {
@@ -811,7 +900,9 @@ main.wrap.motion-exit-left {
   main.wrap.motion-exit-right,
   main.wrap.motion-exit-left,
   .motion-reveal,
-  .motion-reveal.motion-visible {
+  .motion-reveal.motion-visible,
+  .apple-motion-role,
+  .apple-motion-role.apple-motion-visible {
     transition: none !important;
     transform: none !important;
     opacity: 1 !important;
@@ -2143,5 +2234,440 @@ html.info-overlay-open body {
 
 .tutorial-tip:not([hidden]) {
   z-index:975 !important;
+}
+
+/* Apple motion preview — raffinement navigation + rythme (2026-09-03)
+   1) La signature reste toujours au-dessus de la pile.
+   2) Les onglets disparaissent AVANT d'être visuellement rognés.
+   3) Les apparitions sont ~30 % plus dynamiques.
+   4) Le bloc des sélecteurs s'anime comme un ensemble : aucun champ ne peut rester invisible. */
+
+/* La barre reste transparente ; seule la signature demeure lorsque la pile monte. */
+.top-nav {
+  z-index:1100 !important;
+  pointer-events:none;
+}
+
+.top-nav .brand-lockup,
+.top-nav .creator-signature {
+  position:relative;
+  z-index:2;
+  opacity:1 !important;
+  visibility:visible !important;
+  transform:none !important;
+}
+
+.top-nav .nav-links {
+  position:relative;
+  z-index:1;
+  pointer-events:auto;
+  opacity:1;
+  transform:translate3d(0,0,0);
+  transition:
+    opacity .09s linear,
+    transform .12s cubic-bezier(.16,1,.3,1);
+  will-change:opacity,transform;
+}
+
+/* Ancienne règle V10 : ne plus masquer toute la top-nav quand la pile s'engage. */
+html.stack-engaged .top-nav {
+  opacity:1 !important;
+  visibility:visible !important;
+  pointer-events:none !important;
+}
+
+/* Disparition géométrique hyper-réactive des onglets, sans fragment bleu résiduel. */
+html.nav-links-covered .top-nav .nav-links,
+html.stack-engaged .top-nav .nav-links {
+  opacity:0 !important;
+  transform:translate3d(0,-4px,0) scale(.99);
+  pointer-events:none !important;
+}
+
+/* Préparation pré-paint : on cache le CONTENEUR de contrôles, pas chacun de ses enfants.
+   Cela supprime le cas où le sélecteur Année restait à opacity:0. */
+html.apple-motion-prep .selection-panel .controls {
+  opacity:0 !important;
+}
+
+html.apple-motion-prep .selection-panel .controls > * {
+  opacity:1 !important;
+}
+
+.selection-panel .controls > * {
+  opacity:1 !important;
+  transform:none !important;
+}
+
+/* Rythme plus vif (~30 % plus rapide), tout en gardant la hiérarchie :
+   titre net -> sous-titre plus doux -> action -> contenu -> visuel. */
+.apple-motion-title {
+  transition:
+    opacity .31s ease-out,
+    transform .41s cubic-bezier(.16,1,.3,1);
+}
+
+.apple-motion-kicker {
+  transition:
+    opacity .44s ease-out,
+    transform .50s cubic-bezier(.16,1,.3,1);
+  transition-delay:calc(50ms + var(--apple-stagger, 0ms));
+}
+
+.apple-motion-subtitle {
+  transition:
+    opacity .64s cubic-bezier(.22,.61,.36,1),
+    transform .69s cubic-bezier(.16,1,.3,1);
+  transition-delay:calc(95ms + var(--apple-stagger, 0ms));
+}
+
+.apple-motion-action {
+  transition:
+    opacity .55s ease-out,
+    transform .62s cubic-bezier(.16,1,.3,1);
+  transition-delay:calc(150ms + var(--apple-stagger, 0ms));
+}
+
+.apple-motion-content {
+  transition:
+    opacity .55s ease-out,
+    transform .66s cubic-bezier(.16,1,.3,1);
+  transition-delay:calc(195ms + var(--apple-stagger, 0ms));
+}
+
+.apple-motion-visual {
+  transition:
+    opacity .62s ease-out,
+    transform .76s cubic-bezier(.16,1,.3,1);
+  transition-delay:calc(235ms + var(--apple-stagger, 0ms));
+}
+
+.apple-motion-dynamic {
+  transition-duration:.44s,.55s;
+  transition-delay:calc(55ms + var(--apple-stagger, 0ms));
+}
+
+html.motion-entry-ready main.wrap {
+  transition:
+    transform .46s cubic-bezier(.16,1,.3,1),
+    opacity .34s ease-out;
+}
+
+main.wrap.motion-exit-right,
+main.wrap.motion-exit-left {
+  transition:
+    transform .32s cubic-bezier(.32,0,.18,1),
+    opacity .23s ease;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .top-nav .nav-links {
+    transition:none !important;
+  }
+}
+
+/* Preview — rail de signature + animation hiérarchique fluide */
+:root{
+  --signature-rail-bottom: 44px;
+}
+
+/* La signature reste dans une zone réservée, sans bandeau visuel. */
+.top-nav{
+  position:sticky !important;
+  top:max(0px,env(safe-area-inset-top)) !important;
+  z-index:1200 !important;
+  background:transparent !important;
+  overflow:visible !important;
+}
+
+.top-nav .brand-lockup{
+  position:relative;
+  z-index:3;
+  min-height:22px;
+  pointer-events:none;
+}
+
+/* Les onglets s'effacent juste avant contact avec les cartes. */
+.top-nav .nav-links{
+  transition:
+    opacity .11s ease-out,
+    transform .13s cubic-bezier(.16,1,.3,1);
+}
+
+html.nav-links-covered .top-nav .nav-links{
+  opacity:0 !important;
+  transform:translate3d(0,-5px,0) !important;
+  pointer-events:none !important;
+}
+
+/* Aucune carte de la pile Explorer ne peut remonter dans le rail de signature. */
+.motion-stack-card{
+  top:calc(var(--signature-rail-bottom) + (var(--stack-i,0) * 8px)) !important;
+}
+
+.hero-simple.motion-stack-card{
+  top:calc(var(--signature-rail-bottom) + (var(--stack-i,0) * 8px)) !important;
+}
+
+/* Même principe pour la pile "Mes possibilités" sur mobile. */
+@media(max-width:820px){
+  .poss-stack-card:not(.poss-hero){
+    top:calc(var(--signature-rail-bottom) + (var(--poss-stack-i,0) * 8px)) !important;
+  }
+  .poss-map-card{
+    top:calc(var(--signature-rail-bottom) + 32px) !important;
+  }
+}
+
+/* Préparation pré-paint : chaque contrôle est préparé pour une révélation,
+   puis relâché explicitement par JS. */
+html.apple-motion-prep .selection-panel .controls > *{
+  opacity:0 !important;
+}
+
+/* Fin d'état garantie : aucun sélecteur ne peut rester invisible. */
+.selection-panel .controls > *.apple-motion-visible{
+  opacity:1 !important;
+  transform:translate3d(0,0,0) !important;
+}
+
+/* Mouvements plus courts + timings resserrés :
+   on garde la hiérarchie, sans donner une impression de chargement réseau. */
+.apple-motion-title{
+  transform:translate3d(0,16px,0);
+  transition:
+    opacity .38s ease-out,
+    transform .48s cubic-bezier(.16,1,.3,1);
+  transition-delay:calc(20ms + var(--apple-stagger,0ms));
+}
+
+.apple-motion-kicker{
+  transform:translate3d(0,4px,0);
+  transition:
+    opacity .42s ease-out,
+    transform .48s cubic-bezier(.16,1,.3,1);
+  transition-delay:calc(0ms + var(--apple-stagger,0ms));
+}
+
+.apple-motion-subtitle{
+  transform:translate3d(0,7px,0);
+  transition:
+    opacity .60s cubic-bezier(.22,.61,.36,1),
+    transform .66s cubic-bezier(.16,1,.3,1);
+  transition-delay:calc(90ms + var(--apple-stagger,0ms));
+}
+
+.apple-motion-action{
+  transform:translate3d(0,7px,0);
+  transition:
+    opacity .52s ease-out,
+    transform .58s cubic-bezier(.16,1,.3,1);
+  transition-delay:calc(135ms + var(--apple-stagger,0ms));
+}
+
+.apple-motion-content{
+  transform:translate3d(0,14px,0);
+  transition:
+    opacity .56s ease-out,
+    transform .64s cubic-bezier(.16,1,.3,1);
+  transition-delay:calc(170ms + var(--apple-stagger,0ms));
+}
+
+.apple-motion-visual{
+  transform:translate3d(0,18px,0) scale(.993);
+  transition:
+    opacity .64s ease-out,
+    transform .72s cubic-bezier(.16,1,.3,1);
+  transition-delay:calc(210ms + var(--apple-stagger,0ms));
+}
+
+.apple-motion-dynamic{
+  transform:translate3d(0,14px,0);
+  transition-duration:.46s,.54s;
+  transition-delay:calc(45ms + var(--apple-stagger,0ms));
+}
+
+
+
+/* Un panneau explicitement sorti de la pile ne doit pas être décalé par le rail. */
+.motion-stack-card.motion-stack-static{
+  top:auto !important;
+}
+
+/* Preview : les fins de pile sont ajustées dynamiquement en JS pour garantir que
+   la dernière carte puisse réellement atteindre son rail sticky avant les mentions légales. */
+.stack-tail-spacer,
+.poss-stack-tail{
+  min-height:1px;
+}
+
+/* Preview — pile stricte : aucun rebord supérieur ne peut franchir son rail. */
+@media(max-width:820px){
+  .poss-stack-card.motion-stack-card{
+    position:sticky !important;
+    top:calc(var(--signature-rail-bottom,44px) + (var(--stack-i,0) * 8px)) !important;
+    z-index:calc(60 + var(--stack-i,0)) !important;
+    transform:none !important;
+    overflow-anchor:none;
+  }
+
+  /* La première carte fait désormais partie de la pile au lieu de repartir sous la signature. */
+  .poss-hero.motion-stack-card{
+    position:sticky !important;
+    top:var(--signature-rail-bottom,44px) !important;
+    z-index:60 !important;
+    overflow:hidden !important;
+  }
+
+  /* La dernière carte suit exactement le même rail régulier que les précédentes. */
+  .poss-map-card.motion-stack-card{
+    top:calc(var(--signature-rail-bottom,44px) + (4 * 8px)) !important;
+    z-index:64 !important;
+  }
+
+  /* Le panneau résultats ne change jamais de géométrie extérieure quand on déplie une spécialité. */
+  .poss-results-card.motion-stack-card{
+    top:calc(var(--signature-rail-bottom,44px) + (3 * 8px)) !important;
+    z-index:63 !important;
+    overflow-anchor:none;
+  }
+
+  .poss-results-card .results-scroll{
+    overflow-anchor:none;
+  }
+}
+
+/* Au rail final, Safari ne doit plus produire de rubber-band vertical. */
+html.stack-final-aligned,
+html.stack-final-aligned body{
+  overscroll-behavior-y:none;
+}
+
+
+
+/* Preview — le déclencheur juridique normal est retiré du flux.
+   Les mentions légales n'apparaissent qu'au geste supplémentaire en fin de pile. */
+.preview-legal-footer{
+  display:none !important;
+}
+
+/* Preview — correction finale rail carte + sélecteur année */
+#yearControl.apple-motion-visible,
+#yearControl.apple-motion-visible #yearButton{
+  opacity:1 !important;
+  visibility:visible !important;
+}
+
+#yearControl.apple-motion-visible #yearButton{
+  color:#172033 !important;
+}
+
+@media(max-width:820px){
+  :root{
+    --poss-stack-gap:8px;
+  }
+
+  .poss-stack-card.motion-stack-card{
+    box-sizing:border-box !important;
+    position:sticky !important;
+    top:calc(var(--signature-rail-bottom,44px) + (var(--stack-i,0) * var(--poss-stack-gap))) !important;
+    transform:none !important;
+  }
+
+  .poss-hero.motion-stack-card{
+    top:var(--signature-rail-bottom,44px) !important;
+  }
+
+  .poss-results-card.motion-stack-card{
+    top:calc(var(--signature-rail-bottom,44px) + (3 * var(--poss-stack-gap))) !important;
+    max-height:calc(100svh - var(--signature-rail-bottom,44px) - (3 * var(--poss-stack-gap)) - 12px) !important;
+    box-sizing:border-box !important;
+  }
+
+  .poss-results-card .results-scroll{
+    overscroll-behavior-y:auto !important;
+    overflow-y:auto !important;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  .poss-map-card.motion-stack-card{
+    top:calc(var(--signature-rail-bottom,44px) + (4 * var(--poss-stack-gap))) !important;
+    height:calc(100svh - var(--signature-rail-bottom,44px) - (4 * var(--poss-stack-gap)) - 12px) !important;
+    max-height:calc(100svh - var(--signature-rail-bottom,44px) - (4 * var(--poss-stack-gap)) - 12px) !important;
+    min-height:0 !important;
+    box-sizing:border-box !important;
+    overflow:hidden !important;
+  }
+
+  .poss-map-card .poss-map-body{
+    min-height:0 !important;
+    overflow-y:auto !important;
+    overscroll-behavior-y:contain;
+  }
+}
+
+/* Preview — rails Mes possibilités V2 : géométrie unique et stable */
+#yearControl,
+#yearControl #yearButton{
+  opacity:1 !important;
+  visibility:visible !important;
+}
+#yearControl #yearButton{color:#172033 !important;}
+
+@media(max-width:820px){
+  :root{--poss-stack-gap:9px;}
+
+  main.wrap > .poss-stack-card.motion-stack-card{
+    box-sizing:border-box !important;
+    position:sticky !important;
+    top:calc(var(--signature-rail-bottom,44px) + (var(--stack-i,0) * var(--poss-stack-gap))) !important;
+    transform:none !important;
+    overflow-anchor:none !important;
+  }
+
+  main.wrap > .poss-hero.motion-stack-card,
+  main.wrap > .poss-results-card.motion-stack-card,
+  main.wrap > .poss-map-card.motion-stack-card{
+    top:calc(var(--signature-rail-bottom,44px) + (var(--stack-i,0) * var(--poss-stack-gap))) !important;
+  }
+
+  main.wrap > .poss-results-card.motion-stack-card{
+    max-height:calc(100svh - var(--signature-rail-bottom,44px) - (3 * var(--poss-stack-gap)) - 14px) !important;
+    overflow:hidden !important;
+  }
+
+  main.wrap > .poss-map-card.motion-stack-card{
+    height:calc(100svh - var(--signature-rail-bottom,44px) - (4 * var(--poss-stack-gap)) - 14px) !important;
+    max-height:calc(100svh - var(--signature-rail-bottom,44px) - (4 * var(--poss-stack-gap)) - 14px) !important;
+    min-height:0 !important;
+    overflow:hidden !important;
+  }
+
+  main.wrap > .poss-results-card .results-scroll{
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    overscroll-behavior-y:auto !important;
+    overflow-anchor:none !important;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  main.wrap > .poss-map-card .poss-map-body{
+    min-height:0 !important;
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    overscroll-behavior-y:contain !important;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  .poss-stack-tail{
+    height:110svh !important;
+    min-height:110svh !important;
+    pointer-events:none !important;
+    opacity:0 !important;
+  }
+
+  main.wrap:has(.poss-stack-card){
+    overflow-anchor:none !important;
+  }
 }
 

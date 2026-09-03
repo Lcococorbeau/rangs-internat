@@ -42,38 +42,16 @@
   const ENTRY_KEY = 'rangs-motion-entry';
   const eraserPosition = .20;
 
-  /* Première visite : apparition douce et séquencée des grandes cartes.
-     Une seule fois par navigateur, et jamais si l’utilisateur réduit les animations. */
-  const FIRST_LOAD_KEY = 'rangs-first-load-whoosh-v1';
-  let firstLoadWhoosh = false;
+  /* Philosophie Apple-like :
+     le contenu apparaît au moment où l'attention arrive dessus.
+     La première visite garde un léger stagger supplémentaire, sans blur. */
+  const FIRST_LOAD_KEY = 'rangs-apple-motion-v1';
+  let firstVisit = false;
   try {
-    firstLoadWhoosh = localStorage.getItem(FIRST_LOAD_KEY) !== '1';
-    if (firstLoadWhoosh) localStorage.setItem(FIRST_LOAD_KEY, '1');
+    firstVisit = localStorage.getItem(FIRST_LOAD_KEY) !== '1';
+    if (firstVisit) localStorage.setItem(FIRST_LOAD_KEY, '1');
   } catch (_) {
-    firstLoadWhoosh = true;
-  }
-
-  if (firstLoadWhoosh && !reduceMotion && !document.documentElement.dataset.motionEntry) {
-    requestAnimationFrame(() => {
-      const cards = [...shell.children].filter(el =>
-        el.matches('.hero, .selection-panel, .data-stage, .poss-stack-card, .panel')
-      );
-      cards.forEach((card, index) => {
-        card.animate(
-          [
-            { opacity: 0, transform: 'translate3d(0,28px,0) scale(.985)', filter: 'blur(8px)' },
-            { opacity: .72, transform: 'translate3d(0,7px,0) scale(.996)', filter: 'blur(2px)', offset: .72 },
-            { opacity: 1, transform: 'translate3d(0,0,0) scale(1)', filter: 'blur(0)' }
-          ],
-          {
-            duration: 560,
-            delay: 55 + index * 88,
-            easing: 'cubic-bezier(.22,.86,.28,1)',
-            fill: 'backwards'
-          }
-        );
-      });
-    });
+    firstVisit = true;
   }
 
   const clearEntryState = () => {
@@ -117,10 +95,10 @@
     peek.classList.remove('motion-peek-visible');
 
     if (fromGesture) {
-      shell.style.transition = 'transform .30s cubic-bezier(.2,.8,.2,1), opacity .25s ease, filter .25s ease';
+      shell.style.transition = 'transform .34s cubic-bezier(.16,1,.3,1), opacity .28s ease';
       shell.style.transform = exitDirection === 'right' ? 'translate3d(108vw,0,0)' : 'translate3d(-108vw,0,0)';
-      shell.style.opacity = '.12';
-      shell.style.filter = 'blur(10px)';
+      shell.style.opacity = '.14';
+      shell.style.filter = 'none';
     } else {
       shell.classList.add(exitDirection === 'right' ? 'motion-exit-right' : 'motion-exit-left');
     }
@@ -157,7 +135,7 @@
   }
 
   function resetDrag(animated = true) {
-    shell.style.transition = animated ? 'transform .28s cubic-bezier(.2,.8,.2,1), opacity .22s ease, filter .22s ease' : 'none';
+    shell.style.transition = animated ? 'transform .30s cubic-bezier(.16,1,.3,1), opacity .24s ease' : 'none';
     shell.style.transform = 'translate3d(0,0,0)';
     shell.style.opacity = '1';
     shell.style.filter = 'blur(0)';
@@ -218,7 +196,7 @@
     shell.style.transition = 'none';
     shell.style.transform = `translate3d(${translated}px,0,0)`;
     shell.style.opacity = String(1 - progress * .18);
-    shell.style.filter = `blur(${progress * 4}px)`;
+    shell.style.filter = 'none';
     peek.style.opacity = String(.15 + progress * .75);
     peek.classList.add('motion-peek-visible');
   }, { passive: false });
@@ -260,15 +238,40 @@
         document.querySelector('.evolution-stage'),
         document.querySelector('.table-stage')
       ].filter(Boolean)
-    : [...shell.children].filter(el => el.matches('.panel'));
+    : [...shell.querySelectorAll(':scope > .poss-stack-card')];
 
   const evolutionStage = document.querySelector('.evolution-stage');
   const evolutionScroll = document.querySelector('.evolution-stage .evolution-panel');
   const tableStage = document.querySelector('.table-stage');
   const tableScroll = document.querySelector('.table-stage .table-scroll');
+  const possResultsStage = document.querySelector('.poss-results-card');
+  const possResultsScroll = document.querySelector('.poss-results-card .results-scroll');
+  const possMapStage = document.querySelector('.poss-map-card');
+  const possMapScroll = document.querySelector('.poss-map-card .poss-map-body');
+  const possTail = document.querySelector('.poss-stack-tail');
   const legalOverlay = document.getElementById('legalInfoOverlay');
   const legalFooter = document.querySelector('.legal-footer');
   const sourceNote = document.querySelector('.source-note');
+  const topNav = document.querySelector('.top-nav');
+  const navLinks = topNav?.querySelector('.nav-links');
+  const headerCoverCard = shell.querySelector('.hero,.poss-stack-card,.panel');
+
+  function measureSignatureRail() {
+    if (!topNav) return;
+    const signature = topNav.querySelector('.brand-lockup,.creator-signature');
+    const signatureRect = signature?.getBoundingClientRect();
+    if (!signatureRect) return;
+    const railBottom = Math.ceil(signatureRect.bottom + 8);
+    document.documentElement.style.setProperty('--signature-rail-bottom', `${railBottom}px`);
+  }
+
+  function updateHeaderVisibility() {
+    if (!topNav || !navLinks || !headerCoverCard) return;
+    const linksRect = navLinks.getBoundingClientRect();
+    const cardRect = headerCoverCard.getBoundingClientRect();
+    const covered = window.scrollY > 1 && cardRect.top <= linksRect.bottom + 8;
+    document.documentElement.classList.toggle('nav-links-covered', covered);
+  }
 
   if (isExplore) {
     if (sourceNote) sourceNote.classList.add('preview-source-hidden');
@@ -398,14 +401,68 @@
     }, { passive: true });
   }
 
+  function ensureTailCanReach(card, tail) {
+    if (!card || !tail) return null;
+    const desired = targetScrollY(card);
+    const currentTail = Math.max(1, tail.getBoundingClientRect().height);
+    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+
+    /* maxScroll contient déjà currentTail.
+       On recalcule donc la hauteur exacte qui fait coïncider le bas de page
+       avec le rail sticky final. Cela supprime le petit dépassement + retour
+       qui produisait le "soubresaut". */
+    const exactTail = Math.max(1, currentTail + desired - maxScroll);
+    if (Math.abs(exactTail - currentTail) > 1) {
+      tail.style.setProperty('height', `${Math.ceil(exactTail)}px`, 'important');
+    }
+    return desired;
+  }
+
   function computeFinalLock() {
     if (!tableStage) {
       finalLock = null;
       return;
     }
-    const desired = targetScrollY(tableStage);
-    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-    finalLock = Math.min(desired, maxScroll);
+    const tail = document.querySelector('.stack-tail-spacer');
+    finalLock = ensureTailCanReach(tableStage, tail) ?? targetScrollY(tableStage);
+  }
+
+  function exploreStackFullyAligned() {
+    if (!isExplore || !tableStage || finalLock === null) return false;
+    const tableAligned = Math.abs(tableStage.getBoundingClientRect().top - stickyTop(tableStage)) <= 3;
+    const previousCovered = stackCandidates.slice(0, -1).every(card => card.classList.contains('motion-covered'));
+    return tableAligned && previousCovered && window.scrollY >= finalLock - 3;
+  }
+
+  function possibilitiesFinalAligned() {
+    if (isExplore || !possMapStage) return false;
+    const expectedTop = stickyTop(possMapStage);
+    return Math.abs(possMapStage.getBoundingClientRect().top - expectedTop) <= 4;
+  }
+
+  function alignExploreFinalThenOpenLegal() {
+    if (!tableStage || finalLock === null) return;
+
+    if (exploreStackFullyAligned()) {
+      openLegalOverlay();
+      return;
+    }
+
+    window.scrollTo({
+      top: finalLock,
+      behavior: reduceMotion ? 'auto' : 'smooth'
+    });
+
+    const started = performance.now();
+    const waitForRail = () => {
+      updateStackState();
+      if (exploreStackFullyAligned()) {
+        openLegalOverlay();
+        return;
+      }
+      if (performance.now() - started < 720) requestAnimationFrame(waitForRail);
+    };
+    requestAnimationFrame(waitForRail);
   }
 
   function updateStackState() {
@@ -476,12 +533,8 @@
 
     if (tableStage) {
       computeFinalLock();
-      const currentY = window.scrollY;
-      const movingDown = currentY >= lastWindowY;
-      if (stackCandidates[activeIndex] === tableStage && finalLock !== null && currentY > finalLock + 1 && movingDown) {
-        window.scrollTo(0, finalLock);
-      }
       lastWindowY = window.scrollY;
+      document.documentElement.classList.toggle('stack-final-aligned', exploreStackFullyAligned());
     }
   }
 
@@ -490,8 +543,10 @@
       stackCandidates.forEach((el,index)=>{
         el.classList.add('motion-stack-card');
         el.style.setProperty('--stack-i', String(Math.min(index, 6)));
-        const tooTall = el.getBoundingClientRect().height > window.innerHeight * .84;
-        el.classList.toggle('motion-stack-static', tooTall);
+        el.style.setProperty('--poss-stack-i', String(Math.min(index, 6)));
+        /* Sur "Mes possibilités", une carte ne quitte jamais son rail sticky.
+           Si son contenu est long, c'est son contenu interne qui scrolle. */
+        el.classList.remove('motion-stack-static');
       });
       return;
     }
@@ -500,20 +555,30 @@
     computeFinalLock();
   }
 
+  measureSignatureRail();
   configureStack();
   updateInternalPriority();
+  updateHeaderVisibility();
 
   window.addEventListener('scroll', () => {
     if (stackFrame) return;
     stackFrame = requestAnimationFrame(() => {
       stackFrame = null;
+      updateHeaderVisibility();
       updateStackState();
+      if (!isExplore) {
+        document.documentElement.classList.toggle('stack-final-aligned', possibilitiesFinalAligned());
+      }
     });
   }, { passive: true });
 
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(configureStack, 120);
+    resizeTimer = setTimeout(() => {
+      measureSignatureRail();
+      configureStack();
+      updateHeaderVisibility();
+    }, 100);
   }, { passive: true });
 
   if ('ResizeObserver' in window && isExplore) {
@@ -558,7 +623,7 @@
             scrollToCard(activeIndex + 1);
           } else {
             const atTableEnd = !tableScroll || !canScrollDown(tableScroll);
-            if (atTableEnd) openLegalOverlay();
+            if (atTableEnd) alignExploreFinalThenOpenLegal();
           }
         } else if (dy > 0 && activeIndex > 0) {
           scrollToCard(activeIndex - 1);
@@ -573,109 +638,255 @@
     document.addEventListener('touchmove', event => {
       if (!tableStage || finalLock === null || !verticalTouch || event.touches.length !== 1) return;
       if (stackCandidates[activeIndex] !== tableStage) return;
-      if (window.scrollY < finalLock - 3) return;
 
       const dy = event.touches[0].clientY - verticalTouch.y;
       if (dy >= -64) return;
-
       if (tableScroll && canScrollDown(tableScroll)) return;
 
-      openLegalOverlay();
-    }, { passive: true });
+      if (exploreStackFullyAligned()) {
+        event.preventDefault();
+        openLegalOverlay();
+      }
+    }, { passive: false });
 
     window.addEventListener('wheel', event => {
       if (!tableStage || finalLock === null || event.deltaY <= 35) return;
       if (stackCandidates[activeIndex] !== tableStage) return;
-      if (window.scrollY < finalLock - 3) return;
       if (tableScroll && canScrollDown(tableScroll)) return;
-      openLegalOverlay();
-    }, { passive: true });
+
+      if (exploreStackFullyAligned()) {
+        event.preventDefault();
+        openLegalOverlay();
+        return;
+      }
+
+      const nearFinal = window.scrollY >= finalLock - Math.min(180, window.innerHeight * .20);
+      if (nearFinal && event.deltaY >= 70) {
+        event.preventDefault();
+        alignExploreFinalThenOpenLegal();
+      }
+    }, { passive: false });
   }
 
-  /* Mes possibilités : une fois réellement arrivé au bas de la page,
-     un nouveau geste de scroll vers le bas ouvre les mentions légales. */
+  /* Mes possibilités : une fois la carte finale réellement verrouillée sur son rail,
+     un geste supplémentaire ouvre les mentions légales. */
   if (!isExplore && legalOverlay) {
-    const lastInnerScroll = document.querySelector('.poss-map-card .poss-map-body');
+    const lastInnerScroll = possMapScroll;
     let bottomTouch = null;
-
-    const pageAtBottom = () => {
-      const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-      return window.scrollY >= maxScroll - 5;
-    };
-
     const contentAtBottom = () => !lastInnerScroll || !canScrollDown(lastInnerScroll);
 
     document.addEventListener('touchstart', event => {
       if (event.touches.length !== 1 || event.target.closest('.info-overlay')) return;
       bottomTouch = {
         y: event.touches[0].clientY,
-        armed: pageAtBottom() && contentAtBottom()
+        armed: possibilitiesFinalAligned() && contentAtBottom()
       };
     }, { passive: true });
 
     document.addEventListener('touchmove', event => {
       if (!bottomTouch || !bottomTouch.armed || event.touches.length !== 1) return;
-      if (!pageAtBottom() || !contentAtBottom()) return;
+      if (!possibilitiesFinalAligned() || !contentAtBottom()) return;
       const dy = event.touches[0].clientY - bottomTouch.y;
-      if (dy < -58) openLegalOverlay();
-    }, { passive: true });
+      if (dy < -42) {
+        event.preventDefault();
+        openLegalOverlay();
+      }
+    }, { passive: false });
 
     document.addEventListener('touchend', () => {
       bottomTouch = null;
     }, { passive: true });
 
     window.addEventListener('wheel', event => {
-      if (event.deltaY <= 35) return;
-      if (!pageAtBottom() || !contentAtBottom()) return;
+      if (event.deltaY <= 24) return;
+      if (!possibilitiesFinalAligned() || !contentAtBottom()) return;
+      event.preventDefault();
       openLegalOverlay();
-    }, { passive: true });
+    }, { passive: false });
   }
 
-  /* Révélation progressive, sans animer les conteneurs sticky eux-mêmes. */
-  const exploreReveal = [
-    '.hero-simple .hero-main',
-    '.selection-summary',
-    '.selection-panel .controls',
-    '.chart-stage .chart-head',
-    '.chart-stage .chart-wrap',
-    '.evolution-stage .data-stage-head',
-    '.evolution-stage .evolution-panel',
-    '.table-stage .data-stage-head',
-    '.table-stage .table-panel'
-  ];
-  const possibilitiesReveal = [
-    '.hero-main',
-    '.hero-note',
-    '.panel > *',
-    '.rank-card',
-    '.upload-box',
-    '.group-result'
+  /* "Mes possibilités" : aucun snap programmatique entre les résultats et la carte.
+     Le navigateur assure le chaînage naturel du scroll lorsque le contenu interne
+     arrive à sa limite. */
+
+  /* Hiérarchie visuelle stricte :
+     Titre -> repère/kicker -> sous-titre -> action -> contenu -> grand visuel.
+     Le déclenchement se fait par SECTION, pas élément par élément : un sous-titre
+     ne peut donc plus "partir" avant son titre simplement à cause du viewport. */
+  const roleSpecs = isExplore ? [
+    ['.hero-simple h1', 'title'],
+    ['.hero-simple .eyebrow', 'kicker'],
+    ['.hero-simple .hero-info-links', 'action'],
+
+    ['.selection-summary .metric', 'content', 45],
+    ['.selection-panel .controls > *', 'content', 58],
+
+    ['.chart-stage h2', 'title'],
+    ['#chartSubtitle', 'subtitle'],
+    ['.chart-stage .chart-head-actions', 'action'],
+    ['.chart-stage .chart-wrap', 'visual'],
+
+    ['.evolution-stage h2', 'title'],
+    ['.evolution-stage .data-stage-kicker', 'kicker'],
+    ['.evolution-stage .data-stage-head > p:last-child', 'subtitle'],
+    ['.evolution-stage .evolution-panel', 'visual'],
+
+    ['.table-stage h2', 'title'],
+    ['.table-stage .data-stage-kicker', 'kicker'],
+    ['.table-stage .data-stage-head > p:last-child', 'subtitle'],
+    ['.table-stage .table-panel', 'visual']
+  ] : [
+    ['.poss-hero h1', 'title'],
+    ['.poss-hero .eyebrow', 'kicker'],
+    ['.poss-hero .poss-info-links', 'action'],
+
+    ['#contextTitle', 'title'],
+    ['.poss-summary > *', 'content', 75],
+
+    ['#simplePane > .poss-panel-title', 'title'],
+    ['#simplePane > .friendly-field', 'content', 75],
+    ['#simplePane > .mode-link', 'action'],
+
+    ['#advancedPane .section-title', 'title'],
+    ['#advancedPane .back-link', 'action'],
+    ['#advancedPane .upload-box', 'content'],
+    ['#advancedPane .rank-review', 'content'],
+    ['#advancedPane .manual-link', 'action'],
+    ['#advancedPane .manual-ranks-wrap', 'content'],
+
+    ['.poss-results-card .results-head h2', 'title'],
+    ['.poss-results-card .results-summary-line', 'subtitle'],
+    ['.poss-results-card .count-badge', 'action'],
+    ['.poss-results-card #results', 'visual'],
+
+    ['.poss-map-card .poss-map-head h2', 'title'],
+    ['.poss-map-card .poss-map-head p', 'subtitle'],
+    ['.poss-map-card .poss-map-body', 'visual']
   ];
 
-  const revealTargets = [...new Set(
-    (isExplore ? exploreReveal : possibilitiesReveal)
-      .flatMap(selector => [...shell.querySelectorAll(selector)])
-  )];
+  const revealGroups = new Map();
+  const roleCounters = new Map();
 
-  revealTargets.forEach((el, index) => {
-    el.classList.add('motion-reveal');
-    el.style.setProperty('--motion-delay', `${Math.min(index, 4) * 55}ms`);
+  function motionGroupFor(el) {
+    return el.closest('.hero,.selection-panel,.chart-stage,.evolution-stage,.table-stage,.poss-stack-card,.panel') || shell;
+  }
+
+  function registerRole(el, role, staggerStep = 0) {
+    if (!el || el.classList.contains('apple-motion-role')) return;
+
+    const group = motionGroupFor(el);
+    let roleMap = roleCounters.get(group);
+    if (!roleMap) {
+      roleMap = new Map();
+      roleCounters.set(group, roleMap);
+    }
+    const roleIndex = roleMap.get(role) || 0;
+    roleMap.set(role, roleIndex + 1);
+
+    el.classList.add('apple-motion-role', `apple-motion-${role}`);
+    el.style.setProperty('--apple-stagger', `${Math.min(roleIndex, 5) * staggerStep}ms`);
+
+    if (!revealGroups.has(group)) revealGroups.set(group, []);
+    revealGroups.get(group).push(el);
+  }
+
+  roleSpecs.forEach(([selector, role, staggerStep = 0]) => {
+    shell.querySelectorAll(selector).forEach(el => registerRole(el, role, staggerStep));
   });
 
+  /* Les classes de préparation étaient posées dans <head>, avant le premier rendu.
+     On ne les retire qu'une fois tous les rôles attribués : aucun titre ne doit
+     apparaître une frame avant son animation. */
+  document.documentElement.classList.remove('apple-motion-prep');
+
+  const revealGroup = group => {
+    const elements = revealGroups.get(group) || [];
+    if (!elements.length || group.classList.contains('apple-motion-group-visible')) return;
+    group.classList.add('apple-motion-group-visible');
+    requestAnimationFrame(() => {
+      elements.forEach(el => el.classList.add('apple-motion-visible'));
+    });
+  };
+
   if (reduceMotion || !('IntersectionObserver' in window)) {
-    revealTargets.forEach(el => el.classList.add('motion-visible'));
+    [...revealGroups.keys()].forEach(revealGroup);
   } else {
-    const observer = new IntersectionObserver(entries => {
+    const groupObserver = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (!entry.isIntersecting) return;
-        entry.target.classList.add('motion-visible');
-        observer.unobserve(entry.target);
+        revealGroup(entry.target);
+        groupObserver.unobserve(entry.target);
       });
     }, {
       threshold: .08,
-      rootMargin: '0px 0px -7% 0px'
+      rootMargin: '0px 0px -5% 0px'
     });
 
-    revealTargets.forEach(el => observer.observe(el));
+    const orderedGroups = [...revealGroups.keys()].sort(
+      (a,b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top
+    );
+    let initialOrder = 0;
+    orderedGroups.forEach(group => {
+      const rect = group.getBoundingClientRect();
+      const initiallyVisible = rect.bottom > 0 && rect.top < window.innerHeight * .96;
+      if (initiallyVisible) {
+        /* Les sections déjà présentes à l'écran se construisent réellement du haut vers le bas,
+           avec un chevauchement court pour rester vif. */
+        setTimeout(() => revealGroup(group), 35 + initialOrder * 95);
+        initialOrder += 1;
+      } else {
+        groupObserver.observe(group);
+      }
+    });
+
+    /* Les résultats générés après interaction suivent la même hiérarchie :
+       nouveau groupe -> titre/meta/contenu, jamais l'inverse. */
+    /* Garde-fou animation : aucun champ Explorer ne reste masqué
+       si un navigateur saute une transition ou un observer. */
+    setTimeout(() => {
+      document.querySelectorAll('.selection-panel .controls > *').forEach(el => {
+        if (el.classList.contains('apple-motion-role')) el.classList.add('apple-motion-visible');
+      });
+    }, 850);
+
+    /* Le sélecteur Année a déjà fini sa révélation à ce stade.
+       Safari ne doit jamais pouvoir conserver un ancien opacity/visibility
+       lorsqu'il recycle le composant sticky. */
+    setTimeout(() => {
+      const yearControl = document.getElementById('yearControl');
+      const yearButton = document.getElementById('yearButton');
+      if (yearControl) {
+        yearControl.classList.add('apple-motion-visible');
+        yearControl.style.setProperty('opacity','1','important');
+        yearControl.style.setProperty('visibility','visible','important');
+        yearControl.style.setProperty('transform','none','important');
+      }
+      if (yearButton) {
+        yearButton.style.setProperty('opacity','1','important');
+        yearButton.style.setProperty('visibility','visible','important');
+        yearButton.style.setProperty('color','#172033','important');
+      }
+    }, 620);
+
+    if (isPossibilities) {
+      const dynamicObserver = new MutationObserver(mutations => {
+        const newResults = [];
+        mutations.forEach(mutation => {
+          mutation.addedNodes.forEach(node => {
+            if (!(node instanceof Element)) return;
+            if (node.matches('.group-result,.specialty-card,.city-row')) newResults.push(node);
+            newResults.push(...(node.querySelectorAll?.('.group-result,.specialty-card,.city-row') || []));
+          });
+        });
+
+        [...new Set(newResults)].forEach((el, index) => {
+          if (el.classList.contains('apple-motion-role')) return;
+          el.classList.add('apple-motion-role', 'apple-motion-content', 'apple-motion-dynamic');
+          el.style.setProperty('--apple-stagger', `${Math.min(index, 5) * 55}ms`);
+          requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('apple-motion-visible')));
+        });
+      });
+      dynamicObserver.observe(shell, { childList:true, subtree:true });
+    }
   }
 })();
