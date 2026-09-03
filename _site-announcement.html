@@ -1,3 +1,37 @@
-<aside class="site-announcement" role="status" aria-label="Information Tour 7">
-  <p>Les résultats du tour 7 seront uploadés dès que la data sera disponible. Vous pouvez envoyer des screenshots des résultats à <a href="https://m.me/corentin.corbeau.7?hash=3W6fvfO5yhRZEzA3&amp;source_id=8585216" target="_blank" rel="noopener noreferrer" aria-label="Contacter Corentin Delhay sur Messenger">Corentin Delhay</a> sur Messenger. Merci.</p>
+<aside class="site-announcement" id="siteAnnouncement" hidden aria-label="Information Tour 7">
+  <div class="site-announcement-bar" role="status" aria-live="polite">
+    <p class="site-announcement-text">Les résultats du tour 7 seront uploadés dès que la data sera disponible. Vous pouvez envoyer des screenshots des résultats à <a href="https://m.me/corentin.corbeau.7?hash=3W6fvfO5yhRZEzA3&amp;source_id=8585216" target="_blank" rel="noopener noreferrer" aria-label="Contacter Corentin Delhay sur Messenger">Corentin Delhay</a> sur Messenger. Merci.</p>
+  </div>
 </aside>
+<script>
+(() => {
+  const banner = document.getElementById('siteAnnouncement');
+  if (!banner) return;
+
+  const key = 'rangs-tour7-announcement-dismissed-v1';
+  try {
+    if (sessionStorage.getItem(key) === '1') return;
+  } catch (_) {}
+
+  const dismiss = () => {
+    if (banner.hidden || banner.classList.contains('leaving')) return;
+    banner.classList.remove('show');
+    banner.classList.add('leaving');
+    try { sessionStorage.setItem(key, '1'); } catch (_) {}
+    setTimeout(() => {
+      banner.hidden = true;
+      banner.classList.remove('leaving');
+    }, 420);
+  };
+
+  banner.addEventListener('click', dismiss);
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') dismiss();
+  });
+
+  requestAnimationFrame(() => {
+    banner.hidden = false;
+    requestAnimationFrame(() => banner.classList.add('show'));
+  });
+})();
+</script>
