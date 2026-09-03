@@ -714,41 +714,9 @@
     }, { passive: false });
   }
 
-  /* "Mes possibilités" : la liste de résultats est un vrai scroll interne.
-     Tant qu'elle peut défiler, elle consomme le geste. Une fois arrivée en bas,
-     un nouveau geste vers le bas envoie naturellement vers la carte de France. */
-  if (!isExplore && possResultsStage && possResultsScroll && possMapStage) {
-    const mapIndex = stackCandidates.indexOf(possMapStage);
-    let resultsTouch = null;
-
-    possResultsScroll.addEventListener('touchstart', event => {
-      if (event.touches.length !== 1) return;
-      resultsTouch = {
-        y: event.touches[0].clientY,
-        atBottom: !canScrollDown(possResultsScroll)
-      };
-    }, { passive: true });
-
-    possResultsScroll.addEventListener('touchend', event => {
-      if (!resultsTouch) return;
-      const endY = event.changedTouches?.[0]?.clientY ?? resultsTouch.y;
-      const dy = endY - resultsTouch.y;
-      const nowAtBottom = !canScrollDown(possResultsScroll);
-      if (resultsTouch.atBottom && nowAtBottom && dy < -28 && mapIndex >= 0) {
-        scrollToCard(mapIndex);
-      }
-      resultsTouch = null;
-    }, { passive: true });
-
-    possResultsScroll.addEventListener('touchcancel', () => {
-      resultsTouch = null;
-    }, { passive: true });
-
-    possResultsScroll.addEventListener('wheel', event => {
-      if (event.deltaY <= 0 || canScrollDown(possResultsScroll) || mapIndex < 0) return;
-      scrollToCard(mapIndex);
-    }, { passive: true });
-  }
+  /* "Mes possibilités" : aucun snap programmatique entre les résultats et la carte.
+     Le navigateur assure le chaînage naturel du scroll lorsque le contenu interne
+     arrive à sa limite. */
 
   /* Hiérarchie visuelle stricte :
      Titre -> repère/kicker -> sous-titre -> action -> contenu -> grand visuel.
@@ -888,7 +856,26 @@
       document.querySelectorAll('.selection-panel .controls > *').forEach(el => {
         if (el.classList.contains('apple-motion-role')) el.classList.add('apple-motion-visible');
       });
-    }, 1100);
+    }, 850);
+
+    /* Le sélecteur Année a déjà fini sa révélation à ce stade.
+       Safari ne doit jamais pouvoir conserver un ancien opacity/visibility
+       lorsqu'il recycle le composant sticky. */
+    setTimeout(() => {
+      const yearControl = document.getElementById('yearControl');
+      const yearButton = document.getElementById('yearButton');
+      if (yearControl) {
+        yearControl.classList.add('apple-motion-visible');
+        yearControl.style.setProperty('opacity','1','important');
+        yearControl.style.setProperty('visibility','visible','important');
+        yearControl.style.setProperty('transform','none','important');
+      }
+      if (yearButton) {
+        yearButton.style.setProperty('opacity','1','important');
+        yearButton.style.setProperty('visibility','visible','important');
+        yearButton.style.setProperty('color','#172033','important');
+      }
+    }, 620);
 
     if (isPossibilities) {
       const dynamicObserver = new MutationObserver(mutations => {
