@@ -2606,3 +2606,68 @@ html.stack-final-aligned body{
   }
 }
 
+/* Preview — rails Mes possibilités V2 : géométrie unique et stable */
+#yearControl,
+#yearControl #yearButton{
+  opacity:1 !important;
+  visibility:visible !important;
+}
+#yearControl #yearButton{color:#172033 !important;}
+
+@media(max-width:820px){
+  :root{--poss-stack-gap:9px;}
+
+  main.wrap > .poss-stack-card.motion-stack-card{
+    box-sizing:border-box !important;
+    position:sticky !important;
+    top:calc(var(--signature-rail-bottom,44px) + (var(--stack-i,0) * var(--poss-stack-gap))) !important;
+    transform:none !important;
+    overflow-anchor:none !important;
+  }
+
+  main.wrap > .poss-hero.motion-stack-card,
+  main.wrap > .poss-results-card.motion-stack-card,
+  main.wrap > .poss-map-card.motion-stack-card{
+    top:calc(var(--signature-rail-bottom,44px) + (var(--stack-i,0) * var(--poss-stack-gap))) !important;
+  }
+
+  main.wrap > .poss-results-card.motion-stack-card{
+    max-height:calc(100svh - var(--signature-rail-bottom,44px) - (3 * var(--poss-stack-gap)) - 14px) !important;
+    overflow:hidden !important;
+  }
+
+  main.wrap > .poss-map-card.motion-stack-card{
+    height:calc(100svh - var(--signature-rail-bottom,44px) - (4 * var(--poss-stack-gap)) - 14px) !important;
+    max-height:calc(100svh - var(--signature-rail-bottom,44px) - (4 * var(--poss-stack-gap)) - 14px) !important;
+    min-height:0 !important;
+    overflow:hidden !important;
+  }
+
+  main.wrap > .poss-results-card .results-scroll{
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    overscroll-behavior-y:auto !important;
+    overflow-anchor:none !important;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  main.wrap > .poss-map-card .poss-map-body{
+    min-height:0 !important;
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    overscroll-behavior-y:contain !important;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  .poss-stack-tail{
+    height:110svh !important;
+    min-height:110svh !important;
+    pointer-events:none !important;
+    opacity:0 !important;
+  }
+
+  main.wrap:has(.poss-stack-card){
+    overflow-anchor:none !important;
+  }
+}
+
