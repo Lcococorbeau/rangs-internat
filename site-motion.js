@@ -244,6 +244,11 @@
   const evolutionScroll = document.querySelector('.evolution-stage .evolution-panel');
   const tableStage = document.querySelector('.table-stage');
   const tableScroll = document.querySelector('.table-stage .table-scroll');
+  const possResultsStage = document.querySelector('.poss-results-card');
+  const possResultsScroll = document.querySelector('.poss-results-card .results-scroll');
+  const possMapStage = document.querySelector('.poss-map-card');
+  const possMapScroll = document.querySelector('.poss-map-card .poss-map-body');
+  const possTail = document.querySelector('.poss-stack-tail');
   const legalOverlay = document.getElementById('legalInfoOverlay');
   const legalFooter = document.querySelector('.legal-footer');
   const sourceNote = document.querySelector('.source-note');
@@ -395,14 +400,38 @@
     }, { passive: true });
   }
 
+  function ensureTailCanReach(card, tail) {
+    if (!card || !tail) return null;
+    const desired = targetScrollY(card);
+    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    const deficit = Math.ceil(desired - maxScroll);
+    if (deficit > 1) {
+      const nextHeight = Math.ceil(tail.getBoundingClientRect().height + deficit + 10);
+      tail.style.setProperty('height', `${nextHeight}px`, 'important');
+    }
+    return desired;
+  }
+
   function computeFinalLock() {
     if (!tableStage) {
       finalLock = null;
       return;
     }
-    const desired = targetScrollY(tableStage);
-    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-    finalLock = Math.min(desired, maxScroll);
+    const tail = document.querySelector('.stack-tail-spacer');
+    finalLock = ensureTailCanReach(tableStage, tail) ?? targetScrollY(tableStage);
+  }
+
+  function exploreStackFullyAligned() {
+    if (!isExplore || !tableStage || finalLock === null) return false;
+    const tableAligned = Math.abs(tableStage.getBoundingClientRect().top - stickyTop(tableStage)) <= 3;
+    const previousCovered = stackCandidates.slice(0, -1).every(card => card.classList.contains('motion-covered'));
+    return tableAligned && previousCovered && window.scrollY >= finalLock - 3;
+  }
+
+  function possibilitiesFinalAligned() {
+    if (isExplore || !possMapStage) return false;
+    const expectedTop = stickyTop(possMapStage);
+    return Math.abs(possMapStage.getBoundingClientRect().top - expectedTop) <= 4;
   }
 
   function updateStackState() {
@@ -487,9 +516,11 @@
       stackCandidates.forEach((el,index)=>{
         el.classList.add('motion-stack-card');
         el.style.setProperty('--stack-i', String(Math.min(index, 6)));
-        const tooTall = el.getBoundingClientRect().height > window.innerHeight * .84;
+        const mustStayOnRail = el === possResultsStage || el === possMapStage;
+        const tooTall = !mustStayOnRail && el.getBoundingClientRect().height > window.innerHeight * .92;
         el.classList.toggle('motion-stack-static', tooTall);
       });
+      if (possMapStage && possTail) ensureTailCanReach(possMapStage, possTail);
       return;
     }
 
@@ -518,13 +549,18 @@
     }, 100);
   }, { passive: true });
 
-  if ('ResizeObserver' in window && isExplore) {
+  if ('ResizeObserver' in window) {
     const ro = new ResizeObserver(() => {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(configureStack, 80);
     });
-    if (evolutionStage) ro.observe(evolutionStage);
-    if (tableStage) ro.observe(tableStage);
+    if (isExplore) {
+      if (evolutionStage) ro.observe(evolutionStage);
+      if (tableStage) ro.observe(tableStage);
+    } else {
+      if (possResultsStage) ro.observe(possResultsStage);
+      if (possMapStage) ro.observe(possMapStage);
+    }
   }
 
   /* Petit geste = scroll interne de la carte active.
@@ -560,7 +596,11 @@
             scrollToCard(activeIndex + 1);
           } else {
             const atTableEnd = !tableScroll || !canScrollDown(tableScroll);
-            if (atTableEnd) openLegalOverlay();
+            if (atTableEnd && exploreStackFullyAligned()) {
+              openLegalOverlay();
+            } else {
+              scrollToCard(stackCandidates.length - 1);
+            }
           }
         } else if (dy > 0 && activeIndex > 0) {
           scrollToCard(activeIndex - 1);
@@ -575,7 +615,7 @@
     document.addEventListener('touchmove', event => {
       if (!tableStage || finalLock === null || !verticalTouch || event.touches.length !== 1) return;
       if (stackCandidates[activeIndex] !== tableStage) return;
-      if (window.scrollY < finalLock - 3) return;
+      if (!exploreStackFullyAligned()) return;
 
       const dy = event.touches[0].clientY - verticalTouch.y;
       if (dy >= -64) return;
@@ -588,7 +628,7 @@
     window.addEventListener('wheel', event => {
       if (!tableStage || finalLock === null || event.deltaY <= 35) return;
       if (stackCandidates[activeIndex] !== tableStage) return;
-      if (window.scrollY < finalLock - 3) return;
+      if (!exploreStackFullyAligned()) return;
       if (tableScroll && canScrollDown(tableScroll)) return;
       openLegalOverlay();
     }, { passive: true });
@@ -597,7 +637,7 @@
   /* Mes possibilités : une fois réellement arrivé au bas de la page,
      un nouveau geste de scroll vers le bas ouvre les mentions légales. */
   if (!isExplore && legalOverlay) {
-    const lastInnerScroll = document.querySelector('.poss-map-card .poss-map-body');
+    const lastInnerScroll = possMapScroll;
     let bottomTouch = null;
 
     const pageAtBottom = () => {
@@ -611,13 +651,13 @@
       if (event.touches.length !== 1 || event.target.closest('.info-overlay')) return;
       bottomTouch = {
         y: event.touches[0].clientY,
-        armed: pageAtBottom() && contentAtBottom()
+        armed: pageAtBottom() && contentAtBottom() && possibilitiesFinalAligned()
       };
     }, { passive: true });
 
     document.addEventListener('touchmove', event => {
       if (!bottomTouch || !bottomTouch.armed || event.touches.length !== 1) return;
-      if (!pageAtBottom() || !contentAtBottom()) return;
+      if (!pageAtBottom() || !contentAtBottom() || !possibilitiesFinalAligned()) return;
       const dy = event.touches[0].clientY - bottomTouch.y;
       if (dy < -58) openLegalOverlay();
     }, { passive: true });
@@ -628,8 +668,44 @@
 
     window.addEventListener('wheel', event => {
       if (event.deltaY <= 35) return;
-      if (!pageAtBottom() || !contentAtBottom()) return;
+      if (!pageAtBottom() || !contentAtBottom() || !possibilitiesFinalAligned()) return;
       openLegalOverlay();
+    }, { passive: true });
+  }
+
+  /* "Mes possibilités" : la liste de résultats est un vrai scroll interne.
+     Tant qu'elle peut défiler, elle consomme le geste. Une fois arrivée en bas,
+     un nouveau geste vers le bas envoie naturellement vers la carte de France. */
+  if (!isExplore && possResultsStage && possResultsScroll && possMapStage) {
+    const mapIndex = stackCandidates.indexOf(possMapStage);
+    let resultsTouch = null;
+
+    possResultsScroll.addEventListener('touchstart', event => {
+      if (event.touches.length !== 1) return;
+      resultsTouch = {
+        y: event.touches[0].clientY,
+        atBottom: !canScrollDown(possResultsScroll)
+      };
+    }, { passive: true });
+
+    possResultsScroll.addEventListener('touchend', event => {
+      if (!resultsTouch) return;
+      const endY = event.changedTouches?.[0]?.clientY ?? resultsTouch.y;
+      const dy = endY - resultsTouch.y;
+      const nowAtBottom = !canScrollDown(possResultsScroll);
+      if (resultsTouch.atBottom && nowAtBottom && dy < -28 && mapIndex >= 0) {
+        scrollToCard(mapIndex);
+      }
+      resultsTouch = null;
+    }, { passive: true });
+
+    possResultsScroll.addEventListener('touchcancel', () => {
+      resultsTouch = null;
+    }, { passive: true });
+
+    possResultsScroll.addEventListener('wheel', event => {
+      if (event.deltaY <= 0 || canScrollDown(possResultsScroll) || mapIndex < 0) return;
+      scrollToCard(mapIndex);
     }, { passive: true });
   }
 
