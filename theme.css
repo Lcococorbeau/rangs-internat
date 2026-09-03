@@ -2236,3 +2236,133 @@ html.info-overlay-open body {
   z-index:975 !important;
 }
 
+/* Apple motion preview — raffinement navigation + rythme (2026-09-03)
+   1) La signature reste toujours au-dessus de la pile.
+   2) Les onglets disparaissent AVANT d'être visuellement rognés.
+   3) Les apparitions sont ~30 % plus dynamiques.
+   4) Le bloc des sélecteurs s'anime comme un ensemble : aucun champ ne peut rester invisible. */
+
+/* La barre reste transparente ; seule la signature demeure lorsque la pile monte. */
+.top-nav {
+  z-index:1100 !important;
+  pointer-events:none;
+}
+
+.top-nav .brand-lockup,
+.top-nav .creator-signature {
+  position:relative;
+  z-index:2;
+  opacity:1 !important;
+  visibility:visible !important;
+  transform:none !important;
+}
+
+.top-nav .nav-links {
+  position:relative;
+  z-index:1;
+  pointer-events:auto;
+  opacity:1;
+  transform:translate3d(0,0,0);
+  transition:
+    opacity .09s linear,
+    transform .12s cubic-bezier(.16,1,.3,1);
+  will-change:opacity,transform;
+}
+
+/* Ancienne règle V10 : ne plus masquer toute la top-nav quand la pile s'engage. */
+html.stack-engaged .top-nav {
+  opacity:1 !important;
+  visibility:visible !important;
+  pointer-events:none !important;
+}
+
+/* Disparition géométrique hyper-réactive des onglets, sans fragment bleu résiduel. */
+html.nav-links-covered .top-nav .nav-links,
+html.stack-engaged .top-nav .nav-links {
+  opacity:0 !important;
+  transform:translate3d(0,-4px,0) scale(.99);
+  pointer-events:none !important;
+}
+
+/* Préparation pré-paint : on cache le CONTENEUR de contrôles, pas chacun de ses enfants.
+   Cela supprime le cas où le sélecteur Année restait à opacity:0. */
+html.apple-motion-prep .selection-panel .controls {
+  opacity:0 !important;
+}
+
+html.apple-motion-prep .selection-panel .controls > * {
+  opacity:1 !important;
+}
+
+.selection-panel .controls > * {
+  opacity:1 !important;
+  transform:none !important;
+}
+
+/* Rythme plus vif (~30 % plus rapide), tout en gardant la hiérarchie :
+   titre net -> sous-titre plus doux -> action -> contenu -> visuel. */
+.apple-motion-title {
+  transition:
+    opacity .31s ease-out,
+    transform .41s cubic-bezier(.16,1,.3,1);
+}
+
+.apple-motion-kicker {
+  transition:
+    opacity .44s ease-out,
+    transform .50s cubic-bezier(.16,1,.3,1);
+  transition-delay:calc(50ms + var(--apple-stagger, 0ms));
+}
+
+.apple-motion-subtitle {
+  transition:
+    opacity .64s cubic-bezier(.22,.61,.36,1),
+    transform .69s cubic-bezier(.16,1,.3,1);
+  transition-delay:calc(95ms + var(--apple-stagger, 0ms));
+}
+
+.apple-motion-action {
+  transition:
+    opacity .55s ease-out,
+    transform .62s cubic-bezier(.16,1,.3,1);
+  transition-delay:calc(150ms + var(--apple-stagger, 0ms));
+}
+
+.apple-motion-content {
+  transition:
+    opacity .55s ease-out,
+    transform .66s cubic-bezier(.16,1,.3,1);
+  transition-delay:calc(195ms + var(--apple-stagger, 0ms));
+}
+
+.apple-motion-visual {
+  transition:
+    opacity .62s ease-out,
+    transform .76s cubic-bezier(.16,1,.3,1);
+  transition-delay:calc(235ms + var(--apple-stagger, 0ms));
+}
+
+.apple-motion-dynamic {
+  transition-duration:.44s,.55s;
+  transition-delay:calc(55ms + var(--apple-stagger, 0ms));
+}
+
+html.motion-entry-ready main.wrap {
+  transition:
+    transform .46s cubic-bezier(.16,1,.3,1),
+    opacity .34s ease-out;
+}
+
+main.wrap.motion-exit-right,
+main.wrap.motion-exit-left {
+  transition:
+    transform .32s cubic-bezier(.32,0,.18,1),
+    opacity .23s ease;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .top-nav .nav-links {
+    transition:none !important;
+  }
+}
+
