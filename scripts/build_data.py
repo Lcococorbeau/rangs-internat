@@ -248,7 +248,12 @@ def parse_rows(
         if minimum is not None and minimum < 0:
             raise ValueError(f"{source}, ligne {physical_row} : rang min négatif ({minimum}).")
         if minimum is not None and maximum is not None and minimum > maximum:
-            raise ValueError(f"{source}, ligne {physical_row} : rang min {minimum} > rang max {maximum}.")
+            print(
+                "TOUR7_RANGE_ERROR|"
+                f"{source}|row={physical_row}|specialty={specialty}|city={city}|"
+                f"minimum={minimum}|maximum={maximum}|raw={row!r}"
+            )
+            continue
 
         out.setdefault(specialty, []).append({
             "city": city,
