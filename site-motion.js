@@ -253,11 +253,17 @@
 
   function updateHeaderVisibility() {
     if (!topNav || !navLinks || !headerCoverCard) return;
+    const signature = topNav.querySelector('.brand-lockup,.creator-signature');
+    const signatureRect = signature?.getBoundingClientRect();
+    if (signatureRect) {
+      const railBottom = Math.ceil(signatureRect.bottom + 8);
+      document.documentElement.style.setProperty('--signature-rail-bottom', `${railBottom}px`);
+    }
     const linksRect = navLinks.getBoundingClientRect();
     const cardRect = headerCoverCard.getBoundingClientRect();
     /* On masque quelques pixels AVANT le contact : aucune tranche bleue ne peut rester visible.
-       L'opacité repart instantanément dès que la géométrie laisse à nouveau assez de place. */
-    const covered = window.scrollY > 1 && cardRect.top <= linksRect.bottom + 5;
+       L'opacité repart dès que la géométrie laisse de nouveau de la place. */
+    const covered = window.scrollY > 1 && cardRect.top <= linksRect.bottom + 8;
     document.documentElement.classList.toggle('nav-links-covered', covered);
   }
 
@@ -636,8 +642,8 @@
     ['.hero-simple .eyebrow', 'kicker'],
     ['.hero-simple .hero-info-links', 'action'],
 
-    ['.selection-summary .metric', 'content', 55],
-    ['.selection-panel .controls', 'content'],
+    ['.selection-summary .metric', 'content', 45],
+    ['.selection-panel .controls > *', 'content', 58],
 
     ['.chart-stage h2', 'title'],
     ['#chartSubtitle', 'subtitle'],
@@ -717,18 +723,6 @@
      apparaître une frame avant son animation. */
   document.documentElement.classList.remove('apple-motion-prep');
 
-  /* Filet de sécurité ciblé : les champs de sélection ne doivent jamais rester
-     dans un état d'opacité hérité d'une animation précédente. */
-  const selectionControls = document.querySelector('.selection-panel .controls');
-  if (selectionControls) {
-    [...selectionControls.children].forEach(el => {
-      el.classList.remove('apple-motion-role','apple-motion-content');
-      el.style.removeProperty('--apple-stagger');
-      el.style.removeProperty('opacity');
-      el.style.removeProperty('transform');
-    });
-  }
-
   const revealGroup = group => {
     const elements = revealGroups.get(group) || [];
     if (!elements.length || group.classList.contains('apple-motion-group-visible')) return;
@@ -752,13 +746,18 @@
       rootMargin: '0px 0px -5% 0px'
     });
 
-    [...revealGroups.keys()].forEach(group => {
+    const orderedGroups = [...revealGroups.keys()].sort(
+      (a,b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top
+    );
+    let initialOrder = 0;
+    orderedGroups.forEach(group => {
       const rect = group.getBoundingClientRect();
       const initiallyVisible = rect.bottom > 0 && rect.top < window.innerHeight * .96;
       if (initiallyVisible) {
-        /* Le premier titre est volontairement rapide ; les rôles secondaires
-           utilisent ensuite leurs propres délais CSS. */
-        setTimeout(() => revealGroup(group), 40);
+        /* Les sections déjà présentes à l'écran se construisent réellement du haut vers le bas,
+           avec un chevauchement court pour rester vif. */
+        setTimeout(() => revealGroup(group), 35 + initialOrder * 95);
+        initialOrder += 1;
       } else {
         groupObserver.observe(group);
       }
@@ -766,6 +765,14 @@
 
     /* Les résultats générés après interaction suivent la même hiérarchie :
        nouveau groupe -> titre/meta/contenu, jamais l'inverse. */
+    /* Garde-fou animation : aucun champ Explorer ne reste masqué
+       si un navigateur saute une transition ou un observer. */
+    setTimeout(() => {
+      document.querySelectorAll('.selection-panel .controls > *').forEach(el => {
+        if (el.classList.contains('apple-motion-role')) el.classList.add('apple-motion-visible');
+      });
+    }, 1100);
+
     if (isPossibilities) {
       const dynamicObserver = new MutationObserver(mutations => {
         const newResults = [];
