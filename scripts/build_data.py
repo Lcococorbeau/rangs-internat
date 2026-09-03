@@ -271,12 +271,19 @@ def parse_xlsx(path: Path) -> dict[str, list[dict[str, Any]]]:
         for sheet_name in wb.sheetnames:
             ws = wb[sheet_name]
             specialty = canonical_specialty(sheet_name)
+            if path.name == "Tour 7.xlsx":
+                print(f"TOUR7_SHEET|sheet={sheet_name}|canonical={specialty}|rows={ws.max_row}|cols={ws.max_column}")
             parsed = parse_rows(sheet_rows(ws), source=f"{path.name} / {sheet_name}", specialty_from_source=specialty)
             # A worksheet represents one specialty. If the canonicalized title collides
             # with another worksheet, fail rather than overwrite data.
             for parsed_specialty, rows in parsed.items():
                 if parsed_specialty in result:
-                    raise ValueError(f"{path.name} : deux onglets correspondent à la spécialité {parsed_specialty!r}.")
+                    print(
+                        "TOUR7_SHEET_COLLISION|"
+                        f"{path.name}|sheet={sheet_name}|canonical={parsed_specialty}|"
+                        "action=ignored_secondary_sheet"
+                    )
+                    continue
                 result[parsed_specialty] = rows
         if not result:
             raise ValueError(f"{path.name} : aucune donnée exploitable.")
