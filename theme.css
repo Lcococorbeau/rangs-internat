@@ -2550,3 +2550,59 @@ html.stack-final-aligned body{
 .preview-legal-footer{
   display:none !important;
 }
+
+/* Preview — correction finale rail carte + sélecteur année */
+#yearControl.apple-motion-visible,
+#yearControl.apple-motion-visible #yearButton{
+  opacity:1 !important;
+  visibility:visible !important;
+}
+
+#yearControl.apple-motion-visible #yearButton{
+  color:#172033 !important;
+}
+
+@media(max-width:820px){
+  :root{
+    --poss-stack-gap:8px;
+  }
+
+  .poss-stack-card.motion-stack-card{
+    box-sizing:border-box !important;
+    position:sticky !important;
+    top:calc(var(--signature-rail-bottom,44px) + (var(--stack-i,0) * var(--poss-stack-gap))) !important;
+    transform:none !important;
+  }
+
+  .poss-hero.motion-stack-card{
+    top:var(--signature-rail-bottom,44px) !important;
+  }
+
+  .poss-results-card.motion-stack-card{
+    top:calc(var(--signature-rail-bottom,44px) + (3 * var(--poss-stack-gap))) !important;
+    max-height:calc(100svh - var(--signature-rail-bottom,44px) - (3 * var(--poss-stack-gap)) - 12px) !important;
+    box-sizing:border-box !important;
+  }
+
+  .poss-results-card .results-scroll{
+    overscroll-behavior-y:auto !important;
+    overflow-y:auto !important;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  .poss-map-card.motion-stack-card{
+    top:calc(var(--signature-rail-bottom,44px) + (4 * var(--poss-stack-gap))) !important;
+    height:calc(100svh - var(--signature-rail-bottom,44px) - (4 * var(--poss-stack-gap)) - 12px) !important;
+    max-height:calc(100svh - var(--signature-rail-bottom,44px) - (4 * var(--poss-stack-gap)) - 12px) !important;
+    min-height:0 !important;
+    box-sizing:border-box !important;
+    overflow:hidden !important;
+  }
+
+  .poss-map-card .poss-map-body{
+    min-height:0 !important;
+    overflow-y:auto !important;
+    overscroll-behavior-y:contain;
+  }
+}
+
