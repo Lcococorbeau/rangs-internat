@@ -2493,3 +2493,11 @@ html.apple-motion-prep .selection-panel .controls > *{
 .motion-stack-card.motion-stack-static{
   top:auto !important;
 }
+
+/* Preview : les fins de pile sont ajustées dynamiquement en JS pour garantir que
+   la dernière carte puisse réellement atteindre son rail sticky avant les mentions légales. */
+.stack-tail-spacer,
+.poss-stack-tail{
+  min-height:1px;
+}
+
