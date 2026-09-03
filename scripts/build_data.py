@@ -208,7 +208,7 @@ def parse_rows(
     require_specialty = specialty_from_source is None
     header_index, columns = locate_header(rows, source=source, require_specialty=require_specialty)
     out: "OrderedDict[str, list[dict[str, Any]]]" = OrderedDict()
-    seen: set[tuple[str, str]] = set()
+    seen: dict[tuple[str, str], tuple[int, tuple[int | None, int | None, str]]] = {}
 
     for physical_row, row in enumerate(rows[header_index + 1 :], start=header_index + 2):
         if not any(v not in (None, "") for v in row):
@@ -228,13 +228,21 @@ def parse_rows(
         specialty = canonical_specialty(raw_specialty)
         city = canonical_city(raw_city)
         key = (norm(specialty), norm(city))
-        if key in seen:
-            raise ValueError(f"{source}, ligne {physical_row} : doublon pour {specialty} / {city}.")
-        seen.add(key)
 
         maximum = as_int(row_value(row, columns.get("max")), context=f"{source}, ligne {physical_row}")
         minimum = as_int(row_value(row, columns.get("min")), context=f"{source}, ligne {physical_row}") if "min" in columns else None
         ranks = row_value(row, columns.get("ranks")) if "ranks" in columns else None
+
+        current = (minimum, maximum, "" if ranks is None else str(ranks).strip())
+        if key in seen:
+            previous_row, previous = seen[key]
+            print(
+                "TOUR7_DUPLICATE|"
+                f"{source}|row={physical_row}|specialty={specialty}|city={city}|"
+                f"previous_row={previous_row}|previous={previous!r}|current={current!r}|raw={row!r}"
+            )
+            continue
+        seen[key] = (physical_row, current)
         if maximum is not None and maximum < 0:
             raise ValueError(f"{source}, ligne {physical_row} : rang max négatif ({maximum}).")
         if minimum is not None and minimum < 0:
