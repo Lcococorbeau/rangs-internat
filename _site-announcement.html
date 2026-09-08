@@ -1,7 +1,7 @@
-<div class="site-announcement" id="siteAnnouncement" hidden>
+<div class="site-announcement site-announcement-success" id="siteAnnouncement" hidden>
   <div class="site-announcement-bar" role="status" aria-live="polite">
-    <span class="site-announcement-icon" aria-hidden="true">⚠</span>
-    <p class="site-announcement-text">Les résultats du Tour 8 seront uploadés à partir de 17h00.</p>
+    <span class="site-announcement-icon" aria-hidden="true">✓</span>
+    <p class="site-announcement-text">Le Tour 8 est publié.</p>
     <button class="site-announcement-close" id="siteAnnouncementClose" type="button" aria-label="Fermer l’annonce">×</button>
   </div>
 </div>
@@ -12,7 +12,7 @@
   const closeButton = document.getElementById('siteAnnouncementClose');
   if (!announcement || !bar || !closeButton) return;
 
-  const sessionKey = 'rangs-internat-annonce-tour8-2026-09-08';
+  const sessionKey = 'rangs-internat-annonce-tour8-publie-2026-09-08';
   try {
     if (sessionStorage.getItem(sessionKey) === '1') return;
     sessionStorage.setItem(sessionKey, '1');
@@ -39,8 +39,6 @@
     hide();
   });
 
-  /* Un tap/clic n'importe où hors du bandeau le ferme, sans bloquer
-     l'action que l'utilisateur voulait effectuer sur la page. */
   setTimeout(() => {
     document.addEventListener('pointerdown', event => {
       if (!bar.contains(event.target)) hide();
