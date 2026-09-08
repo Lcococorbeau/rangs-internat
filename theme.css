@@ -2814,3 +2814,27 @@ html.stack-final-aligned body{
   }
 }
 
+
+
+/* Annonce succès Tour 8 */
+.site-announcement-success .site-announcement-bar {
+  border-color: #34c759;
+  background: #f0fbf3;
+}
+
+.site-announcement-success .site-announcement-bar::before,
+.site-announcement-success .site-announcement-bar::after {
+  background: repeating-linear-gradient(
+    -45deg,
+    #34c759 0 12px,
+    #34c759 12px 20px,
+    #176b2f 20px 28px,
+    #176b2f 28px 36px
+  );
+}
+
+.site-announcement-success .site-announcement-icon {
+  background: #34c759;
+  color: #fff;
+  border-color: #176b2f;
+}
