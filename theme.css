@@ -2838,3 +2838,42 @@ html.stack-final-aligned body{
   color: #fff;
   border-color: #176b2f;
 }
+
+
+/* Correctif Mes possibilités — menu "Classement utilisé" au premier plan.
+   Les champs animés voisins créent leurs propres contextes de stacking sur iOS ;
+   le sélecteur ouvert doit donc posséder explicitement un niveau supérieur. */
+#rankStage:has(#groupChoice.open) {
+  z-index: 1400 !important;
+  overflow: visible !important;
+  clip-path: none !important;
+}
+
+#rankStage:has(#groupChoice.open) > *,
+#rankStage:has(#groupChoice.open) .rank-entry-card {
+  overflow: visible !important;
+}
+
+#groupChoice.open {
+  position: relative !important;
+  z-index: 1500 !important;
+}
+
+#groupChoice.open .choice-menu {
+  z-index: 1510 !important;
+}
+
+@media (max-width: 820px) {
+  #rankStage.motion-stack-card:has(#groupChoice.open) {
+    z-index: 1400 !important;
+    overflow: visible !important;
+    clip-path: none !important;
+  }
+
+  #groupChoice.open.apple-motion-role {
+    /* conserve l'état final de l'animation sans laisser le menu
+       prisonnier d'un contexte de composition GPU inférieur */
+    transform: none !important;
+    will-change: auto !important;
+  }
+}
