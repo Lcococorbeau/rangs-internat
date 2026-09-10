@@ -2,8 +2,8 @@
 """Point d'entrée robuste pour les imports EDN.
 
 Accepte deux onglets d'un même classeur qui se normalisent vers la même
-spécialité uniquement lorsque leur contenu de cellules est strictement identique.
-Les doublons contradictoires restent des erreurs de build.
+spécialité uniquement lorsque les données réellement publiées par le site sont
+strictement identiques. Les doublons contradictoires restent des erreurs de build.
 """
 from __future__ import annotations
 
@@ -15,27 +15,22 @@ from openpyxl import load_workbook
 import build_data as core
 
 
-def normalized_matrix(rows: list[list[Any]]) -> tuple[tuple[str, ...], ...]:
-    """Signature stable des valeurs d'une feuille, hors lignes/colonnes vides finales."""
-    normalized: list[list[str]] = []
-    max_nonempty = -1
-    for row in rows:
-        current = ["" if value is None else str(value).strip() for value in row]
-        while current and current[-1] == "":
-            current.pop()
-        if current:
-            max_nonempty = max(max_nonempty, len(current) - 1)
-            normalized.append(current)
-    if max_nonempty < 0:
-        return tuple()
-    width = max_nonempty + 1
-    return tuple(tuple(row + [""] * (width - len(row))) for row in normalized)
+def published_signature(rows: list[dict[str, Any]]) -> tuple[tuple[str, int | None, str], ...]:
+    """Signature des seules valeurs effectivement utilisées par le site."""
+    return tuple(
+        (
+            core.norm(row.get("city")),
+            row.get("max"),
+            str(row.get("ranks") or "").strip(),
+        )
+        for row in rows
+    )
 
 
 def parse_xlsx_compat(path):
     wb = load_workbook(path, read_only=True, data_only=True)
     result: "OrderedDict[str, list[dict[str, Any]]]" = OrderedDict()
-    sheet_signatures: dict[str, tuple[tuple[str, ...], ...]] = {}
+    sheet_signatures: dict[str, tuple[tuple[str, int | None, str], ...]] = {}
     sheet_names: dict[str, str] = {}
     try:
         if not wb.sheetnames:
@@ -50,18 +45,18 @@ def parse_xlsx_compat(path):
                 source=f"{path.name} / {sheet_name}",
                 specialty_from_source=specialty,
             )
-            signature = normalized_matrix(raw_rows)
 
             for parsed_specialty, rows in parsed.items():
+                signature = published_signature(rows)
                 if parsed_specialty in result:
                     if sheet_signatures[parsed_specialty] == signature:
                         print(
-                            f"[{path.name}] doublon d'onglet strictement identique ignoré : "
+                            f"[{path.name}] doublon d'onglet équivalent ignoré : "
                             f"{sheet_names[parsed_specialty]!r} / {sheet_name!r} -> {parsed_specialty}"
                         )
                         continue
                     raise ValueError(
-                        f"{path.name} : deux onglets différents correspondent à la spécialité "
+                        f"{path.name} : deux onglets contradictoires correspondent à la spécialité "
                         f"{parsed_specialty!r} ({sheet_names[parsed_specialty]!r} et {sheet_name!r})."
                     )
 
