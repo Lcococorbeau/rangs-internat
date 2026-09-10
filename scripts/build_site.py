@@ -13,7 +13,7 @@ SITE_ANNOUNCEMENT = ROOT / "_site-announcement.html"
 BRAND_MARKER = '<a class="brand" href="./">Rangs Internat</a>'
 MOTION_BOOTSTRAP = """<script>(()=>{try{const m=sessionStorage.getItem('rangs-motion-entry');if(m)document.documentElement.dataset.motionEntry=m;const reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;if(!reduced){document.documentElement.classList.add('apple-motion-prep');setTimeout(()=>document.documentElement.classList.remove('apple-motion-prep'),2200)}}catch(e){}})();</script>\n<script defer src="site-motion.js"></script>"""
 
-subprocess.run([sys.executable, str(ROOT / "scripts" / "build_data.py")], check=True)
+subprocess.run([sys.executable, str(ROOT / "scripts" / "build_data_compat.py")], check=True)
 
 if DIST.exists():
     shutil.rmtree(DIST)
