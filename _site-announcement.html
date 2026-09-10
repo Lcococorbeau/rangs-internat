@@ -1,0 +1,47 @@
+<div class="site-announcement site-announcement-success" id="siteAnnouncement" hidden>
+  <div class="site-announcement-bar" role="status" aria-live="polite">
+    <span class="site-announcement-icon" aria-hidden="true">✓</span>
+    <p class="site-announcement-text">Les choix définitifs sont en ligne. Bravo à tous !</p>
+    <button class="site-announcement-close" id="siteAnnouncementClose" type="button" aria-label="Fermer l’annonce">×</button>
+  </div>
+</div>
+<script>
+(() => {
+  const announcement = document.getElementById('siteAnnouncement');
+  const bar = announcement?.querySelector('.site-announcement-bar');
+  const closeButton = document.getElementById('siteAnnouncementClose');
+  if (!announcement || !bar || !closeButton) return;
+
+  const sessionKey = 'rangs-internat-annonce-choix-definitifs-2026';
+  try {
+    if (sessionStorage.getItem(sessionKey) === '1') return;
+    sessionStorage.setItem(sessionKey, '1');
+  } catch (_) {}
+
+  let closed = false;
+  const hide = () => {
+    if (closed) return;
+    closed = true;
+    announcement.classList.remove('show');
+    announcement.classList.add('leaving');
+    setTimeout(() => {
+      announcement.hidden = true;
+      announcement.classList.remove('leaving');
+    }, 280);
+  };
+
+  announcement.hidden = false;
+  requestAnimationFrame(() => announcement.classList.add('show'));
+
+  closeButton.addEventListener('click', event => {
+    event.stopPropagation();
+    hide();
+  });
+
+  setTimeout(() => {
+    document.addEventListener('pointerdown', event => {
+      if (!bar.contains(event.target)) hide();
+    }, { passive: true });
+  }, 0);
+})();
+</script>
