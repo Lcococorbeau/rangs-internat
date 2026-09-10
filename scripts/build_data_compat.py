@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Point d'entrée robuste pour les imports EDN.
 
-Accepte deux onglets d'un même classeur qui se normalisent vers la même
-spécialité uniquement lorsque les données réellement publiées par le site sont
-strictement identiques. Les doublons contradictoires restent des erreurs de build.
+Gère les collisions de noms d'onglets sans masquer les erreurs de données :
+- doublons publiés strictement identiques -> un seul est conservé ;
+- si une variante typographique entre en conflit avec le nom canonique exact,
+  le nom canonique exact est prioritaire ;
+- toute autre collision contradictoire reste une erreur de build.
 """
 from __future__ import annotations
 
@@ -16,7 +18,6 @@ import build_data as core
 
 
 def published_signature(rows: list[dict[str, Any]]) -> tuple[tuple[str, int | None, str], ...]:
-    """Signature des seules valeurs effectivement utilisées par le site."""
     return tuple(
         (
             core.norm(row.get("city")),
@@ -49,15 +50,39 @@ def parse_xlsx_compat(path):
             for parsed_specialty, rows in parsed.items():
                 signature = published_signature(rows)
                 if parsed_specialty in result:
-                    if sheet_signatures[parsed_specialty] == signature:
+                    previous_name = sheet_names[parsed_specialty]
+                    previous_signature = sheet_signatures[parsed_specialty]
+
+                    if previous_signature == signature:
                         print(
                             f"[{path.name}] doublon d'onglet équivalent ignoré : "
-                            f"{sheet_names[parsed_specialty]!r} / {sheet_name!r} -> {parsed_specialty}"
+                            f"{previous_name!r} / {sheet_name!r} -> {parsed_specialty}"
                         )
                         continue
+
+                    previous_is_canonical = previous_name == parsed_specialty
+                    current_is_canonical = sheet_name == parsed_specialty
+
+                    if previous_is_canonical and not current_is_canonical:
+                        print(
+                            f"[{path.name}] variante contradictoire ignorée au profit du nom canonique : "
+                            f"{sheet_name!r} -> {parsed_specialty}"
+                        )
+                        continue
+
+                    if current_is_canonical and not previous_is_canonical:
+                        print(
+                            f"[{path.name}] nom canonique prioritaire : "
+                            f"{sheet_name!r} remplace {previous_name!r} -> {parsed_specialty}"
+                        )
+                        result[parsed_specialty] = rows
+                        sheet_signatures[parsed_specialty] = signature
+                        sheet_names[parsed_specialty] = sheet_name
+                        continue
+
                     raise ValueError(
                         f"{path.name} : deux onglets contradictoires correspondent à la spécialité "
-                        f"{parsed_specialty!r} ({sheet_names[parsed_specialty]!r} et {sheet_name!r})."
+                        f"{parsed_specialty!r} ({previous_name!r} et {sheet_name!r})."
                     )
 
                 result[parsed_specialty] = rows
