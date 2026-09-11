@@ -3,16 +3,17 @@
 </div>
 
 <div id="thanksUiRoot">
-  <button class="thanks-link-fixed" id="thanksLink" type="button" aria-controls="thanksInfoOverlay" aria-expanded="false">Remerciement</button>
+  <button class="thanks-link-fixed" id="thanksLink" type="button" aria-controls="thanksInfoOverlay" aria-expanded="false">Remerciements</button>
 
   <div class="info-overlay thanks-info-overlay" id="thanksInfoOverlay" data-typewriter hidden>
     <button class="info-overlay-backdrop thanks-overlay-close" type="button" aria-label="Fermer"></button>
     <section class="info-overlay-content" role="dialog" aria-modal="true" aria-labelledby="thanksInfoTitle">
       <button class="info-overlay-close thanks-overlay-close" type="button" aria-label="Fermer">×</button>
-      <p class="info-overlay-kicker">REMERCIEMENTS</p>
-      <h2 id="thanksInfoTitle">Merci.</h2>
+      <h2 id="thanksInfoTitle">Remerciement</h2>
       <div class="typewriter-lines">
-        <p data-type-line>Merci à tous ceux qui ont contribué au projet, en particulier Léo Picat pour les simulations de 2024, ainsi que Victoria Méry et Mohamed Amine pour les simulations de 2026.</p>
+        <p data-type-line>Merci à tous ceux qui ont contribué au projet.</p>
+        <p data-type-line>Léo Picat — simulations de 2024.</p>
+        <p data-type-line>Victoria Méry et Mohamed Amine — simulations de 2026.</p>
       </div>
     </section>
   </div>
@@ -21,23 +22,27 @@
 <style>
   .thanks-link-fixed {
     position: fixed;
-    top: max(14px, env(safe-area-inset-top));
+    top: 42px;
     right: max(14px, env(safe-area-inset-right));
     z-index: 5200;
     appearance: none;
     border: 0;
     background: transparent;
-    padding: 5px 2px;
+    padding: 0;
     color: var(--apple-blue, #0071e3);
-    font-family: var(--site-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
-    font-size: .92rem;
-    font-weight: 720;
-    line-height: 1.2;
+    font-family: "Linotype Didot", "Didot LT Std", "Didot", "Bodoni 72", serif;
+    font-size: .94rem;
+    font-weight: 600;
+    font-style: italic;
+    letter-spacing: .012em;
+    line-height: 1.08;
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 3px;
     cursor: pointer;
     text-shadow: 0 1px 10px rgba(255,255,255,.98), 0 0 4px rgba(255,255,255,.98);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 
   .thanks-link-fixed:hover {
@@ -56,9 +61,8 @@
 
   @media (max-width: 520px) {
     .thanks-link-fixed {
-      top: max(10px, env(safe-area-inset-top));
       right: max(11px, env(safe-area-inset-right));
-      font-size: .88rem;
+      font-size: .90rem;
     }
   }
 </style>
@@ -83,7 +87,17 @@
 
     const link = document.getElementById('thanksLink');
     const overlay = document.getElementById('thanksInfoOverlay');
+    const signature = document.querySelector('.creator-signature');
     if (!link || !overlay) return;
+
+    const alignWithSignature = () => {
+      if (!signature) return;
+      const documentTop = signature.getBoundingClientRect().top + window.scrollY;
+      link.style.top = `${Math.round(documentTop)}px`;
+    };
+
+    alignWithSignature();
+    window.addEventListener('resize', () => requestAnimationFrame(alignWithSignature), { passive: true });
 
     let fallbackTimer = null;
 
@@ -94,18 +108,29 @@
 
     const fallbackType = () => {
       stopFallbackTyping();
-      const line = overlay.querySelector('[data-type-line]');
-      if (!line) return;
-      if (!line.dataset.fullText) line.dataset.fullText = line.textContent.trim();
-      const full = line.dataset.fullText;
-      line.textContent = '';
-      line.classList.add('typed');
-      let index = 0;
+      const lines = [...overlay.querySelectorAll('[data-type-line]')];
+      lines.forEach(line => {
+        if (!line.dataset.fullText) line.dataset.fullText = line.textContent.trim();
+        line.textContent = '';
+        line.classList.remove('typed');
+      });
+
+      let lineIndex = 0;
+      let charIndex = 0;
       const step = () => {
-        if (overlay.hidden) return;
-        line.textContent = full.slice(0, index + 1);
-        index += 1;
-        if (index < full.length) fallbackTimer = setTimeout(step, 13);
+        if (overlay.hidden || lineIndex >= lines.length) return;
+        const line = lines[lineIndex];
+        const full = line.dataset.fullText || '';
+        if (charIndex === 0) line.classList.add('typed');
+        line.textContent = full.slice(0, charIndex + 1);
+        charIndex += 1;
+        if (charIndex >= full.length) {
+          lineIndex += 1;
+          charIndex = 0;
+          fallbackTimer = setTimeout(step, 150);
+        } else {
+          fallbackTimer = setTimeout(step, 13);
+        }
       };
       fallbackTimer = setTimeout(step, 150);
     };
