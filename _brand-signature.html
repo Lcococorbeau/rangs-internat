@@ -1,3 +1,151 @@
 <div class="brand-lockup">
   <span class="creator-signature">Conçu par <strong>Corentin Delhay</strong></span>
 </div>
+
+<div id="thanksUiRoot">
+  <button class="thanks-link-fixed" id="thanksLink" type="button" aria-controls="thanksInfoOverlay" aria-expanded="false">Remerciement</button>
+
+  <div class="info-overlay thanks-info-overlay" id="thanksInfoOverlay" data-typewriter hidden>
+    <button class="info-overlay-backdrop thanks-overlay-close" type="button" aria-label="Fermer"></button>
+    <section class="info-overlay-content" role="dialog" aria-modal="true" aria-labelledby="thanksInfoTitle">
+      <button class="info-overlay-close thanks-overlay-close" type="button" aria-label="Fermer">×</button>
+      <p class="info-overlay-kicker">REMERCIEMENTS</p>
+      <h2 id="thanksInfoTitle">Merci.</h2>
+      <div class="typewriter-lines">
+        <p data-type-line>Merci à tous ceux qui ont contribué au projet, en particulier Léo Picat pour les simulations de 2024, ainsi que Victoria Méry et Mohamed Amine pour les simulations de 2026.</p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<style>
+  .thanks-link-fixed {
+    position: fixed;
+    top: max(14px, env(safe-area-inset-top));
+    right: max(14px, env(safe-area-inset-right));
+    z-index: 5200;
+    appearance: none;
+    border: 0;
+    background: transparent;
+    padding: 5px 2px;
+    color: var(--apple-blue, #0071e3);
+    font-family: var(--site-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+    font-size: .92rem;
+    font-weight: 720;
+    line-height: 1.2;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    cursor: pointer;
+    text-shadow: 0 1px 10px rgba(255,255,255,.98), 0 0 4px rgba(255,255,255,.98);
+  }
+
+  .thanks-link-fixed:hover {
+    color: #005bbb;
+  }
+
+  .thanks-link-fixed:focus-visible {
+    outline: 3px solid rgba(0,113,227,.28);
+    outline-offset: 4px;
+    border-radius: 5px;
+  }
+
+  .thanks-info-overlay {
+    z-index: 6200 !important;
+  }
+
+  @media (max-width: 520px) {
+    .thanks-link-fixed {
+      top: max(10px, env(safe-area-inset-top));
+      right: max(11px, env(safe-area-inset-right));
+      font-size: .88rem;
+    }
+  }
+</style>
+
+<script>
+(() => {
+  const isHomePage = () => {
+    const path = window.location.pathname.replace(/\/+$/, '');
+    return path === '' || path.endsWith('/index.html');
+  };
+
+  const initThanks = () => {
+    const root = document.getElementById('thanksUiRoot');
+    if (!root) return;
+
+    if (!isHomePage()) {
+      root.remove();
+      return;
+    }
+
+    document.body.appendChild(root);
+
+    const link = document.getElementById('thanksLink');
+    const overlay = document.getElementById('thanksInfoOverlay');
+    if (!link || !overlay) return;
+
+    let fallbackTimer = null;
+
+    const stopFallbackTyping = () => {
+      if (fallbackTimer) clearTimeout(fallbackTimer);
+      fallbackTimer = null;
+    };
+
+    const fallbackType = () => {
+      stopFallbackTyping();
+      const line = overlay.querySelector('[data-type-line]');
+      if (!line) return;
+      if (!line.dataset.fullText) line.dataset.fullText = line.textContent.trim();
+      const full = line.dataset.fullText;
+      line.textContent = '';
+      line.classList.add('typed');
+      let index = 0;
+      const step = () => {
+        if (overlay.hidden) return;
+        line.textContent = full.slice(0, index + 1);
+        index += 1;
+        if (index < full.length) fallbackTimer = setTimeout(step, 13);
+      };
+      fallbackTimer = setTimeout(step, 150);
+    };
+
+    const fallbackOpen = () => {
+      overlay.hidden = false;
+      document.documentElement.classList.add('info-overlay-open');
+      requestAnimationFrame(() => {
+        overlay.classList.add('open');
+        fallbackType();
+      });
+    };
+
+    const fallbackClose = () => {
+      stopFallbackTyping();
+      overlay.classList.remove('open');
+      document.documentElement.classList.remove('info-overlay-open');
+      setTimeout(() => { overlay.hidden = true; }, 180);
+    };
+
+    const open = () => {
+      link.setAttribute('aria-expanded', 'true');
+      if (window.RangsOverlays?.open) window.RangsOverlays.open(overlay);
+      else fallbackOpen();
+    };
+
+    const close = () => {
+      link.setAttribute('aria-expanded', 'false');
+      if (window.RangsOverlays?.close) window.RangsOverlays.close(overlay);
+      else fallbackClose();
+    };
+
+    link.addEventListener('click', open);
+    overlay.querySelectorAll('.thanks-overlay-close').forEach(button => button.addEventListener('click', close));
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && !overlay.hidden) close();
+    });
+  };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initThanks, { once: true });
+  else initThanks();
+})();
+</script>
