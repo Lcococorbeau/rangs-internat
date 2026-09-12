@@ -21,6 +21,17 @@
     position: relative;
   }
 
+  /* La barre supérieure est volontairement non interactive pendant les animations.
+     On réactive uniquement la ligne de signature et surtout le bouton Remerciements,
+     sans modifier son positionnement. */
+  .top-nav .brand-lockup {
+    pointer-events: auto !important;
+  }
+
+  .top-nav .creator-signature {
+    pointer-events: none !important;
+  }
+
   .thanks-link-fixed {
     appearance: none;
     border: 0;
@@ -40,6 +51,10 @@
     white-space: nowrap;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    position: relative;
+    z-index: 10;
+    pointer-events: auto !important;
+    touch-action: manipulation;
   }
 
   .thanks-link-fixed:hover {
