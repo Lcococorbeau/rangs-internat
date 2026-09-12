@@ -1,30 +1,27 @@
 <div class="brand-lockup">
   <span class="creator-signature">Conçu par <strong>Corentin Delhay</strong></span>
+  <button class="thanks-link-fixed" id="thanksLink" type="button" aria-controls="thanksInfoOverlay" aria-expanded="false">Remerciements</button>
 </div>
 
-<div id="thanksUiRoot">
-  <button class="thanks-link-fixed" id="thanksLink" type="button" aria-controls="thanksInfoOverlay" aria-expanded="false">Remerciements</button>
-
-  <div class="info-overlay thanks-info-overlay" id="thanksInfoOverlay" data-typewriter hidden>
-    <button class="info-overlay-backdrop thanks-overlay-close" type="button" aria-label="Fermer"></button>
-    <section class="info-overlay-content" role="dialog" aria-modal="true" aria-labelledby="thanksInfoTitle">
-      <button class="info-overlay-close thanks-overlay-close" type="button" aria-label="Fermer">×</button>
-      <h2 id="thanksInfoTitle">Remerciement</h2>
-      <div class="typewriter-lines">
-        <p data-type-line>Merci à tous ceux qui ont contribué au projet.</p>
-        <p data-type-line>Léo Picat — simulations de 2024.</p>
-        <p data-type-line>Victoria Méry et Mohamed Amine — simulations de 2026.</p>
-      </div>
-    </section>
-  </div>
+<div class="info-overlay thanks-info-overlay" id="thanksInfoOverlay" data-typewriter hidden>
+  <button class="info-overlay-backdrop thanks-overlay-close" type="button" aria-label="Fermer"></button>
+  <section class="info-overlay-content" role="dialog" aria-modal="true" aria-labelledby="thanksInfoTitle">
+    <button class="info-overlay-close thanks-overlay-close" type="button" aria-label="Fermer">×</button>
+    <h2 id="thanksInfoTitle">Remerciement</h2>
+    <div class="typewriter-lines">
+      <p data-type-line>Merci à tous ceux qui ont contribué au projet.</p>
+      <p data-type-line>Léo Picat — simulations de 2024.</p>
+      <p data-type-line>Victoria Méry et Mohamed Amine — simulations de 2026.</p>
+    </div>
+  </section>
 </div>
 
 <style>
+  .top-nav {
+    position: relative;
+  }
+
   .thanks-link-fixed {
-    position: fixed;
-    top: 42px;
-    right: max(14px, env(safe-area-inset-right));
-    z-index: 5200;
     appearance: none;
     border: 0;
     background: transparent;
@@ -40,7 +37,7 @@
     text-decoration-thickness: 1px;
     text-underline-offset: 3px;
     cursor: pointer;
-    text-shadow: 0 1px 10px rgba(255,255,255,.98), 0 0 4px rgba(255,255,255,.98);
+    white-space: nowrap;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
@@ -59,9 +56,17 @@
     z-index: 6200 !important;
   }
 
+  @media (max-width: 820px) {
+    .brand-lockup {
+      width: 100%;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 14px;
+    }
+  }
+
   @media (max-width: 520px) {
     .thanks-link-fixed {
-      right: max(11px, env(safe-area-inset-right));
       font-size: .90rem;
     }
   }
@@ -75,29 +80,19 @@
   };
 
   const initThanks = () => {
-    const root = document.getElementById('thanksUiRoot');
-    if (!root) return;
+    const link = document.getElementById('thanksLink');
+    const overlay = document.getElementById('thanksInfoOverlay');
+    if (!link || !overlay) return;
 
     if (!isHomePage()) {
-      root.remove();
+      link.remove();
+      overlay.remove();
       return;
     }
 
-    document.body.appendChild(root);
-
-    const link = document.getElementById('thanksLink');
-    const overlay = document.getElementById('thanksInfoOverlay');
-    const signature = document.querySelector('.creator-signature');
-    if (!link || !overlay) return;
-
-    const alignWithSignature = () => {
-      if (!signature) return;
-      const documentTop = signature.getBoundingClientRect().top + window.scrollY;
-      link.style.top = `${Math.round(documentTop)}px`;
-    };
-
-    alignWithSignature();
-    window.addEventListener('resize', () => requestAnimationFrame(alignWithSignature), { passive: true });
+    /* Seule la modale quitte la barre du haut. Le lien, lui, reste physiquement
+       sur la même ligne que la signature : aucun calcul de position au scroll. */
+    document.body.appendChild(overlay);
 
     let fallbackTimer = null;
 
